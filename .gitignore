@@ -1,0 +1,12 @@
+# Ignore dependencies
+node_modules/
+
+# Ignore build output
+dist/
+
+# Misc
+*.log
+.env
+.DS_Store
+*.tsbuildinfo
+.vscode/
