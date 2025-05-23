@@ -5,7 +5,7 @@ A fully customizable calendar component for React.
 ```bash
 npm install react-d-calendar
 
-Usage
+## Usage
 
 import { Calendar } from 'react-d-calendar';
 
