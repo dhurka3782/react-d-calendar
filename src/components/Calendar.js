@@ -16,11 +16,15 @@ const Calendar = ({
   return (
     <div className={`calendar ${className}`} style={style}>
       <Header date={currentDate} onChange={setCurrentDate} />
-      <div className="calendar-days">
+      <div className="calendar-days" data-testid="calendar-days">
         {days.map((day, index) => (
-          <div key={index} onClick={() => onDateSelect(day)}>
+          <button
+            key={index}
+            onClick={() => onDateSelect(day)}
+            aria-label={`Select ${day.toDateString()}`}
+          >
             {renderDay(day)}
-          </div>
+          </button>
         ))}
       </div>
     </div>

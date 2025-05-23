@@ -14,9 +14,9 @@ const Header = ({ date, onChange }) => {
 
   return (
     <div className="header">
-      <button onClick={prevMonth}>&lt;</button>
+      <button onClick={prevMonth} aria-label="Previous Month">{"<"}</button>
       <span>{date.toLocaleString('default', { month: 'long', year: 'numeric' })}</span>
-      <button onClick={nextMonth}>&gt;</button>
+      <button onClick={nextMonth} aria-label="Next Month">{">"}</button>
     </div>
   );
 };
