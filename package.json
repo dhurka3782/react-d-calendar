@@ -1,19 +1,23 @@
 {
   "name": "react-d-calendar",
   "version": "1.0.0",
-  "description": "",
-  "main": "index.js",
+  "description": "A fully customizable React calendar component",
+  "main": "dist/index.js",
+  "module": "dist/index.js",
   "scripts": {
     "test": "jest",
-    "start": "webpack serve --mode development --open",
     "build": "webpack --mode production"
   },
-  "keywords": [],
-  "author": "",
-  "license": "ISC",
+  "keywords": [
+    "react",
+    "calendar",
+    "customizable"
+  ],
+  "author": "Dhurka d",
+  "license": "MIT",
   "peerDependencies": {
-    "react": "^19.1.0",
-    "react-dom": "^19.1.0"
+    "react": "^18.2.0",
+    "react-dom": "^18.2.0"
   },
   "devDependencies": {
     "@babel/core": "^7.27.1",
@@ -27,5 +31,9 @@
     "webpack": "^5.99.9",
     "webpack-cli": "^6.0.1",
     "webpack-dev-server": "^5.2.1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/dhurka3782/react-d-calendar.git"
   }
 }

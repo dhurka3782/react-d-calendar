@@ -15,7 +15,7 @@ describe('Calendar component', () => {
     render(<Calendar date={new Date(2023, 0, 1)} />);
     const daysContainer = screen.getByTestId('calendar-days');
     const dayButtons = within(daysContainer).getAllByRole('button');
-    expect(dayButtons.length).toBe(31); // January 2023 has 31 days
+    expect(dayButtons.length).toBe(31); 
   });
 
   // Test 3: Ensure navigation buttons update the month
@@ -44,7 +44,7 @@ describe('Calendar component', () => {
     expect(onDateSelect).toHaveBeenCalledTimes(1);
     const calledWith = onDateSelect.mock.calls[0][0];
     expect(calledWith.getFullYear()).toBe(2023);
-    expect(calledWith.getMonth()).toBe(0); // January
+    expect(calledWith.getMonth()).toBe(0);
     expect(calledWith.getDate()).toBe(15);
   });
 
@@ -78,9 +78,17 @@ describe('dateUtils', () => {
 
   // Test 8: Verify getDaysInMonth for a leap year
   test('getDaysInMonth handles leap years', () => {
-    const days = getDaysInMonth(new Date(2024, 1, 1)); // February 2024
+    const days = getDaysInMonth(new Date(2024, 1, 1)); 
     expect(days.length).toBe(29);
     expect(days[0].getDate()).toBe(1);
     expect(days[28].getDate()).toBe(29);
   });
+
+  // Test 9: Verify weekday headers for a month
+  test('renders weekday headers', () => {
+  render(<Calendar date={new Date(2023, 0, 1)} />);
+  expect(screen.getByText('Sun')).toBeInTheDocument();
+  expect(screen.getByText('Mon')).toBeInTheDocument();
+  expect(screen.getByText('Sat')).toBeInTheDocument();
+});
 });

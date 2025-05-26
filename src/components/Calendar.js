@@ -12,10 +12,18 @@ const Calendar = ({
 }) => {
   const [currentDate, setCurrentDate] = useState(date);
   const days = getDaysInMonth(currentDate);
+  const weekdays = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
 
   return (
     <div className={`calendar ${className}`} style={style}>
       <Header date={currentDate} onChange={setCurrentDate} />
+      <div className="calendar-weekdays">
+        {weekdays.map((day) => (
+          <div key={day} className="weekday">
+            {day}
+          </div>
+        ))}
+      </div>
       <div className="calendar-days" data-testid="calendar-days">
         {days.map((day, index) => (
           <button
