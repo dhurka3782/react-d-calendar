@@ -12,11 +12,24 @@ const Header = ({ date, onChange }) => {
     onChange(newDate);
   };
 
+  const handleYearChange = (e) => {
+    const newDate = new Date(date);
+    newDate.setFullYear(parseInt(e.target.value));
+    onChange(newDate);
+  };
+
+  const years = Array.from({ length: 10 }, (_, i) => date.getFullYear() - 5 + i);
+
   return (
     <div className="header">
       <button onClick={prevMonth} aria-label="Previous Month">{"<"}</button>
-      <span>{date.toLocaleString('default', { month: 'long', year: 'numeric' })}</span>
+      <span>{date.toLocaleString('default', { month: 'long' })}</span>
       <button onClick={nextMonth} aria-label="Next Month">{">"}</button>
+      <select value={date.getFullYear()} onChange={handleYearChange} aria-label="Select Year">
+        {years.map((year) => (
+          <option key={year} value={year}>{year}</option>
+        ))}
+      </select>
     </div>
   );
 };
