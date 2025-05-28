@@ -1,3 +1,4 @@
+/* styles.css */
 .calendar {
   max-width: 1000px;
   margin: 0;
@@ -8,6 +9,7 @@
   overflow: hidden;
 }
 
+/* Professional Theme Name: "AquaPulse Calendar" - Inspired by clean, dynamic, and aquatic tones */
 .calendar-weekdays {
   display: grid;
   grid-template-columns: repeat(7, 1fr);
@@ -24,19 +26,23 @@
   font-size: 12px;
   text-transform: uppercase;
   letter-spacing: 0.5px;
+  transition: color 0.2s ease;
 }
 
 .weekday.saturday,
 .weekday.sunday {
-  color: #dc3545;
+  color: #dc3545; /* Red for weekends */
+}
+
+.weekday:hover {
+  color: #495057; /* Darker gray on hover for interactivity */
 }
 
 .calendar-days {
   display: grid;
   grid-template-columns: repeat(7, 1fr);
   background: #ffffff;
-  padding-top: 10px;
-  padding-bottom: 10px;
+  padding: 10px 0;
 }
 
 .calendar-day {
@@ -54,6 +60,7 @@
   display: flex;
   align-items: center;
   justify-content: center;
+  position: relative;
 }
 
 .calendar-day:hover {
@@ -61,49 +68,136 @@
   color: #495057;
 }
 
+/* Today Styling */
 .calendar-day.today {
-  background: #295d96;
+  background: #295d96; /* Deep blue for today */
   color: white;
   font-weight: 600;
   border-radius: 5%;
   margin: 4px;
   border-bottom: none;
+  box-shadow: 0 2px 4px rgba(41, 93, 150, 0.2); /* Subtle shadow for emphasis */
 }
 
+.calendar-day.today:hover {
+  background: #1e4976; /* Darker blue on hover */
+}
+
+/* Weekend Styling */
 .calendar-day.saturday,
 .calendar-day.sunday {
   color: #dc3545;
 }
 
+.calendar-day.saturday:hover,
+.calendar-day.sunday:hover {
+  background: #fff5f5; /* Light red background on hover */
+}
+
+/* Range Start and End Styling */
 .calendar-day.selected-start,
 .calendar-day.selected-end {
-  background: #0d2f53;
+  background: #0d2f53; /* Darker blue for range boundaries */
   color: white;
   font-weight: 600;
   border-radius: 5%;
   margin: 4px;
   border-bottom: none;
+  position: relative;
 }
 
+.calendar-day.selected-start::after,
+.calendar-day.selected-end::after {
+  content: '';
+  position: absolute;
+  width: 8px;
+  height: 8px;
+  background: #ffffff;
+  border-radius: 50%;
+  border: 2px solid #0d2f53;
+  top: 50%;
+  transform: translateY(-50%);
+}
+
+.calendar-day.selected-start::after {
+  left: 4px;
+}
+
+.calendar-day.selected-end::after {
+  right: 4px;
+}
+
+.calendar-day.selected-start:hover,
+.calendar-day.selected-end:hover {
+  background: #0a233e; /* Even darker on hover */
+}
+
+/* Range Active (In-Range) Styling */
 .calendar-day.in-range {
-  background: rgba(0, 123, 255, 0.2);
+  background: rgba(0, 123, 255, 0.2); /* Light blue for range fill */
   color: #212529;
   border-radius: 0;
   margin: 4px 0;
+  transition: background 0.3s ease;
 }
 
+.calendar-day.in-range:hover {
+  background: rgba(0, 123, 255, 0.3); /* Slightly darker on hover */
+}
+
+/* Range Hover (When Selecting) */
+.calendar-day.range-hover {
+  background: rgba(0, 123, 255, 0.1); /* Very light blue for preview */
+  color: #212529;
+}
+
+.calendar-day.range-hover:hover {
+  background: rgba(0, 123, 255, 0.15); /* Slightly darker preview on hover */
+}
+
+/* Disabled Dates */
+.calendar-day:disabled {
+  background: #f8f9fa;
+  color: #adb5bd !important;
+  cursor: not-allowed;
+  opacity: 0.7;
+}
+
+.calendar-day:disabled:hover {
+  background: #f8f9fa;
+  color: #adb5bd;
+}
+
+/* Adjacent Month Styling */
 .adjacent-month {
   color: #adb5bd !important;
   font-weight: 300;
 }
 
+.adjacent-month:hover {
+  color: #868e96 !important; /* Slightly darker gray on hover */
+}
+
+/* Header Styling */
 .header {
   display: flex;
   justify-content: space-between;
   align-items: center;
   padding: 20px 24px;
-  background: white;
+  background: #ffffff;
   border-bottom: 1px solid #e9ecef;
+  position: relative;
+}
+
+.header::before {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  height: 2px;
+  background: linear-gradient(to right, #295d96, #0d2f53);
+  opacity: 0.1;
 }
 
 .header button {
@@ -123,7 +217,7 @@
 
 .header button:hover {
   background: #e9ecef;
-  border-color: #ced4da;
+  color: #295d96; /* Matching theme color */
 }
 
 .header select {
@@ -131,24 +225,27 @@
   font-size: 14px;
   border: 1px solid #dee2e6;
   border-radius: 6px;
-  background: white;
+  background: #ffffff;
   color: #495057;
   cursor: pointer;
   outline: none;
-  transition: border-color 0.2s ease;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
 }
 
 .header select:focus {
-  border-color: #007bff;
-  box-shadow: 0 0 0 2px rgba(0, 123, 255, 0.25);
+  border-color: #295d96; /* Theme color */
+  box-shadow: 0 0 0 2px rgba(41, 93, 150, 0.25);
 }
 
 .header span {
   font-size: 18px;
   font-weight: 600;
   color: #212529;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
 }
 
+/* Calendar Container and Double View */
 .calendar-container {
   display: flex;
   gap: 20px;
@@ -169,8 +266,18 @@
 
 .week-number {
   min-width: 40px;
+  text-align: center;
+  font-weight: 500;
+  color: #6c757d;
+  padding: 16px 8px;
 }
 
+.week-number:hover {
+  background: #f8f9fa;
+  color: #495057;
+}
+
+/* Responsive Design */
 @media (max-width: 800px) {
   .double-view .calendar-instance {
     width: 100%;
@@ -184,10 +291,39 @@
 
   .calendar {
     max-width: 100%;
-    margin: 10px;
+    margin: 10px 0;
   }
 
   .header {
     padding: 16px 20px;
   }
+
+  .header span {
+    font-size: 16px;
+  }
+
+  .header button {
+    width: 28px;
+    height: 28px;
+    font-size: 14px;
+  }
+}
+
+/* Additional Professional Touches */
+.calendar-day:focus {
+  outline: none;
+  box-shadow: 0 0 0 2px rgba(41, 93, 150, 0.4);
+}
+
+.calendar-day.active {
+  background: #295d96;
+  color: white;
+  font-weight: 600;
+  border-radius: 5%;
+  margin: 4px;
+  border-bottom: none;
+}
+
+.calendar-day.active:hover {
+  background: #1e4976;
 }

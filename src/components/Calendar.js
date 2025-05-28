@@ -1,4 +1,4 @@
-import React, { useState, useCallback } from 'react';
+import React, { useState, useCallback, useRef } from 'react';
 import Header from './Header';
 import MonthView from './MonthView';
 import YearView from './YearView';
@@ -8,71 +8,73 @@ import './styles.css';
 
 const Calendar = (props) => {
   const {
-  date = new Date(2025, 4, 28), 
-  defaultValue,
-  value,
-  defaultActiveStartDate,
-  activeStartDate,
-  minDate,
-  maxDate,
-  disableDate,
-  disableYear,
-  selectRange = false,
-  allowPartialRange = true,
-  calendarType = 'gregorian',
-  locale = 'en-US',
-  showDoubleView = props.showDoubleView ?? false,
-  showFixedNumberOfWeeks = false,
-  showNavigation = true,
-  showNeighboringMonth = true,
-  showNeighboringDecade = true,
-  showNeighboringCentury = true,
-  showWeekNumbers = false,
-  view = 'month',
-  defaultView = 'month',
-  maxDetail = 'month',
-  minDetail = 'year',
-  formatDay,
-  formatMonth,
-  formatMonthYear,
-  formatYear,
-  formatWeekday,
-  formatShortWeekday,
-  formatLongDate,
-  navigationLabel,
-  navigationAriaLabel,
-  navigationAriaLive,
-  prevLabel = '‹',
-  prevAriaLabel = 'Previous',
-  nextLabel = '›',
-  nextAriaLabel = 'Next',
-  prev2Label,
-  prev2AriaLabel,
-  next2Label,
-  next2AriaLabel,
-  onChange,
-  onClickDay,
-  onClickMonth,
-  onClickYear,
-  onClickDecade,
-  onClickWeekNumber,
-  onActiveStartDateChange,
-  onViewChange,
-  onDrillDown,
-  onDrillUp,
-  goToRangeStartOnSelect = true,
-  tileClassName,
-  tileContent,
-  tileDisabled,
-  className = '',
-  style = {},
-  inputRef,
-  returnValue = 'range',
+    date = new Date(2025, 4, 28), // May 28, 2025, 02:25 PM IST
+    defaultValue,
+    value,
+    defaultActiveStartDate,
+    activeStartDate,
+    minDate,
+    maxDate,
+    disableDate,
+    disableYear,
+    selectRange = false,
+    allowPartialRange = true,
+    calendarType = 'gregorian',
+    locale = 'en-US',
+    showDoubleView = props.showDoubleView ?? false,
+    showFixedNumberOfWeeks = false,
+    showNavigation = true,
+    showNeighboringMonth = true,
+    showNeighboringDecade = true,
+    showNeighboringCentury = true,
+    showWeekNumbers = false,
+    view = 'month',
+    defaultView = 'month',
+    maxDetail = 'month',
+    minDetail = 'year',
+    formatDay,
+    formatMonth,
+    formatMonthYear,
+    formatYear,
+    formatWeekday,
+    formatShortWeekday,
+    formatLongDate,
+    navigationLabel,
+    navigationAriaLabel,
+    navigationAriaLive,
+    prevLabel = '‹',
+    prevAriaLabel = 'Previous',
+    nextLabel = '›',
+    nextAriaLabel = 'Next',
+    prev2Label,
+    prev2AriaLabel,
+    next2Label,
+    next2AriaLabel,
+    onChange,
+    onClickDay,
+    onClickMonth,
+    onClickYear,
+    onClickDecade,
+    onClickWeekNumber,
+    onActiveStartDateChange,
+    onViewChange,
+    onDrillDown,
+    onDrillUp,
+    goToRangeStartOnSelect = true,
+    tileClassName,
+    tileContent,
+    tileDisabled,
+    className = '',
+    style = {},
+    inputRef,
+    returnValue = 'range',
   } = props;
+
   const [currentView, setCurrentView] = useState(defaultView);
   const [activeDate, setActiveDate] = useState(activeStartDate || defaultActiveStartDate || date);
   const [selectedValue, setSelectedValue] = useState(value || defaultValue || null);
   const [rangeStart, setRangeStart] = useState(null);
+  const hoverRef = useRef(null);
 
   const handleViewChange = useCallback((newView) => {
     if (
@@ -122,6 +124,12 @@ const Calendar = (props) => {
     return false;
   }, [disableYear]);
 
+  const handleHover = useCallback((date) => {
+    if (selectRange && rangeStart && !selectedValue[1]) {
+      hoverRef.current = date;
+    }
+  }, [selectRange, rangeStart, selectedValue]);
+
   const renderView = () => {
     switch (currentView) {
       case 'day':
@@ -130,7 +138,13 @@ const Calendar = (props) => {
             date={activeDate}
             onDateSelect={handleDateSelect}
             tileContent={tileContent}
-            tileClassName={tileClassName}
+            tileClassName={(date) => {
+              const classes = tileClassName?.(date) || '';
+              if (selectRange && rangeStart && !selectedValue[1] && date.date > rangeStart && date.date < hoverRef.current) {
+                return `${classes} range-hover`;
+              }
+              return classes;
+            }}
             tileDisabled={tileDisabled || isDateDisabled}
             formatLongDate={formatLongDate}
             locale={locale}
@@ -167,7 +181,13 @@ const Calendar = (props) => {
             onDateSelect={handleDateSelect}
             onClickWeekNumber={onClickWeekNumber}
             tileContent={tileContent}
-            tileClassName={tileClassName}
+            tileClassName={(date) => {
+              const classes = tileClassName?.(date) || '';
+              if (selectRange && rangeStart && !selectedValue[1] && date.date > rangeStart && date.date < hoverRef.current) {
+                return `${classes} range-hover`;
+              }
+              return classes;
+            }}
             tileDisabled={tileDisabled || isDateDisabled}
             showWeekNumbers={showWeekNumbers}
             showNeighboringMonth={showNeighboringMonth}
@@ -187,6 +207,7 @@ const Calendar = (props) => {
             }}
             showDoubleView={showDoubleView}
             value={selectedValue}
+            onHover={handleHover}
           />
         );
       default:
