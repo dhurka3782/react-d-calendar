@@ -85,40 +85,50 @@ const Header = ({
 
   return (
     <div className="header" aria-live={navigationAriaLive}>
-      {(view !== minDetail || prev2Label) && (
-        <>
-          {prev2Label && view !== 'day' && (
-            <button onClick={prev2} aria-label={prev2AriaLabel || 'Previous Decade'}>
-              {prev2Label}
+      <div className="header-left">
+        {(view !== minDetail || prev2Label) && (
+          <>
+            {prev2Label && view !== 'day' && (
+              <button onClick={prev2} aria-label={prev2AriaLabel || 'Previous Decade'}>
+                {prev2Label}
+              </button>
+            )}
+            <button onClick={prev} aria-label={prevAriaLabel}>
+              {prevLabel}
             </button>
-          )}
-          <button onClick={prev} aria-label={prevAriaLabel}>
-            {prevLabel}
-          </button>
-        </>
-      )}
-      <span>{getNavigationLabel()}</span>
-      {(view !== minDetail || next2Label) && (
-        <>
-          <button onClick={next} aria-label={nextAriaLabel}>
-            {nextLabel}
-          </button>
-          {next2Label && view !== 'day' && (
-            <button onClick={next2} aria-label={next2AriaLabel || 'Next Decade'}>
-              {next2Label}
+          </>
+        )}
+      </div>
+      <div className="header-center">
+        <span>{getNavigationLabel()}</span>
+      </div>
+      <div className="header-right">
+        {(view !== minDetail || next2Label) && (
+          <>
+            <button onClick={next} aria-label={nextAriaLabel}>
+              {nextLabel}
             </button>
-          )}
-        </>
-      )}
-      {view !== 'day' && (
-        <select value={currentYear} onChange={handleYearChange} aria-label={navigationAriaLabel || 'Select Year'}>
-          {years.map((year) => (
-            <option key={year} value={year}>
-              {formatYear ? formatYear(new Date(date.setFullYear(year)), locale) : year}
-            </option>
-          ))}
-        </select>
-      )}
+            {next2Label && view !== 'day' && (
+              <button onClick={next2} aria-label={next2AriaLabel || 'Next Decade'}>
+                {next2Label}
+              </button>
+            )}
+          </>
+        )}
+        {view !== 'day' && (
+          <select
+            value={currentYear}
+            onChange={handleYearChange}
+            aria-label={navigationAriaLabel || 'Select Year'}
+          >
+            {years.map((year) => (
+              <option key={year} value={year}>
+                {formatYear ? formatYear(new Date(date.setFullYear(year)), locale) : year}
+              </option>
+            ))}
+          </select>
+        )}
+      </div>
     </div>
   );
 };

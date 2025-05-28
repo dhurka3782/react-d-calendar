@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useCallback } from 'react';
 
 const YearView = ({
   date,
@@ -18,6 +18,15 @@ const YearView = ({
     months.push(new Date(year + 1, 0, 1));
   }
 
+  const handleKeyDown = useCallback((e, monthDate) => {
+    if (e.key === 'Enter' || e.key === ' ') {
+      e.preventDefault();
+      if (!tileDisabled?.(monthDate)) {
+        onMonthSelect(monthDate);
+      }
+    }
+  }, [onMonthSelect, tileDisabled]);
+
   return (
     <div className="year-view">
       <div className="year-grid">
@@ -28,8 +37,11 @@ const YearView = ({
               key={index}
               onClick={() => !isDisabled && onMonthSelect(monthDate)}
               onDoubleClick={() => !isDisabled && onDrillUp?.()}
+              onKeyDown={(e) => handleKeyDown(e, monthDate)}
               disabled={isDisabled}
               className={`year-month ${monthDate.getFullYear() !== year ? 'adjacent-year' : ''} ${tileClassName?.({ date: monthDate }) || ''}`}
+              aria-label={`Select ${monthDate.toLocaleString(locale, { month: 'long', year: 'numeric' })}`}
+              tabIndex={isDisabled ? -1 : 0}
             >
               {formatMonth ? formatMonth(monthDate, locale) : monthDate.toLocaleString(locale, { month: 'short' })}
             </button>
@@ -40,4 +52,4 @@ const YearView = ({
   );
 };
 
-export default YearView;
+export default React.memo(YearView);

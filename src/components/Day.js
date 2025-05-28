@@ -1,9 +1,9 @@
 import React from 'react';
 
-const Day = ({ dayInfo }) => (
-  <span>
-    {dayInfo.date.getDate()}
+const Day = ({ dayInfo, formatDay, locale }) => (
+  <span className="day-number">
+    {formatDay ? formatDay(dayInfo.date, locale) : dayInfo.date.getDate()}
   </span>
 );
 
-export default Day;
+export default React.memo(Day);

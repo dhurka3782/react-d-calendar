@@ -8,7 +8,7 @@ import './styles.css';
 
 const Calendar = (props) => {
   const {
-    date = new Date(2025, 4, 28), // May 28, 2025, 02:25 PM IST
+    date = new Date(2025, 4, 28, 14, 56), // May 28, 2025, 02:56 PM IST
     defaultValue,
     value,
     defaultActiveStartDate,
@@ -130,6 +130,48 @@ const Calendar = (props) => {
     }
   }, [selectRange, rangeStart, selectedValue]);
 
+  const handleKeyDown = useCallback((e) => {
+    if (currentView !== 'month') return;
+    const newDate = new Date(activeDate);
+    switch (e.key) {
+      case 'ArrowLeft':
+        newDate.setDate(newDate.getDate() - 1);
+        handleActiveDateChange(newDate);
+        break;
+      case 'ArrowRight':
+        newDate.setDate(newDate.getDate() + 1);
+        handleActiveDateChange(newDate);
+        break;
+      case 'ArrowUp':
+        newDate.setDate(newDate.getDate() - 7);
+        handleActiveDateChange(newDate);
+        break;
+      case 'ArrowDown':
+        newDate.setDate(newDate.getDate() + 7);
+        handleActiveDateChange(newDate);
+        break;
+      case 'Enter':
+        if (!isDateDisabled(activeDate)) {
+          handleDateSelect(activeDate);
+        }
+        break;
+      default:
+        break;
+    }
+  }, [currentView, activeDate, handleActiveDateChange, handleDateSelect, isDateDisabled]);
+
+  // Memoize tileClassName to ensure stability
+  const getTileClassName = useCallback(
+    (date) => {
+      const baseClasses = tileClassName?.(date) || '';
+      if (selectRange && rangeStart && !selectedValue[1] && date?.date > rangeStart && date?.date < hoverRef.current) {
+        return `${baseClasses} range-preview`.trim();
+      }
+      return baseClasses;
+    },
+    [tileClassName, selectRange, rangeStart, selectedValue, hoverRef]
+  );
+
   const renderView = () => {
     switch (currentView) {
       case 'day':
@@ -138,13 +180,7 @@ const Calendar = (props) => {
             date={activeDate}
             onDateSelect={handleDateSelect}
             tileContent={tileContent}
-            tileClassName={(date) => {
-              const classes = tileClassName?.(date) || '';
-              if (selectRange && rangeStart && !selectedValue[1] && date.date > rangeStart && date.date < hoverRef.current) {
-                return `${classes} range-hover`;
-              }
-              return classes;
-            }}
+            tileClassName={getTileClassName}
             tileDisabled={tileDisabled || isDateDisabled}
             formatLongDate={formatLongDate}
             locale={locale}
@@ -181,13 +217,7 @@ const Calendar = (props) => {
             onDateSelect={handleDateSelect}
             onClickWeekNumber={onClickWeekNumber}
             tileContent={tileContent}
-            tileClassName={(date) => {
-              const classes = tileClassName?.(date) || '';
-              if (selectRange && rangeStart && !selectedValue[1] && date.date > rangeStart && date.date < hoverRef.current) {
-                return `${classes} range-hover`;
-              }
-              return classes;
-            }}
+            tileClassName={getTileClassName}
             tileDisabled={tileDisabled || isDateDisabled}
             showWeekNumbers={showWeekNumbers}
             showNeighboringMonth={showNeighboringMonth}
@@ -216,7 +246,13 @@ const Calendar = (props) => {
   };
 
   return (
-    <div className={`calendar ${className} ${showDoubleView ? 'double-view' : ''}`} style={style} ref={inputRef}>
+    <div
+      className={`calendar ${className} ${showDoubleView ? 'double-view' : ''}`}
+      style={style}
+      ref={inputRef}
+      onKeyDown={handleKeyDown}
+      tabIndex={0}
+    >
       {showNavigation && (
         <Header
           date={activeDate}
@@ -241,9 +277,7 @@ const Calendar = (props) => {
           showDoubleView={showDoubleView}
         />
       )}
-      <div className="calendar-container">
-        {renderView()}
-      </div>
+      <div className="calendar-container">{renderView()}</div>
     </div>
   );
 };

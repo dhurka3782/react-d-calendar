@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useCallback } from 'react';
 import { getDaysInMonth, getWeeksInMonth } from '../utils/dateUtils';
 import Day from './Day';
 
@@ -21,8 +21,19 @@ const MonthView = ({
   onDrillUp,
   showDoubleView,
   value,
+  onHover,
 }) => {
-  const today = new Date(2025, 4, 28);
+  const today = new Date(2025, 4, 28, 14, 33); 
+
+  const handleKeyDown = useCallback((e, dayInfo) => {
+    if (e.key === 'Enter' || e.key === ' ') {
+      e.preventDefault();
+      if (!tileDisabled?.(dayInfo.date)) {
+        onDateSelect(dayInfo.date);
+      }
+    }
+  }, [onDateSelect, tileDisabled]);
+
   const renderMonth = (monthOffset = 0) => {
     const displayDate = new Date(date);
     displayDate.setMonth(date.getMonth() + monthOffset);
@@ -71,6 +82,8 @@ const MonthView = ({
                 key={index}
                 onClick={() => !isDisabled && onDateSelect(dayInfo.date)}
                 onDoubleClick={() => !isDisabled && onDrillDown?.()}
+                onMouseEnter={() => onHover?.(dayInfo.date)}
+                onKeyDown={(e) => handleKeyDown(e, dayInfo)}
                 disabled={isDisabled}
                 className={`calendar-day
                   ${isToday ? 'today' : ''}
@@ -82,7 +95,8 @@ const MonthView = ({
                   ${isSelectedStart ? 'selected-start' : ''}
                   ${isSelectedEnd ? 'selected-end' : ''}
                   ${isInRange ? 'in-range' : ''}`.trim()}
-                aria-label={`Select ${dayInfo.date.toDateString()}`}
+                aria-label={`Select ${dayInfo.date.toLocaleDateString(locale, { month: 'long', day: 'numeric', year: 'numeric' })}`}
+                tabIndex={isDisabled ? -1 : 0}
               >
                 {tileContent ? (
                   tileContent({ date: dayInfo.date, view: 'month' })
@@ -111,4 +125,4 @@ const MonthView = ({
   );
 };
 
-export default MonthView;
+export default React.memo(MonthView);
