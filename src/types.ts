@@ -1,0 +1,68 @@
+export interface DayInfo {
+  date: Date;
+  isCurrentMonth: boolean;
+}
+
+export interface CalendarProps {
+  activeStartDate?: Date;
+  defaultActiveStartDate?: Date;
+  value?: Date | { start: Date | null; end: Date | null };
+  defaultValue?: Date | { start: Date | null; end: Date | null };
+  defaultView?: 'day' | 'month' | 'year';
+  disableDate?: (date: Date) => boolean;
+  disableYear?: (year: number) => boolean;
+  onActiveStartDateChange?: (date: Date) => void;
+  onChange?: (value: Date | [Date, Date]) => void;
+  onClick?: (type: string, data: any) => void;
+  onClickDay?: (date: Date) => void;
+  onClickMonth?: (month: number) => void;
+  onClickYear?: (year: number) => void;
+  onClickWeekNumber?: (week: number, date: Date) => void;
+  onDrillDown?: () => void;
+  onDrillUp?: () => void;
+  onViewChange?: (view: 'day' | 'month' | 'year') => void;
+  tileClassName?: (dayInfo: DayInfo) => string;
+  tileContent?: (dayInfo: DayInfo) => React.ReactNode;
+  tileDisabled?: (dayInfo: DayInfo) => boolean;
+  formatDay?: (date: Date, locale: string) => string;
+  formatLongDate?: (date: Date, locale: string) => string;
+  formatMonth?: (date: Date, locale: string) => string;
+  formatMonthYear?: (date: Date, locale: string) => string;
+  formatShortWeekday?: (date: Date, locale: string) => string;
+  formatWeekday?: (date: Date, locale: string) => string;
+  formatYear?: (date: Date, locale: string) => string;
+  hoverClassName?: string;
+  hoverStyle?: React.CSSProperties;
+  className?: string;
+  style?: React.CSSProperties;
+  locale?: string;
+  calendarType?: 'gregorian' | 'islamic';
+  maxDate?: Date;
+  minDate?: Date;
+  maxDetail?: 'day' | 'month' | 'year';
+  minDetail?: 'day' | 'month' | 'year';
+  selectRange?: boolean;
+  allowPartialRange?: boolean;
+  goToRangeStartOnSelect?: boolean;
+  showDoubleView?: boolean;
+  showFixedNumberOfWeeks?: boolean;
+  showNavigation?: boolean;
+  showNeighboringMonth?: boolean;
+  showWeekNumbers?: boolean;
+  showNeighboringDecade?: boolean;
+  showNeighboringCentury?: boolean;
+  weekStartDay?: number;
+  navigationAriaLabel?: string;
+  navigationAriaLive?: string;
+  navigationLabel?: string;
+  next2AriaLabel?: string;
+  next2Label?: string;
+  nextAriaLabel?: string;
+  nextLabel?: string;
+  prev2AriaLabel?: string;
+  prev2Label?: string;
+  prevAriaLabel?: string;
+  prevLabel?: string;
+  events?: { date: Date; [key: string]: any }[];
+  renderDay?: (dayInfo: DayInfo) => React.ReactNode;
+}

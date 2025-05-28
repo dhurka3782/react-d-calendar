@@ -1,7 +1,7 @@
 import React from 'react';
 
 const Day = ({ dayInfo }) => (
-  <span style={{ color: dayInfo.isCurrentMonth ? 'black' : 'gray' }}>
+  <span>
     {dayInfo.date.getDate()}
   </span>
 );
