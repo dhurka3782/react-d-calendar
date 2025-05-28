@@ -1,3 +1,4 @@
+import './components/styles.css';
 import Calendar from './components/Calendar';
 export default Calendar;
 export { default as DayView } from './components/DayView';

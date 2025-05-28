@@ -28,7 +28,7 @@ const MonthView = ({
     displayDate.setMonth(date.getMonth() + monthOffset);
     const days = getDaysInMonth(displayDate, 1, calendarType, showFixedNumberOfWeeks, showNeighboringMonth);
     const weeks = showWeekNumbers ? getWeeksInMonth(displayDate, 1) : [];
-    const weekdays = ['MO', 'TU', 'WE', 'TH', 'FR', 'SA', 'SU'];
+    const weekdays = ['MON', 'TUE', 'WED', 'THU', 'FRI', 'SAT', 'SUN'];
 
     const rangeStart = Array.isArray(value) ? value[0] : null;
     const rangeEnd = Array.isArray(value) && value.length === 2 ? value[1] : null;
@@ -47,15 +47,16 @@ const MonthView = ({
           ))}
         </div>
         <div className="calendar-days">
-          {showWeekNumbers && weeks.map((week, index) => (
-            <button
-              key={`week-${index}`}
-              className="week-number"
-              onClick={() => onClickWeekNumber?.(week, new Date(displayDate.getFullYear(), displayDate.getMonth(), 1))}
-            >
-              {week}
-            </button>
-          ))}
+          {showWeekNumbers &&
+            weeks.map((week, index) => (
+              <button
+                key={`week-${index}`}
+                className="week-number"
+                onClick={() => onClickWeekNumber?.(week, new Date(displayDate.getFullYear(), displayDate.getMonth(), 1))}
+              >
+                {week}
+              </button>
+            ))}
           {days.map((dayInfo, index) => {
             const isToday = dayInfo.date.toDateString() === today.toDateString();
             const isSaturday = dayInfo.date.getDay() === 6;

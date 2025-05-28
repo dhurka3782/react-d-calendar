@@ -6,8 +6,9 @@ import DayView from './DayView';
 import { getDaysInMonth, getWeeksInMonth } from '../utils/dateUtils';
 import './styles.css';
 
-const Calendar = ({
-  date = new Date(),
+const Calendar = (props) => {
+  const {
+  date = new Date(2025, 4, 28), 
   defaultValue,
   value,
   defaultActiveStartDate,
@@ -19,8 +20,8 @@ const Calendar = ({
   selectRange = false,
   allowPartialRange = true,
   calendarType = 'gregorian',
-  locale,
-  showDoubleView = false,
+  locale = 'en-US',
+  showDoubleView = props.showDoubleView ?? false,
   showFixedNumberOfWeeks = false,
   showNavigation = true,
   showNeighboringMonth = true,
@@ -67,7 +68,7 @@ const Calendar = ({
   style = {},
   inputRef,
   returnValue = 'range',
-}) => {
+  } = props;
   const [currentView, setCurrentView] = useState(defaultView);
   const [activeDate, setActiveDate] = useState(activeStartDate || defaultActiveStartDate || date);
   const [selectedValue, setSelectedValue] = useState(value || defaultValue || null);
@@ -159,7 +160,6 @@ const Calendar = ({
             }}
           />
         );
-      // Inside renderView case 'month' in Calendar.js
       case 'month':
         return (
           <MonthView
@@ -186,9 +186,11 @@ const Calendar = ({
               onDrillUp?.();
             }}
             showDoubleView={showDoubleView}
-            value={selectedValue} 
+            value={selectedValue}
           />
         );
+      default:
+        return null;
     }
   };
 
@@ -215,6 +217,7 @@ const Calendar = ({
           formatMonthYear={formatMonthYear}
           formatYear={formatYear}
           locale={locale}
+          showDoubleView={showDoubleView}
         />
       )}
       <div className="calendar-container">

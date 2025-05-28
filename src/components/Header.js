@@ -1,6 +1,7 @@
 import React from 'react';
 
 const Header = ({
+  showDoubleView,
   date,
   onChange,
   view,
@@ -63,13 +64,22 @@ const Header = ({
 
   const currentYear = date.getFullYear();
   const years = Array.from({ length: 21 }, (_, i) => currentYear - 10 + i);
-  const decadeStart = Math.floor(currentYear / 10) * 10;
 
   const getNavigationLabel = () => {
     if (navigationLabel) return navigationLabel({ date, view, locale });
-    if (view === 'month') return formatMonthYear ? formatMonthYear(date, locale) : date.toLocaleString(locale, { month: 'long', year: 'numeric' });
+    if (view === 'month') {
+      if (showDoubleView) {
+        const nextMonth = new Date(date);
+        nextMonth.setMonth(date.getMonth() + 1);
+        return `${date.toLocaleString(locale, { month: 'long' })}-${nextMonth.toLocaleString(locale, { month: 'long' })} ${date.getFullYear()}`;
+      }
+      return formatMonthYear ? formatMonthYear(date, locale) : date.toLocaleString(locale, { month: 'long', year: 'numeric' });
+    }
     if (view === 'year') return formatYear ? formatYear(date, locale) : date.getFullYear();
-    if (view === 'decade') return `${decadeStart}-${decadeStart + 9}`;
+    if (view === 'decade') {
+      const decadeStart = Math.floor(currentYear / 10) * 10;
+      return `${decadeStart}-${decadeStart + 9}`;
+    }
     return date.toLocaleDateString(locale);
   };
 
