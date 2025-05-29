@@ -23,7 +23,7 @@ const MonthView = ({
   value,
   onHover,
 }) => {
-  const today = new Date(2025, 4, 28, 14, 33); 
+  const today = new Date(); 
 
   const handleKeyDown = useCallback((e, dayInfo) => {
     if (e.key === 'Enter' || e.key === ' ') {
@@ -39,7 +39,7 @@ const MonthView = ({
     displayDate.setMonth(date.getMonth() + monthOffset);
     const days = getDaysInMonth(displayDate, 1, calendarType, showFixedNumberOfWeeks, showNeighboringMonth);
     const weeks = showWeekNumbers ? getWeeksInMonth(displayDate, 1) : [];
-    const weekdays = ['MON', 'TUE', 'WED', 'THU', 'FRI', 'SAT', 'SUN'];
+    const weekdays = ['MO', 'TU', 'WE', 'TH', 'FR', 'SA', 'SU'];
 
     const rangeStart = Array.isArray(value) ? value[0] : null;
     const rangeEnd = Array.isArray(value) && value.length === 2 ? value[1] : null;
@@ -53,7 +53,7 @@ const MonthView = ({
               key={day}
               className={`weekday ${index === 5 ? 'saturday' : ''} ${index === 6 ? 'sunday' : ''}`}
             >
-              {formatWeekday ? formatWeekday(new Date(2025, 0, index + 1), locale) : formatShortWeekday ? formatShortWeekday(new Date(2025, 0, index + 1), locale) : day}
+              {formatWeekday ? formatWeekday(new Date(2025, 0, index + 1), locale) : day}
             </div>
           ))}
         </div>

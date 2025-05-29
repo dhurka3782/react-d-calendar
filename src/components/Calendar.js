@@ -1,4 +1,5 @@
-import React, { useState, useCallback, useRef } from 'react';
+// Calendar.js
+import React, { useState, useCallback, useRef, useMemo } from 'react';
 import Header from './Header';
 import MonthView from './MonthView';
 import YearView from './YearView';
@@ -8,7 +9,7 @@ import './styles.css';
 
 const Calendar = (props) => {
   const {
-    date = new Date(2025, 4, 28, 14, 56), 
+    date = new Date(),
     defaultValue,
     value,
     defaultActiveStartDate,
@@ -21,17 +22,19 @@ const Calendar = (props) => {
     allowPartialRange = true,
     calendarType = 'gregorian',
     locale = 'en-US',
-    showDoubleView = props.showDoubleView ?? false,
+    showDoubleView = false,
     showFixedNumberOfWeeks = false,
     showNavigation = true,
     showNeighboringMonth = true,
     showNeighboringDecade = true,
-    showNeighboringCentury = true,
     showWeekNumbers = false,
     view = 'month',
     defaultView = 'month',
     maxDetail = 'month',
     minDetail = 'year',
+    theme = 'light',
+    events = [],
+    rangeLimit = null,
     formatDay,
     formatMonth,
     formatMonthYear,
@@ -54,12 +57,12 @@ const Calendar = (props) => {
     onClickDay,
     onClickMonth,
     onClickYear,
-    onClickDecade,
     onClickWeekNumber,
     onActiveStartDateChange,
     onViewChange,
     onDrillDown,
     onDrillUp,
+    onRangeHover,
     goToRangeStartOnSelect = true,
     tileClassName,
     tileContent,
@@ -68,6 +71,19 @@ const Calendar = (props) => {
     style = {},
     inputRef,
     returnValue = 'range',
+    renderDay,
+    renderHeader,
+    renderNavigationLabel,
+    renderMonthView,
+    renderYearView,
+    renderDayView,
+    customTileContent,
+    customDayClassName,
+    customMonthClassName,
+    customYearClassName,
+    onMonthHover,
+    onYearHover,
+    customRangeStyles,
   } = props;
 
   const [currentView, setCurrentView] = useState(defaultView);
@@ -75,6 +91,7 @@ const Calendar = (props) => {
   const [selectedValue, setSelectedValue] = useState(value || defaultValue || null);
   const [rangeStart, setRangeStart] = useState(null);
   const hoverRef = useRef(null);
+  const [viewHistory, setViewHistory] = useState([]);
 
   const handleViewChange = useCallback((newView) => {
     if (
@@ -83,22 +100,39 @@ const Calendar = (props) => {
     ) {
       return;
     }
+    setViewHistory((prev) => [...prev, currentView]);
     setCurrentView(newView);
     onViewChange?.({ view: newView });
-  }, [maxDetail, minDetail, onViewChange]);
+  }, [maxDetail, minDetail, onViewChange, currentView]);
+
+  const handleBackView = useCallback(() => {
+    const lastView = viewHistory[viewHistory.length - 1];
+    if (lastView) {
+      setCurrentView(lastView);
+      setViewHistory((prev) => prev.slice(0, -1));
+      onViewChange?.({ view: lastView });
+    }
+  }, [viewHistory, onViewChange]);
 
   const handleActiveDateChange = useCallback((newDate) => {
     setActiveDate(newDate);
     onActiveStartDateChange?.({ activeStartDate: newDate });
   }, [onActiveStartDateChange]);
 
- const handleDateSelect = useCallback((date) => {
+  const handleDateSelect = useCallback((date) => {
     if (selectRange) {
       if (!rangeStart) {
         setRangeStart(date);
         setSelectedValue([date]);
         onChange?.([date]);
       } else {
+        if (rangeLimit) {
+          const diffTime = Math.abs(date - rangeStart);
+          const diffDays = diffTime / (1000 * 60 * 60 * 24);
+          if (diffDays > rangeLimit) {
+            return;
+          }
+        }
         const range = [rangeStart, date].sort((a, b) => a - b);
         setSelectedValue(range);
         setRangeStart(null);
@@ -108,7 +142,7 @@ const Calendar = (props) => {
       setSelectedValue(date);
       onChange?.(date);
     }
-  }, [selectRange, rangeStart, onChange]);
+  }, [selectRange, rangeStart, onChange, rangeLimit]);
 
   const isDateDisabled = useCallback((date) => {
     if (minDate && date < minDate) return true;
@@ -125,8 +159,9 @@ const Calendar = (props) => {
   const handleHover = useCallback((date) => {
     if (selectRange && rangeStart && !selectedValue[1]) {
       hoverRef.current = date;
+      onRangeHover?.({ start: rangeStart, end: date });
     }
-  }, [selectRange, rangeStart, selectedValue]);
+  }, [selectRange, rangeStart, selectedValue, onRangeHover]);
 
   const handleKeyDown = useCallback((e) => {
     if (currentView !== 'month') return;
@@ -153,50 +188,74 @@ const Calendar = (props) => {
           handleDateSelect(activeDate);
         }
         break;
+      case 'Backspace':
+        handleBackView();
+        break;
       default:
         break;
     }
-  }, [currentView, activeDate, handleActiveDateChange, handleDateSelect, isDateDisabled]);
+  }, [currentView, activeDate, handleActiveDateChange, handleDateSelect, isDateDisabled, handleBackView]);
 
-  // Memoize tileClassName to ensure stability
- const getTileClassName = useCallback(
+  const getTileClassName = useCallback(
     ({ date }) => {
-      const baseClasses = props.tileClassName?.({ date }) || '';
+      const baseClasses = tileClassName?.({ date }) || '';
+      const eventClasses = events.some(
+        (event) => event.date.toDateString() === date.toDateString()
+      ) ? 'has-event' : '';
       if (selectRange && rangeStart && !selectedValue[1]) {
+        const [start, end] = date > rangeStart ? [rangeStart, date] : [date, rangeStart];
         if (date.toDateString() === rangeStart.toDateString()) {
-          return `${baseClasses} selected-start`.trim();
+          return `${baseClasses} selected-start ${eventClasses}`;
         }
-        if (hoverRef.current && date > rangeStart && date < hoverRef.current) {
-          return `${baseClasses} in-range`.trim();
-        }
-        if (hoverRef.current && date.toDateString() === hoverRef.current.toDateString()) {
-          return `${baseClasses} hover-range`.trim();
+        if (hoverRef.current && date >= start && date <= end) {
+          if (date.toDateString() === hoverRef.current.toDateString()) {
+            return `${baseClasses} hover-range ${eventClasses}`;
+          }
+          return `${baseClasses} in-range ${eventClasses}`;
         }
       }
       if (Array.isArray(selectedValue)) {
         if (selectedValue[0] && date.toDateString() === selectedValue[0].toDateString()) {
-          return `${baseClasses} selected-start`.trim();
+          return `${baseClasses} selected-start ${eventClasses}`.trim();
         }
         if (selectedValue[1] && date.toDateString() === selectedValue[1].toDateString()) {
-          return `${baseClasses} selected-end`.trim();
+          return `${baseClasses} selected-end ${eventClasses}`.trim();
         }
         if (selectedValue[0] && selectedValue[1] && date > selectedValue[0] && date < selectedValue[1]) {
-          return `${baseClasses} in-range`.trim();
+          return `${baseClasses} in-range ${eventClasses}`.trim();
         }
       }
-      return baseClasses;
+      return `${baseClasses} ${eventClasses}`.trim();
     },
-    [props.tileClassName, selectRange, rangeStart, selectedValue, hoverRef]
+    [tileClassName, selectRange, rangeStart, selectedValue, hoverRef, events]
+  );
+
+  const memoizedTileContent = useMemo(
+    () =>
+      ({ date, view }) => {
+        const event = events.find((e) => e.date.toDateString() === date.toDateString());
+        if (event && view === 'month') {
+          return (
+            <div className="event-indicator" style={{ backgroundColor: event.color || '#295d96' }}>
+              {tileContent ? tileContent({ date, view }) : date.getDate()}
+            </div>
+          );
+        }
+        return tileContent ? tileContent({ date, view }) : null;
+      },
+    [events, tileContent]
   );
 
   const renderView = () => {
     switch (currentView) {
       case 'day':
-        return (
+        return renderDayView ? (
+          renderDayView({ date: activeDate, onDateSelect: handleDateSelect })
+        ) : (
           <DayView
             date={activeDate}
             onDateSelect={handleDateSelect}
-            tileContent={tileContent}
+            tileContent={memoizedTileContent}
             tileClassName={getTileClassName}
             tileDisabled={tileDisabled || isDateDisabled}
             formatLongDate={formatLongDate}
@@ -208,7 +267,9 @@ const Calendar = (props) => {
           />
         );
       case 'year':
-        return (
+        return renderYearView ? (
+          renderYearView({ date: activeDate, onMonthSelect })
+        ) : (
           <YearView
             date={activeDate}
             onMonthSelect={(monthDate) => {
@@ -218,6 +279,7 @@ const Calendar = (props) => {
               onDrillDown?.();
             }}
             tileDisabled={isYearDisabled}
+            tileClassName={tileClassName}
             formatMonth={formatMonth}
             showNeighboringDecade={showNeighboringDecade}
             locale={locale}
@@ -228,12 +290,14 @@ const Calendar = (props) => {
           />
         );
       case 'month':
-        return (
+        return renderMonthView ? (
+          renderMonthView({ date: activeDate, onDateSelect: handleDateSelect })
+        ) : (
           <MonthView
             date={activeDate}
             onDateSelect={handleDateSelect}
             onClickWeekNumber={onClickWeekNumber}
-            tileContent={tileContent}
+            tileContent={customTileContent}
             tileClassName={getTileClassName}
             tileDisabled={tileDisabled || isDateDisabled}
             showWeekNumbers={showWeekNumbers}
@@ -264,37 +328,50 @@ const Calendar = (props) => {
 
   return (
     <div
-      className={`calendar ${className} ${showDoubleView ? 'double-view' : ''}`}
+      className={`calendar ${className} ${showDoubleView ? 'double-view' : ''} theme-${theme}`}
       style={style}
       ref={inputRef}
       onKeyDown={handleKeyDown}
       tabIndex={0}
+      aria-label="Interactive Calendar"
     >
-      {showNavigation && (
-        <Header
-          date={activeDate}
-          onChange={handleActiveDateChange}
-          view={currentView}
-          minDetail={minDetail}
-          maxDetail={maxDetail}
-          prevLabel={prevLabel}
-          prevAriaLabel={prevAriaLabel}
-          nextLabel={nextLabel}
-          nextAriaLabel={nextAriaLabel}
-          prev2Label={prev2Label}
-          prev2AriaLabel={prev2AriaLabel}
-          next2Label={next2Label}
-          next2AriaLabel={next2AriaLabel}
-          navigationLabel={navigationLabel}
-          navigationAriaLabel={navigationAriaLabel}
-          navigationAriaLive={navigationAriaLive}
-          formatMonthYear={formatMonthYear}
-          formatYear={formatYear}
-          locale={locale}
-          showDoubleView={showDoubleView}
-        />
-      )}
+      {showNavigation &&
+        (renderHeader ? (
+          renderHeader({ date: activeDate, onChange: handleActiveDateChange, view: currentView })
+        ) : (
+          <Header
+            date={activeDate}
+            onChange={handleActiveDateChange}
+            view={currentView}
+            minDetail={minDetail}
+            maxDetail={maxDetail}
+            prevLabel={prevLabel}
+            prevAriaLabel={prevAriaLabel}
+            nextLabel={nextLabel}
+            nextAriaLabel={nextAriaLabel}
+            prev2Label={prev2Label}
+            prev2AriaLabel={prev2AriaLabel}
+            next2Label={next2Label}
+            next2AriaLabel={next2AriaLabel}
+            navigationLabel={navigationLabel}
+            navigationAriaLabel={navigationAriaLabel}
+            navigationAriaLive={navigationAriaLive}
+            formatMonthYear={formatMonthYear}
+            formatYear={formatYear}
+            locale={locale}
+            showDoubleView={showDoubleView}
+          />
+        ))}
       <div className="calendar-container">{renderView()}</div>
+      {viewHistory.length > 0 && (
+        <button
+          className="back-button"
+          onClick={handleBackView}
+          aria-label="Back to previous view"
+        >
+          Back
+        </button>
+      )}
     </div>
   );
 };
