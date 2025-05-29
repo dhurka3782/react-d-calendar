@@ -8,7 +8,7 @@ import './styles.css';
 
 const Calendar = (props) => {
   const {
-    date = new Date(2025, 4, 28, 14, 56), // May 28, 2025, 02:56 PM IST
+    date = new Date(2025, 4, 28, 14, 56), 
     defaultValue,
     value,
     defaultActiveStartDate,
@@ -92,25 +92,23 @@ const Calendar = (props) => {
     onActiveStartDateChange?.({ activeStartDate: newDate });
   }, [onActiveStartDateChange]);
 
-  const handleDateSelect = useCallback((date) => {
+ const handleDateSelect = useCallback((date) => {
     if (selectRange) {
       if (!rangeStart) {
         setRangeStart(date);
         setSelectedValue([date]);
+        onChange?.([date]);
       } else {
         const range = [rangeStart, date].sort((a, b) => a - b);
         setSelectedValue(range);
         setRangeStart(null);
-        if (goToRangeStartOnSelect) {
-          handleActiveDateChange(range[0]);
-        }
-        onChange?.(returnValue === 'range' ? range : returnValue === 'start' ? range[0] : range[1]);
+        onChange?.(range);
       }
     } else {
       setSelectedValue(date);
       onChange?.(date);
     }
-  }, [selectRange, rangeStart, goToRangeStartOnSelect, returnValue, onChange, handleActiveDateChange]);
+  }, [selectRange, rangeStart, onChange]);
 
   const isDateDisabled = useCallback((date) => {
     if (minDate && date < minDate) return true;
@@ -161,15 +159,34 @@ const Calendar = (props) => {
   }, [currentView, activeDate, handleActiveDateChange, handleDateSelect, isDateDisabled]);
 
   // Memoize tileClassName to ensure stability
-  const getTileClassName = useCallback(
-    (date) => {
-      const baseClasses = tileClassName?.(date) || '';
-      if (selectRange && rangeStart && !selectedValue[1] && date?.date > rangeStart && date?.date < hoverRef.current) {
-        return `${baseClasses} range-preview`.trim();
+ const getTileClassName = useCallback(
+    ({ date }) => {
+      const baseClasses = props.tileClassName?.({ date }) || '';
+      if (selectRange && rangeStart && !selectedValue[1]) {
+        if (date.toDateString() === rangeStart.toDateString()) {
+          return `${baseClasses} selected-start`.trim();
+        }
+        if (hoverRef.current && date > rangeStart && date < hoverRef.current) {
+          return `${baseClasses} in-range`.trim();
+        }
+        if (hoverRef.current && date.toDateString() === hoverRef.current.toDateString()) {
+          return `${baseClasses} hover-range`.trim();
+        }
+      }
+      if (Array.isArray(selectedValue)) {
+        if (selectedValue[0] && date.toDateString() === selectedValue[0].toDateString()) {
+          return `${baseClasses} selected-start`.trim();
+        }
+        if (selectedValue[1] && date.toDateString() === selectedValue[1].toDateString()) {
+          return `${baseClasses} selected-end`.trim();
+        }
+        if (selectedValue[0] && selectedValue[1] && date > selectedValue[0] && date < selectedValue[1]) {
+          return `${baseClasses} in-range`.trim();
+        }
       }
       return baseClasses;
     },
-    [tileClassName, selectRange, rangeStart, selectedValue, hoverRef]
+    [props.tileClassName, selectRange, rangeStart, selectedValue, hoverRef]
   );
 
   const renderView = () => {
