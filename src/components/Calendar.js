@@ -89,9 +89,11 @@ const Calendar = (props) => {
   const [currentView, setCurrentView] = useState(defaultView);
   const [activeDate, setActiveDate] = useState(activeStartDate || defaultActiveStartDate || date);
   const [selectedValue, setSelectedValue] = useState(value || defaultValue || null);
-  const [rangeStart, setRangeStart] = useState(null);
+  const [internalRangeStart, setInternalRangeStart] = useState(null);
+  const controlledRangeStart = props.rangeStart ?? internalRangeStart;
   const hoverRef = useRef(null);
   const [viewHistory, setViewHistory] = useState([]);
+  const [hoveredDate, setHoveredDate] = useState(null);
 
   const handleViewChange = useCallback((newView) => {
     if (
@@ -121,28 +123,30 @@ const Calendar = (props) => {
 
   const handleDateSelect = useCallback((date) => {
     if (selectRange) {
-      if (!rangeStart) {
-        setRangeStart(date);
+      if (!controlledRangeStart) {
+        setInternalRangeStart(date);
         setSelectedValue([date]);
+        setHoveredDate(null);
         onChange?.([date]);
       } else {
         if (rangeLimit) {
-          const diffTime = Math.abs(date - rangeStart);
+          const diffTime = Math.abs(date - controlledRangeStart);
           const diffDays = diffTime / (1000 * 60 * 60 * 24);
           if (diffDays > rangeLimit) {
             return;
           }
         }
-        const range = [rangeStart, date].sort((a, b) => a - b);
+        const range = [controlledRangeStart, date].sort((a, b) => a - b);
         setSelectedValue(range);
-        setRangeStart(null);
+        setInternalRangeStart(null);
         onChange?.(range);
+        setHoveredDate(null);
       }
     } else {
       setSelectedValue(date);
       onChange?.(date);
     }
-  }, [selectRange, rangeStart, onChange, rangeLimit]);
+  }, [selectRange, controlledRangeStart, onChange, rangeLimit]);
 
   const isDateDisabled = useCallback((date) => {
     if (minDate && date < minDate) return true;
@@ -157,11 +161,12 @@ const Calendar = (props) => {
   }, [disableYear]);
 
   const handleHover = useCallback((date) => {
-    if (selectRange && rangeStart && !selectedValue[1]) {
+    if (selectRange && controlledRangeStart && !selectedValue[1]) {
       hoverRef.current = date;
-      onRangeHover?.({ start: rangeStart, end: date });
+      setHoveredDate(date);
+      onRangeHover?.({ start: controlledRangeStart, end: date });
     }
-  }, [selectRange, rangeStart, selectedValue, onRangeHover]);
+  }, [selectRange, controlledRangeStart, selectedValue, onRangeHover]);
 
   const handleKeyDown = useCallback((e) => {
     if (currentView !== 'month') return;
@@ -198,14 +203,22 @@ const Calendar = (props) => {
 
   const getTileClassName = useCallback(
     ({ date }) => {
+      console.log("Tile:", date.toDateString(), "rangeStart:", controlledRangeStart, "hoveredDate:", hoveredDate);
+
       const baseClasses = tileClassName?.({ date }) || '';
       const eventClasses = events.some(
         (event) => event.date.toDateString() === date.toDateString()
       ) ? 'has-event' : '';
-      if (selectRange && rangeStart && !selectedValue[1]) {
-        const [start, end] = date > rangeStart ? [rangeStart, date] : [date, rangeStart];
-        if (date.toDateString() === rangeStart.toDateString()) {
+      if (selectRange && controlledRangeStart && !selectedValue[1]) {
+        const [start, end] = date > controlledRangeStart ? [controlledRangeStart, date] : [date, controlledRangeStart];
+        if (date.toDateString() === controlledRangeStart.toDateString()) {
           return `${baseClasses} selected-start ${eventClasses}`;
+        }
+        if (selectRange && controlledRangeStart && hoveredDate && (!selectedValue || selectedValue.length < 2)) {
+          const [start, end] = controlledRangeStart < hoveredDate ? [controlledRangeStart, hoveredDate] : [hoveredDate, controlledRangeStart];
+          if (date >= start && date <= end) {
+            return `${baseClasses} range-preview ${eventClasses}`.trim();
+          }
         }
         if (hoverRef.current && date >= start && date <= end) {
           if (date.toDateString() === hoverRef.current.toDateString()) {
@@ -227,7 +240,7 @@ const Calendar = (props) => {
       }
       return `${baseClasses} ${eventClasses}`.trim();
     },
-    [tileClassName, selectRange, rangeStart, selectedValue, hoverRef, events]
+    [tileClassName, selectRange, controlledRangeStart, selectedValue, hoverRef, events, hoveredDate]
   );
 
   const memoizedTileContent = useMemo(

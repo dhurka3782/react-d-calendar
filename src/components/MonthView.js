@@ -22,6 +22,7 @@ const MonthView = ({
   showDoubleView,
   value,
   onHover,
+  onClearHover,
 }) => {
   const today = new Date(); 
 
@@ -57,7 +58,7 @@ const MonthView = ({
             </div>
           ))}
         </div>
-        <div className="calendar-days">
+        <div className="calendar-days"  onMouseLeave={onClearHover}>
           {showWeekNumbers &&
             weeks.map((week, index) => (
               <button
@@ -82,7 +83,7 @@ const MonthView = ({
                 key={index}
                 onClick={() => !isDisabled && onDateSelect(dayInfo.date)}
                 onDoubleClick={() => !isDisabled && onDrillDown?.()}
-                onMouseEnter={() => onHover?.(dayInfo.date)}
+                onMouseEnter={() => !isDisabled && onHover?.(dayInfo.date)}
                 onKeyDown={(e) => handleKeyDown(e, dayInfo)}
                 disabled={isDisabled}
                 className={`calendar-day

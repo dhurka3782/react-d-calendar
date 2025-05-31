@@ -217,23 +217,40 @@
   color: #212529;
 }
 
-.calendar-day.hover-range {
-  box-shadow: inset 0 0 0 2px rgba(0, 123, 255, 0.4);
-  border-radius: 4px;
-}
-
-
 .calendar-day.in-range:hover {
   background: rgba(0, 123, 255, 0.3);
 }
 
+/* Add new hover styles */
 .calendar-day.range-preview {
   background: rgba(0, 123, 255, 0.1);
   color: #212529;
+  position: relative;
 }
 
 .calendar-day.range-preview:hover {
   background: rgba(0, 123, 255, 0.15);
+}
+
+.calendar-day.range-preview::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: -2px;
+  width: 2px;
+  background: #007bff;
+}
+
+.calendar-day.range-preview:first-child::after,
+.calendar-day.range-preview:last-child::after {
+  display: none;
+}
+
+.calendar-day.hover-range {
+  box-shadow: inset 0 0 0 2px rgba(0, 123, 255, 0.4);
+  border-radius: 4px;
+  z-index: 2;
 }
 
 .calendar-day:disabled {
