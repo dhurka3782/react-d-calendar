@@ -9,9 +9,9 @@ const DayView = ({
   formatLongDate,
   locale,
   onDrillUp,
+  today = new Date(), 
 }) => {
   const isDisabled = tileDisabled?.(date);
-  const today = new Date(2025, 4, 28, 14, 33); 
   const isToday = date.toDateString() === today.toDateString();
 
   return (
@@ -32,7 +32,6 @@ const DayView = ({
               {formatLongDate ? formatLongDate(date, locale) : date.toLocaleDateString(locale, { weekday: 'long', month: 'long', day: 'numeric', year: 'numeric' })}
             </span>
             <div className="day-detail-events">
-              {/* Placeholder for events or notes */}
               {isToday && <span className="event-indicator">Today's Events: None</span>}
             </div>
           </div>

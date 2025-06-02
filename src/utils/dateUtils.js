@@ -1,6 +1,10 @@
 import { getISOWeek } from 'date-fns';
 
 export const getDaysInMonth = (date, weekStartDay = 1, calendarType = 'gregorian', showFixedNumberOfWeeks = false, showNeighboringMonth = true) => {
+  if (calendarType !== 'gregorian') {
+    throw new Error(`Unsupported calendar type: ${calendarType}. Only 'gregorian' is supported.`);
+  }
+
   const year = date.getFullYear();
   const month = date.getMonth();
   const days = [];
@@ -8,10 +12,6 @@ export const getDaysInMonth = (date, weekStartDay = 1, calendarType = 'gregorian
   const firstDayOfMonth = new Date(year, month, 1);
   const lastDayOfMonth = new Date(year, month + 1, 0);
   const firstDayIndex = (firstDayOfMonth.getDay() + 7 - weekStartDay) % 7;
-
-  if (calendarType === 'islamic') {
-    console.warn('Islamic calendar not implemented');
-  }
 
   // Days from previous month
   if (showNeighboringMonth) {

@@ -23,9 +23,8 @@ const MonthView = ({
   value,
   onHover,
   onClearHover,
+  today = new Date(), 
 }) => {
-  const today = new Date(); 
-
   const handleKeyDown = useCallback((e, dayInfo) => {
     if (e.key === 'Enter' || e.key === ' ') {
       e.preventDefault();
@@ -54,11 +53,11 @@ const MonthView = ({
               key={day}
               className={`weekday ${index === 5 ? 'saturday' : ''} ${index === 6 ? 'sunday' : ''}`}
             >
-              {formatWeekday ? formatWeekday(new Date(2025, 0, index + 1), locale) : day}
+              {formatWeekday ? formatWeekday(new Date(today.getFullYear(), 0, index + 1), locale) : day}
             </div>
           ))}
         </div>
-        <div className="calendar-days"  onMouseLeave={onClearHover}>
+        <div className="calendar-days" onMouseLeave={onClearHover}>
           {showWeekNumbers &&
             weeks.map((week, index) => (
               <button

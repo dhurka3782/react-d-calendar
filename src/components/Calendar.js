@@ -1,4 +1,3 @@
-// Calendar.js
 import React, { useState, useCallback, useRef, useMemo } from 'react';
 import Header from './Header';
 import MonthView from './MonthView';
@@ -19,7 +18,6 @@ const Calendar = (props) => {
     disableDate,
     disableYear,
     selectRange = false,
-    allowPartialRange = true,
     calendarType = 'gregorian',
     locale = 'en-US',
     showDoubleView = false,
@@ -28,7 +26,6 @@ const Calendar = (props) => {
     showNeighboringMonth = true,
     showNeighboringDecade = true,
     showWeekNumbers = false,
-    view = 'month',
     defaultView = 'month',
     maxDetail = 'month',
     minDetail = 'year',
@@ -54,38 +51,29 @@ const Calendar = (props) => {
     next2Label,
     next2AriaLabel,
     onChange,
-    onClickDay,
     onClickMonth,
-    onClickYear,
     onClickWeekNumber,
     onActiveStartDateChange,
     onViewChange,
     onDrillDown,
     onDrillUp,
     onRangeHover,
-    goToRangeStartOnSelect = true,
     tileClassName,
     tileContent,
     tileDisabled,
     className = '',
     style = {},
     inputRef,
-    returnValue = 'range',
-    renderDay,
     renderHeader,
-    renderNavigationLabel,
     renderMonthView,
     renderYearView,
     renderDayView,
     customTileContent,
-    customDayClassName,
-    customMonthClassName,
-    customYearClassName,
-    onMonthHover,
-    onYearHover,
-    customRangeStyles,
   } = props;
 
+  if (calendarType !== 'gregorian') {
+    throw new Error(`Unsupported calendar type: ${calendarType}. Only 'gregorian' is supported.`);
+  }
   const [currentView, setCurrentView] = useState(defaultView);
   const [activeDate, setActiveDate] = useState(activeStartDate || defaultActiveStartDate || date);
   const [selectedValue, setSelectedValue] = useState(value || defaultValue || null);
@@ -203,44 +191,51 @@ const Calendar = (props) => {
 
   const getTileClassName = useCallback(
     ({ date }) => {
-      console.log("Tile:", date.toDateString(), "rangeStart:", controlledRangeStart, "hoveredDate:", hoveredDate);
-
       const baseClasses = tileClassName?.({ date }) || '';
       const eventClasses = events.some(
         (event) => event.date.toDateString() === date.toDateString()
       ) ? 'has-event' : '';
-      if (selectRange && controlledRangeStart && !selectedValue[1]) {
-        const [start, end] = date > controlledRangeStart ? [controlledRangeStart, date] : [date, controlledRangeStart];
+
+      if (
+        selectRange &&
+        controlledRangeStart &&
+        hoveredDate &&
+        (!Array.isArray(selectedValue) || selectedValue.length < 2)
+      ) {
+        const [start, end] =
+          controlledRangeStart < hoveredDate
+            ? [controlledRangeStart, hoveredDate]
+            : [hoveredDate, controlledRangeStart];
+
+        if (date >= start && date <= end) {
+          return `${baseClasses} range-preview ${eventClasses}`.trim();
+        }
+
+        if (date.toDateString() === hoveredDate.toDateString()) {
+          return `${baseClasses} hover-range hover-range-end ${eventClasses}`.trim();
+        }
+
         if (date.toDateString() === controlledRangeStart.toDateString()) {
-          return `${baseClasses} selected-start ${eventClasses}`;
-        }
-        if (selectRange && controlledRangeStart && hoveredDate && (!selectedValue || selectedValue.length < 2)) {
-          const [start, end] = controlledRangeStart < hoveredDate ? [controlledRangeStart, hoveredDate] : [hoveredDate, controlledRangeStart];
-          if (date >= start && date <= end) {
-            return `${baseClasses} range-preview ${eventClasses}`.trim();
-          }
-        }
-        if (hoverRef.current && date >= start && date <= end) {
-          if (date.toDateString() === hoverRef.current.toDateString()) {
-            return `${baseClasses} hover-range ${eventClasses}`;
-          }
-          return `${baseClasses} in-range ${eventClasses}`;
-        }
-      }
-      if (Array.isArray(selectedValue)) {
-        if (selectedValue[0] && date.toDateString() === selectedValue[0].toDateString()) {
           return `${baseClasses} selected-start ${eventClasses}`.trim();
         }
-        if (selectedValue[1] && date.toDateString() === selectedValue[1].toDateString()) {
+      }
+
+      if (Array.isArray(selectedValue)) {
+        const [start, end] = selectedValue;
+        if (start && date.toDateString() === start.toDateString()) {
+          return `${baseClasses} selected-start ${eventClasses}`.trim();
+        }
+        if (end && date.toDateString() === end.toDateString()) {
           return `${baseClasses} selected-end ${eventClasses}`.trim();
         }
-        if (selectedValue[0] && selectedValue[1] && date > selectedValue[0] && date < selectedValue[1]) {
+        if (start && end && date > start && date < end) {
           return `${baseClasses} in-range ${eventClasses}`.trim();
         }
       }
+
       return `${baseClasses} ${eventClasses}`.trim();
     },
-    [tileClassName, selectRange, controlledRangeStart, selectedValue, hoverRef, events, hoveredDate]
+    [tileClassName, selectRange, controlledRangeStart, selectedValue, events, hoveredDate]
   );
 
   const memoizedTileContent = useMemo(
@@ -260,6 +255,7 @@ const Calendar = (props) => {
   );
 
   const renderView = () => {
+    const today = new Date();
     switch (currentView) {
       case 'day':
         return renderDayView ? (
@@ -277,6 +273,7 @@ const Calendar = (props) => {
               handleViewChange('month');
               onDrillUp?.();
             }}
+            today={today}
           />
         );
       case 'year':
@@ -332,6 +329,7 @@ const Calendar = (props) => {
             showDoubleView={showDoubleView}
             value={selectedValue}
             onHover={handleHover}
+            today={today} 
           />
         );
       default:
