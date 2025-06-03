@@ -69,6 +69,16 @@ const Calendar = (props) => {
     renderYearView,
     renderDayView,
     customTileContent,
+    customTheme = {},
+    dayViewClassName,
+    monthViewClassName,
+    yearViewClassName,
+    styleOverrides = {},
+    holidayDates = [],
+    renderCustomFooter,
+    weekStartDay = 1,
+    disabledViews = [],
+    onClickEvent,
   } = props;
 
   if (calendarType !== 'gregorian') {
@@ -85,6 +95,7 @@ const Calendar = (props) => {
 
   const handleViewChange = useCallback((newView) => {
     if (
+      disabledViews.includes(newView) ||
       (newView === 'day' && maxDetail === 'month') ||
       (newView === 'year' && minDetail === 'month')
     ) {
@@ -93,7 +104,7 @@ const Calendar = (props) => {
     setViewHistory((prev) => [...prev, currentView]);
     setCurrentView(newView);
     onViewChange?.({ view: newView });
-  }, [maxDetail, minDetail, onViewChange, currentView]);
+  }, [maxDetail, minDetail, onViewChange, currentView, disabledViews]);
 
   const handleBackView = useCallback(() => {
     const lastView = viewHistory[viewHistory.length - 1];
@@ -192,9 +203,11 @@ const Calendar = (props) => {
   const getTileClassName = useCallback(
     ({ date }) => {
       const baseClasses = tileClassName?.({ date }) || '';
-      const eventClasses = events.some(
-        (event) => event.date.toDateString() === date.toDateString()
-      ) ? 'has-event' : '';
+      const event = events.find((e) => e.date.toDateString() === date.toDateString());
+      const eventClasses = event ? `has-event event-${event.type || 'default'}` : '';
+      const holidayClasses = holidayDates.some(
+        (holiday) => holiday.toDateString() === date.toDateString()
+      ) ? 'holiday' : '';
 
       if (
         selectRange &&
@@ -208,34 +221,34 @@ const Calendar = (props) => {
             : [hoveredDate, controlledRangeStart];
 
         if (date >= start && date <= end) {
-          return `${baseClasses} range-preview ${eventClasses}`.trim();
+          return `${baseClasses} range-preview ${eventClasses} ${holidayClasses}`.trim();
         }
 
         if (date.toDateString() === hoveredDate.toDateString()) {
-          return `${baseClasses} hover-range hover-range-end ${eventClasses}`.trim();
+          return `${baseClasses} hover-range hover-range-end ${eventClasses} ${holidayClasses}`.trim();
         }
 
         if (date.toDateString() === controlledRangeStart.toDateString()) {
-          return `${baseClasses} selected-start ${eventClasses}`.trim();
+          return `${baseClasses} selected-start ${eventClasses} ${holidayClasses}`.trim();
         }
       }
 
       if (Array.isArray(selectedValue)) {
         const [start, end] = selectedValue;
         if (start && date.toDateString() === start.toDateString()) {
-          return `${baseClasses} selected-start ${eventClasses}`.trim();
+          return `${baseClasses} selected-start ${eventClasses} ${holidayClasses}`.trim();
         }
         if (end && date.toDateString() === end.toDateString()) {
-          return `${baseClasses} selected-end ${eventClasses}`.trim();
+          return `${baseClasses} selected-end ${eventClasses} ${holidayClasses}`.trim();
         }
         if (start && end && date > start && date < end) {
-          return `${baseClasses} in-range ${eventClasses}`.trim();
+          return `${baseClasses} in-range ${eventClasses} ${holidayClasses}`.trim();
         }
       }
 
-      return `${baseClasses} ${eventClasses}`.trim();
+      return `${baseClasses} ${eventClasses} ${holidayClasses}`.trim();
     },
-    [tileClassName, selectRange, controlledRangeStart, selectedValue, events, hoveredDate]
+    [tileClassName, selectRange, controlledRangeStart, selectedValue, events, hoveredDate, holidayDates]
   );
 
   const memoizedTileContent = useMemo(
@@ -274,6 +287,8 @@ const Calendar = (props) => {
               onDrillUp?.();
             }}
             today={today}
+            className={dayViewClassName}
+            onClickEvent={onClickEvent}
           />
         );
       case 'year':
@@ -297,6 +312,7 @@ const Calendar = (props) => {
               handleViewChange('decade');
               onDrillUp?.();
             }}
+            className={yearViewClassName}
           />
         );
       case 'month':
@@ -329,7 +345,10 @@ const Calendar = (props) => {
             showDoubleView={showDoubleView}
             value={selectedValue}
             onHover={handleHover}
-            today={today} 
+            today={today}
+            weekStartDay={weekStartDay}
+            className={monthViewClassName}
+            onClickEvent={onClickEvent}
           />
         );
       default:
@@ -337,10 +356,16 @@ const Calendar = (props) => {
     }
   };
 
+  // Convert customTheme to CSS variable styles
+  const themeStyles = Object.entries(customTheme).reduce((styles, [key, value]) => {
+    styles[`--custom-${key}`] = value;
+    return styles;
+  }, {});
+
   return (
     <div
-      className={`calendar ${className} ${showDoubleView ? 'double-view' : ''} theme-${theme}`}
-      style={style}
+      className={`calendar ${className} ${showDoubleView ? 'double-view' : ''} theme-${theme} ${customTheme ? 'custom-theme' : ''}`}
+      style={{ ...style, ...themeStyles, ...styleOverrides.calendar }}
       ref={inputRef}
       onKeyDown={handleKeyDown}
       tabIndex={0}
@@ -371,17 +396,26 @@ const Calendar = (props) => {
             formatYear={formatYear}
             locale={locale}
             showDoubleView={showDoubleView}
+            style={styleOverrides.header}
           />
         ))}
-      <div className="calendar-container">{renderView()}</div>
+      <div className="calendar-container" style={styleOverrides.container}>
+        {renderView()}
+      </div>
       {viewHistory.length > 0 && (
         <button
           className="back-button"
           onClick={handleBackView}
           aria-label="Back to previous view"
+          style={styleOverrides.backButton}
         >
           Back
         </button>
+      )}
+      {renderCustomFooter && (
+        <div className="calendar-footer" style={styleOverrides.footer}>
+          {renderCustomFooter({ selectedValue, activeDate })}
+        </div>
       )}
     </div>
   );

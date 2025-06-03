@@ -1,4 +1,4 @@
-import React, { useCallback } from 'react';
+import React, { useCallback, useState } from 'react';
 import { getDaysInMonth, getWeeksInMonth } from '../utils/dateUtils';
 import Day from './Day';
 
@@ -23,67 +23,149 @@ const MonthView = ({
   value,
   onHover,
   onClearHover,
-  today = new Date(), 
+  today = new Date(),
+  weekStartDay = 1,
+  className,
+  onClickEvent,
+  events = [],
+  renderEvent,
 }) => {
-  const handleKeyDown = useCallback((e, dayInfo) => {
-    if (e.key === 'Enter' || e.key === ' ') {
-      e.preventDefault();
-      if (!tileDisabled?.(dayInfo.date)) {
-        onDateSelect(dayInfo.date);
+  const [isDragging, setIsDragging] = useState(false);
+
+  const handleKeyDown = useCallback(
+    (e, dayInfo) => {
+      if (e.key === 'Enter' || e.key === ' ') {
+        e.preventDefault();
+        if (!tileDisabled?.({ date: dayInfo.date })) {
+          onDateSelect(dayInfo.date);
+        }
       }
-    }
-  }, [onDateSelect, tileDisabled]);
+    },
+    [onDateSelect, tileDisabled]
+  );
+
+  const handleMouseDown = useCallback(
+    (date) => {
+      if (!tileDisabled?.({ date })) {
+        setIsDragging(true);
+        onDateSelect(date);
+      }
+    },
+    [onDateSelect, tileDisabled]
+  );
+
+  const handleMouseOver = useCallback(
+    (date) => {
+      if (isDragging && !tileDisabled?.({ date })) {
+        onHover?.(date);
+      }
+    },
+    [isDragging, onHover, tileDisabled]
+  );
+
+  const handleMouseUp = useCallback(() => {
+    setIsDragging(false);
+  }, []);
+
+  const handleTouchStart = useCallback(
+    (e, date) => {
+      e.preventDefault();
+      if (!tileDisabled?.({ date })) {
+        setIsDragging(true);
+        onDateSelect(date);
+      }
+    },
+    [onDateSelect, tileDisabled]
+  );
+
+  const handleTouchMove = useCallback(
+    (e, date) => {
+      e.preventDefault();
+      if (isDragging && !tileDisabled?.({ date })) {
+        onHover?.(date);
+      }
+    },
+    [isDragging, onHover, tileDisabled]
+  );
+
+  const handleTouchEnd = useCallback(() => {
+    setIsDragging(false);
+  }, []);
 
   const renderMonth = (monthOffset = 0) => {
     const displayDate = new Date(date);
     displayDate.setMonth(date.getMonth() + monthOffset);
-    const days = getDaysInMonth(displayDate, 1, calendarType, showFixedNumberOfWeeks, showNeighboringMonth);
-    const weeks = showWeekNumbers ? getWeeksInMonth(displayDate, 1) : [];
+    const days = getDaysInMonth(
+      displayDate,
+      weekStartDay,
+      calendarType,
+      showFixedNumberOfWeeks,
+      showNeighboringMonth
+    );
+    const weeks = showWeekNumbers ? getWeeksInMonth(displayDate, weekStartDay) : [];
     const weekdays = ['MO', 'TU', 'WE', 'TH', 'FR', 'SA', 'SU'];
 
     const rangeStart = Array.isArray(value) ? value[0] : null;
     const rangeEnd = Array.isArray(value) && value.length === 2 ? value[1] : null;
 
     return (
-      <div className="calendar-instance">
+      <div className={`calendar-instance ${className || ''}`}>
         <div className="calendar-weekdays">
           {showWeekNumbers && <div className="weekday week-number">Week</div>}
           {weekdays.map((day, index) => (
             <div
               key={day}
-              className={`weekday ${index === 5 ? 'saturday' : ''} ${index === 6 ? 'sunday' : ''}`}
+              className={`weekday ${
+                index === (5 + weekStartDay) % 7
+                  ? 'saturday'
+                  : index === (6 + weekStartDay) % 7
+                  ? 'sunday'
+                  : ''
+              }`}
             >
-              {formatWeekday ? formatWeekday(new Date(today.getFullYear(), 0, index + 1), locale) : day}
+              {formatWeekday
+                ? formatWeekday(new Date(today.getFullYear(), 0, index + weekStartDay), locale)
+                : day}
             </div>
           ))}
         </div>
-        <div className="calendar-days" onMouseLeave={onClearHover}>
+        <div
+          className="calendar-days"
+          onMouseLeave={onClearHover}
+          onMouseUp={handleMouseUp}
+          onTouchEnd={handleTouchEnd}
+        >
           {showWeekNumbers &&
             weeks.map((week, index) => (
               <button
                 key={`week-${index}`}
                 className="week-number"
-                onClick={() => onClickWeekNumber?.(week, new Date(displayDate.getFullYear(), displayDate.getMonth(), 1))}
+                onClick={() =>
+                  onClickWeekNumber?.(week, new Date(displayDate.getFullYear(), displayDate.getMonth(), 1))
+                }
               >
                 {week}
               </button>
             ))}
           {days.map((dayInfo, index) => {
             const isToday = dayInfo.date.toDateString() === today.toDateString();
-            const isSaturday = dayInfo.date.getDay() === 6;
-            const isSunday = dayInfo.date.getDay() === 0;
-            const isDisabled = tileDisabled?.(dayInfo.date);
+            const isSaturday = dayInfo.date.getDay() === (6 + weekStartDay) % 7;
+            const isSunday = dayInfo.date.getDay() === (0 + weekStartDay) % 7;
+            const isDisabled = tileDisabled?.({ date: dayInfo.date });
             const isSelectedStart = rangeStart && dayInfo.date.toDateString() === rangeStart.toDateString();
             const isSelectedEnd = rangeEnd && dayInfo.date.toDateString() === rangeEnd.toDateString();
             const isInRange = rangeStart && rangeEnd && dayInfo.date > rangeStart && dayInfo.date < rangeEnd;
+            const event = events.find((e) => e.date.toDateString() === dayInfo.date.toDateString());
 
             return (
               <button
                 key={index}
-                onClick={() => !isDisabled && onDateSelect(dayInfo.date)}
+                onClick={() => !isDisabled && (event ? onClickEvent?.(event) : onDateSelect(dayInfo.date))}
                 onDoubleClick={() => !isDisabled && onDrillDown?.()}
-                onMouseEnter={() => !isDisabled && onHover?.(dayInfo.date)}
-                onKeyDown={(e) => handleKeyDown(e, dayInfo)}
+                onMouseDown={() => handleMouseDown(dayInfo.date)}
+                onMouseEnter={() => handleMouseOver(dayInfo.date)}
+                onTouchStart={(e) => handleTouchStart(e, dayInfo.date)}
+                onTouchMove={(e) => handleTouchMove(e, dayInfo.date)}
                 disabled={isDisabled}
                 className={`calendar-day
                   ${isToday ? 'today' : ''}
@@ -95,11 +177,21 @@ const MonthView = ({
                   ${isSelectedStart ? 'selected-start' : ''}
                   ${isSelectedEnd ? 'selected-end' : ''}
                   ${isInRange ? 'in-range' : ''}`.trim()}
-                aria-label={`Select ${dayInfo.date.toLocaleDateString(locale, { month: 'long', day: 'numeric', year: 'numeric' })}`}
+                aria-label={`Select ${dayInfo.date.toLocaleDateString(locale, {
+                  month: 'long',
+                  day: 'numeric',
+                  year: 'numeric',
+                })}`}
                 tabIndex={isDisabled ? -1 : 0}
               >
                 {tileContent ? (
-                  tileContent({ date: dayInfo.date, view: 'month' })
+                  tileContent({ date: dayInfo.date, view: 'month', event })
+                ) : event ? (
+                  renderEvent ? (
+                    renderEvent({ event, date: dayInfo.date })
+                  ) : (
+                    <Day dayInfo={dayInfo} formatDay={formatDay} locale={locale} />
+                  )
                 ) : (
                   <Day dayInfo={dayInfo} formatDay={formatDay} locale={locale} />
                 )}

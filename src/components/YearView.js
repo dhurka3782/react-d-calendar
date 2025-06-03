@@ -1,4 +1,5 @@
 import React, { useCallback } from 'react';
+import { FixedSizeList } from 'react-window';
 
 const YearView = ({
   date,
@@ -9,6 +10,7 @@ const YearView = ({
   showNeighboringDecade,
   locale,
   onDrillUp,
+  className,
 }) => {
   const year = date.getFullYear();
   const months = Array.from({ length: 12 }, (_, i) => new Date(year, i, 1));
@@ -27,27 +29,38 @@ const YearView = ({
     }
   }, [onMonthSelect, tileDisabled]);
 
+  const renderMonth = ({ index, style }) => {
+    const monthDate = months[index];
+    const isDisabled = tileDisabled?.(monthDate);
+    return (
+      <button
+        style={style}
+        key={index}
+        onClick={() => !isDisabled && onMonthSelect(monthDate)}
+        onDoubleClick={() => !isDisabled && onDrillUp?.()}
+        onKeyDown={(e) => handleKeyDown(e, monthDate)}
+        disabled={isDisabled}
+        className={`year-month ${monthDate.getFullYear() !== year ? 'adjacent-year' : ''} ${tileClassName?.({ date: monthDate }) || ''}`}
+        aria-label={`Select ${monthDate.toLocaleString(locale, { month: 'long', year: 'numeric' })}`}
+        tabIndex={isDisabled ? -1 : 0}
+      >
+        {formatMonth ? formatMonth(monthDate, locale) : monthDate.toLocaleString(locale, { month: 'short' })}
+      </button>
+    );
+  };
+
   return (
-    <div className="year-view">
-      <div className="year-grid">
-        {months.map((monthDate, index) => {
-          const isDisabled = tileDisabled?.(monthDate);
-          return (
-            <button
-              key={index}
-              onClick={() => !isDisabled && onMonthSelect(monthDate)}
-              onDoubleClick={() => !isDisabled && onDrillUp?.()}
-              onKeyDown={(e) => handleKeyDown(e, monthDate)}
-              disabled={isDisabled}
-              className={`year-month ${monthDate.getFullYear() !== year ? 'adjacent-year' : ''} ${tileClassName?.({ date: monthDate }) || ''}`}
-              aria-label={`Select ${monthDate.toLocaleString(locale, { month: 'long', year: 'numeric' })}`}
-              tabIndex={isDisabled ? -1 : 0}
-            >
-              {formatMonth ? formatMonth(monthDate, locale) : monthDate.toLocaleString(locale, { month: 'short' })}
-            </button>
-          );
-        })}
-      </div>
+    <div className={`year-view ${className || ''}`}>
+      <FixedSizeList
+        height={300}
+        width="100%"
+        itemCount={months.length}
+        itemSize={50}
+        layout="vertical"
+        style={{ overflow: 'hidden' }}
+      >
+        {renderMonth}
+      </FixedSizeList>
     </div>
   );
 };

@@ -83,17 +83,41 @@ const Header = ({
     return date.toLocaleDateString(locale);
   };
 
+  const getAriaLabel = (type) => {
+    const viewMap = {
+      day: 'day',
+      month: 'month',
+      year: 'year',
+      decade: 'decade',
+    };
+    const viewLabel = viewMap[view] || 'period';
+    switch (type) {
+      case 'prev':
+        return prevAriaLabel || `Go to previous ${viewLabel}`;
+      case 'next':
+        return nextAriaLabel || `Go to next ${viewLabel}`;
+      case 'prev2':
+        return prev2AriaLabel || `Go to previous ${view === 'year' ? 'decade' : 'century'}`;
+      case 'next2':
+        return next2AriaLabel || `Go to next ${view === 'year' ? 'decade' : 'century'}`;
+      case 'select':
+        return navigationAriaLabel || `Select year for ${viewLabel} view`;
+      default:
+        return '';
+    }
+  };
+
   return (
     <div className="header" aria-live={navigationAriaLive}>
       <div className="header-left">
         {(view !== minDetail || prev2Label) && (
           <>
             {prev2Label && view !== 'day' && (
-              <button onClick={prev2} aria-label={prev2AriaLabel || 'Previous Decade'}>
+              <button onClick={prev2} aria-label={getAriaLabel('prev2')}>
                 {prev2Label}
               </button>
             )}
-            <button onClick={prev} aria-label={prevAriaLabel}>
+            <button onClick={prev} aria-label={getAriaLabel('prev')}>
               {prevLabel}
             </button>
           </>
@@ -105,11 +129,11 @@ const Header = ({
       <div className="header-right">
         {(view !== minDetail || next2Label) && (
           <>
-            <button onClick={next} aria-label={nextAriaLabel}>
+            <button onClick={next} aria-label={getAriaLabel('next')}>
               {nextLabel}
             </button>
             {next2Label && view !== 'day' && (
-              <button onClick={next2} aria-label={next2AriaLabel || 'Next Decade'}>
+              <button onClick={next2} aria-label={getAriaLabel('next2')}>
                 {next2Label}
               </button>
             )}
@@ -119,7 +143,7 @@ const Header = ({
           <select
             value={currentYear}
             onChange={handleYearChange}
-            aria-label={navigationAriaLabel || 'Select Year'}
+            aria-label={getAriaLabel('select')}
           >
             {years.map((year) => (
               <option key={year} value={year}>

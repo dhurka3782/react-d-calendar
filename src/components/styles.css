@@ -542,3 +542,51 @@
     font-size: 12px;
   }
 }
+
+/* Holiday styling */
+.calendar-day.holiday {
+  background: linear-gradient(135deg, #ffd700, #ffca28);
+  color: #212529;
+  font-weight: 600;
+  border-radius: 5%;
+  margin: 4px;
+  border-bottom: none;
+}
+
+.calendar-day.holiday:hover {
+  background: linear-gradient(135deg, #ffca28, #ffb300);
+}
+
+/* Custom event types */
+.calendar-day.event-meeting::before {
+  background: #28a745; /* Green for meetings */
+}
+
+.calendar-day.event-holiday::before {
+  background: #ff5733; /* Orange for holidays */
+}
+
+/* Enhanced animation for selected dates */
+.calendar-day.selected-start,
+.calendar-day.selected-end {
+  animation: zoomIn 0.2s ease;
+}
+
+@keyframes zoomIn {
+  from {
+    transform: scale(0.95);
+  }
+  to {
+    transform: scale(1);
+  }
+}
+
+.calendar.custom-theme {
+  /* Ensure custom theme variables take precedence */
+  --primary-color: var(--custom-primary-color, #295d96);
+  --secondary-color: var(--custom-secondary-color, #0d2f53);
+  --text-color: var(--custom-text-color, #212529);
+  --background-color: var(--custom-background-color, #ffffff);
+  --hover-color: var(--custom-hover-color, #e9ecef);
+  --disabled-color: var(--custom-disabled-color, #adb5bd);
+}
