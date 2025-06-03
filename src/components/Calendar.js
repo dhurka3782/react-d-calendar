@@ -17,7 +17,7 @@ const Calendar = (props) => {
     maxDate,
     disableDate,
     disableYear,
-    selectRange = false,
+    selectionMode = 'single',
     calendarType = 'gregorian',
     locale = 'en-US',
     showDoubleView = false,
@@ -39,6 +39,10 @@ const Calendar = (props) => {
     formatWeekday,
     formatShortWeekday,
     formatLongDate,
+    weekdayFormat = 'short',
+    dateFormat = 'mm/dd/yyyy',
+    monthFormat = 'long',
+    includeTime = false, 
     navigationLabel,
     navigationAriaLabel,
     navigationAriaLive,
@@ -84,6 +88,7 @@ const Calendar = (props) => {
   if (calendarType !== 'gregorian') {
     throw new Error(`Unsupported calendar type: ${calendarType}. Only 'gregorian' is supported.`);
   }
+
   const [currentView, setCurrentView] = useState(defaultView);
   const [activeDate, setActiveDate] = useState(activeStartDate || defaultActiveStartDate || date);
   const [selectedValue, setSelectedValue] = useState(value || defaultValue || null);
@@ -93,18 +98,21 @@ const Calendar = (props) => {
   const [viewHistory, setViewHistory] = useState([]);
   const [hoveredDate, setHoveredDate] = useState(null);
 
-  const handleViewChange = useCallback((newView) => {
-    if (
-      disabledViews.includes(newView) ||
-      (newView === 'day' && maxDetail === 'month') ||
-      (newView === 'year' && minDetail === 'month')
-    ) {
-      return;
-    }
-    setViewHistory((prev) => [...prev, currentView]);
-    setCurrentView(newView);
-    onViewChange?.({ view: newView });
-  }, [maxDetail, minDetail, onViewChange, currentView, disabledViews]);
+  const handleViewChange = useCallback(
+    (newView) => {
+      if (
+        disabledViews.includes(newView) ||
+        (newView === 'day' && maxDetail === 'month') ||
+        (newView === 'year' && minDetail === 'month')
+      ) {
+        return;
+      }
+      setViewHistory((prev) => [...prev, currentView]);
+      setCurrentView(newView);
+      onViewChange?.({ view: newView });
+    },
+    [maxDetail, minDetail, onViewChange, currentView, disabledViews]
+  );
 
   const handleBackView = useCallback(() => {
     const lastView = viewHistory[viewHistory.length - 1];
@@ -115,90 +123,109 @@ const Calendar = (props) => {
     }
   }, [viewHistory, onViewChange]);
 
-  const handleActiveDateChange = useCallback((newDate) => {
-    setActiveDate(newDate);
-    onActiveStartDateChange?.({ activeStartDate: newDate });
-  }, [onActiveStartDateChange]);
+  const handleActiveDateChange = useCallback(
+    (newDate) => {
+      setActiveDate(newDate);
+      onActiveStartDateChange?.({ activeStartDate: newDate });
+    },
+    [onActiveStartDateChange]
+  );
 
-  const handleDateSelect = useCallback((date) => {
-    if (selectRange) {
-      if (!controlledRangeStart) {
-        setInternalRangeStart(date);
-        setSelectedValue([date]);
-        setHoveredDate(null);
-        onChange?.([date]);
-      } else {
-        if (rangeLimit) {
-          const diffTime = Math.abs(date - controlledRangeStart);
-          const diffDays = diffTime / (1000 * 60 * 60 * 24);
-          if (diffDays > rangeLimit) {
-            return;
+  const handleDateSelect = useCallback(
+    (date) => {
+      if (selectionMode === 'range') {
+        if (!controlledRangeStart) {
+          setInternalRangeStart(date);
+          setSelectedValue([date]);
+          setHoveredDate(null);
+          onChange?.([date]);
+        } else {
+          if (rangeLimit) {
+            const diffTime = Math.abs(date - controlledRangeStart);
+            const diffDays = diffTime / (1000 * 60 * 60 * 24);
+            if (diffDays > rangeLimit) {
+              return;
+            }
           }
+          const range = [controlledRangeStart, date].sort((a, b) => a - b);
+          setSelectedValue(range);
+          setInternalRangeStart(null);
+          onChange?.(range);
+          setHoveredDate(null);
         }
-        const range = [controlledRangeStart, date].sort((a, b) => a - b);
-        setSelectedValue(range);
+      } else {
+        setSelectedValue(date);
         setInternalRangeStart(null);
-        onChange?.(range);
-        setHoveredDate(null);
+        onChange?.(date);
       }
-    } else {
-      setSelectedValue(date);
-      onChange?.(date);
-    }
-  }, [selectRange, controlledRangeStart, onChange, rangeLimit]);
+    },
+    [selectionMode, controlledRangeStart, onChange, rangeLimit]
+  );
 
-  const isDateDisabled = useCallback((date) => {
-    if (minDate && date < minDate) return true;
-    if (maxDate && date > maxDate) return true;
-    if (disableDate) return disableDate(date);
-    return false;
-  }, [minDate, maxDate, disableDate]);
+  const isDateDisabled = useCallback(
+    (date) => {
+      if (minDate && date < minDate) return true;
+      if (maxDate && date > maxDate) return true;
+      if (disableDate) return disableDate(date);
+      return false;
+    },
+    [minDate, maxDate, disableDate]
+  );
 
-  const isYearDisabled = useCallback((year) => {
-    if (disableYear) return disableYear(year);
-    return false;
-  }, [disableYear]);
+  const isYearDisabled = useCallback(
+    (year) => {
+      if (disableYear) return disableYear(year);
+      return false;
+    },
+    [disableYear]
+  );
 
-  const handleHover = useCallback((date) => {
-    if (selectRange && controlledRangeStart && !selectedValue[1]) {
-      hoverRef.current = date;
-      setHoveredDate(date);
-      onRangeHover?.({ start: controlledRangeStart, end: date });
-    }
-  }, [selectRange, controlledRangeStart, selectedValue, onRangeHover]);
+  const handleHover = useCallback(
+    (date) => {
+      if (selectionMode === 'range' && controlledRangeStart && !selectedValue[1]) {
+        hoverRef.current = date;
+        setHoveredDate(date);
+        onRangeHover?.({ start: controlledRangeStart, end: date });
+      }
+    },
+    [selectionMode, controlledRangeStart, selectedValue, onRangeHover]
+  );
 
-  const handleKeyDown = useCallback((e) => {
-    if (currentView !== 'month') return;
-    const newDate = new Date(activeDate);
-    switch (e.key) {
-      case 'ArrowLeft':
-        newDate.setDate(newDate.getDate() - 1);
-        handleActiveDateChange(newDate);
-        break;
-      case 'ArrowRight':
-        newDate.setDate(newDate.getDate() + 1);
-        handleActiveDateChange(newDate);
-        break;
-      case 'ArrowUp':
-        newDate.setDate(newDate.getDate() - 7);
-        handleActiveDateChange(newDate);
-        break;
-      case 'ArrowDown':
-        newDate.setDate(newDate.getDate() + 7);
-        handleActiveDateChange(newDate);
-        break;
-      case 'Enter':
-        if (!isDateDisabled(activeDate)) {
-          handleDateSelect(activeDate);
-        }
-        break;
-      case 'Backspace':
-        handleBackView();
-        break;
-      default:
-        break;
-    }
-  }, [currentView, activeDate, handleActiveDateChange, handleDateSelect, isDateDisabled, handleBackView]);
+  const handleKeyDown = useCallback(
+    (e) => {
+      if (currentView !== 'month') return;
+      const newDate = new Date(activeDate);
+      switch (e.key) {
+        case 'ArrowLeft':
+          newDate.setDate(newDate.getDate() - 1);
+          handleActiveDateChange(newDate);
+          break;
+        case 'ArrowRight':
+          newDate.setDate(newDate.getDate() + 1);
+          handleActiveDateChange(newDate);
+          break;
+        case 'ArrowUp':
+          newDate.setDate(newDate.getDate() - 7);
+          handleActiveDateChange(newDate);
+          break;
+        case 'ArrowDown':
+          newDate.setDate(newDate.getDate() + 7);
+          handleActiveDateChange(newDate);
+          break;
+        case 'Enter':
+          if (!isDateDisabled(activeDate)) {
+            handleDateSelect(activeDate);
+          }
+          break;
+        case 'Backspace':
+          handleBackView();
+          break;
+        default:
+          break;
+      }
+    },
+    [currentView, activeDate, handleActiveDateChange, handleDateSelect, isDateDisabled, handleBackView]
+  );
 
   const getTileClassName = useCallback(
     ({ date }) => {
@@ -210,7 +237,7 @@ const Calendar = (props) => {
       ) ? 'holiday' : '';
 
       if (
-        selectRange &&
+        selectionMode === 'range' &&
         controlledRangeStart &&
         hoveredDate &&
         (!Array.isArray(selectedValue) || selectedValue.length < 2)
@@ -244,11 +271,13 @@ const Calendar = (props) => {
         if (start && end && date > start && date < end) {
           return `${baseClasses} in-range ${eventClasses} ${holidayClasses}`.trim();
         }
+      } else if (selectedValue && date.toDateString() === selectedValue.toDateString()) {
+        return `${baseClasses} selected ${eventClasses} ${holidayClasses}`.trim();
       }
 
       return `${baseClasses} ${eventClasses} ${holidayClasses}`.trim();
     },
-    [tileClassName, selectRange, controlledRangeStart, selectedValue, events, hoveredDate, holidayDates]
+    [tileClassName, selectionMode, controlledRangeStart, selectedValue, events, hoveredDate, holidayDates]
   );
 
   const memoizedTileContent = useMemo(
@@ -281,6 +310,10 @@ const Calendar = (props) => {
             tileClassName={getTileClassName}
             tileDisabled={tileDisabled || isDateDisabled}
             formatLongDate={formatLongDate}
+            dateFormat={dateFormat}
+            weekdayFormat={weekdayFormat}
+            monthFormat={monthFormat}
+            includeTime={includeTime}
             locale={locale}
             onDrillUp={() => {
               handleViewChange('month');
@@ -289,6 +322,8 @@ const Calendar = (props) => {
             today={today}
             className={dayViewClassName}
             onClickEvent={onClickEvent}
+            events={events}
+            renderEvent={renderEvent}
           />
         );
       case 'year':
@@ -332,6 +367,7 @@ const Calendar = (props) => {
             formatDay={formatDay}
             formatWeekday={formatWeekday}
             formatShortWeekday={formatShortWeekday}
+            weekdayFormat={weekdayFormat}
             locale={locale}
             calendarType={calendarType}
             onDrillDown={() => {
@@ -345,10 +381,13 @@ const Calendar = (props) => {
             showDoubleView={showDoubleView}
             value={selectedValue}
             onHover={handleHover}
+            onClearHover={() => setHoveredDate(null)}
             today={today}
             weekStartDay={weekStartDay}
             className={monthViewClassName}
             onClickEvent={onClickEvent}
+            events={events}
+            renderEvent={renderEvent}
           />
         );
       default:

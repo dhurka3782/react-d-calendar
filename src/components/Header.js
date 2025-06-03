@@ -1,4 +1,5 @@
 import React from 'react';
+import './styles.css';
 
 const Header = ({
   showDoubleView,
@@ -7,9 +8,9 @@ const Header = ({
   view,
   minDetail,
   maxDetail,
-  prevLabel,
+  prevLabel = '‹',
   prevAriaLabel,
-  nextLabel,
+  nextLabel = '›',
   nextAriaLabel,
   prev2Label,
   prev2AriaLabel,
@@ -84,66 +85,42 @@ const Header = ({
   };
 
   const getAriaLabel = (type) => {
-    const viewMap = {
-      day: 'day',
-      month: 'month',
-      year: 'year',
-      decade: 'decade',
-    };
+    const viewMap = { day: 'day', month: 'month', year: 'year', decade: 'decade' };
     const viewLabel = viewMap[view] || 'period';
     switch (type) {
-      case 'prev':
-        return prevAriaLabel || `Go to previous ${viewLabel}`;
-      case 'next':
-        return nextAriaLabel || `Go to next ${viewLabel}`;
-      case 'prev2':
-        return prev2AriaLabel || `Go to previous ${view === 'year' ? 'decade' : 'century'}`;
-      case 'next2':
-        return next2AriaLabel || `Go to next ${view === 'year' ? 'decade' : 'century'}`;
-      case 'select':
-        return navigationAriaLabel || `Select year for ${viewLabel} view`;
-      default:
-        return '';
+      case 'prev': return prevAriaLabel || `Go to previous ${viewLabel}`;
+      case 'next': return nextAriaLabel || `Go to next ${viewLabel}`;
+      case 'prev2': return prev2AriaLabel || `Go to previous ${view === 'year' ? 'decade' : 'century'}`;
+      case 'next2': return next2AriaLabel || `Go to next ${view === 'year' ? 'decade' : 'century'}`;
+      case 'select': return navigationAriaLabel || `Select year for ${viewLabel} view`;
+      default: return '';
     }
   };
 
   return (
     <div className="header" aria-live={navigationAriaLive}>
-      <div className="header-left">
-        {(view !== minDetail || prev2Label) && (
-          <>
-            {prev2Label && view !== 'day' && (
-              <button onClick={prev2} aria-label={getAriaLabel('prev2')}>
-                {prev2Label}
-              </button>
-            )}
-            <button onClick={prev} aria-label={getAriaLabel('prev')}>
+      <div className="header-month-section">
+        <div className="header-month-nav">
+          {(view !== minDetail || prev2Label) && (
+            <button onClick={prev} aria-label={getAriaLabel('prev')} className="nav-button">
               {prevLabel}
             </button>
-          </>
-        )}
-      </div>
-      <div className="header-center">
-        <span>{getNavigationLabel()}</span>
-      </div>
-      <div className="header-right">
-        {(view !== minDetail || next2Label) && (
-          <>
-            <button onClick={next} aria-label={getAriaLabel('next')}>
+          )}
+          <span className="header-month-label">{getNavigationLabel()}</span>
+          {(view !== minDetail || next2Label) && (
+            <button onClick={next} aria-label={getAriaLabel('next')} className="nav-button">
               {nextLabel}
             </button>
-            {next2Label && view !== 'day' && (
-              <button onClick={next2} aria-label={getAriaLabel('next2')}>
-                {next2Label}
-              </button>
-            )}
-          </>
-        )}
-        {view !== 'day' && (
+          )}
+        </div>
+      </div>
+      {view !== 'day' && (
+        <div className="header-year-section">
           <select
             value={currentYear}
             onChange={handleYearChange}
             aria-label={getAriaLabel('select')}
+            className="year-select"
           >
             {years.map((year) => (
               <option key={year} value={year}>
@@ -151,8 +128,9 @@ const Header = ({
               </option>
             ))}
           </select>
-        )}
-      </div>
+          <span className="chevron-down">▼</span>
+        </div>
+      )}
     </div>
   );
 };

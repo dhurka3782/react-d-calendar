@@ -15,6 +15,7 @@ const MonthView = ({
   formatDay,
   formatWeekday,
   formatShortWeekday,
+  weekdayFormat = 'short',
   locale,
   calendarType,
   onDrillDown,
@@ -45,10 +46,10 @@ const MonthView = ({
   );
 
   const handleMouseDown = useCallback(
-    (date) => {
-      if (!tileDisabled?.({ date })) {
+    (dayInfo) => {
+      if (!tileDisabled?.({ date: dayInfo.date })) {
         setIsDragging(true);
-        onDateSelect(date);
+        onDateSelect(dayInfo.date);
       }
     },
     [onDateSelect, tileDisabled]
@@ -92,6 +93,23 @@ const MonthView = ({
     setIsDragging(false);
   }, []);
 
+  const getWeekdayLabel = (index) => {
+    const weekdayDate = new Date(today.getFullYear(), 0, index + weekStartDay);
+    if (formatWeekday) {
+      return formatWeekday(weekdayDate, locale);
+    }
+    if (weekdayFormat === 'full') {
+      return weekdayDate.toLocaleString(locale, { weekday: 'long' }).toUpperCase();
+    } else if (weekdayFormat === 'short') {
+      return formatShortWeekday
+        ? formatShortWeekday(weekdayDate, locale)
+        : weekdayDate.toLocaleString(locale, { weekday: 'short' }).toUpperCase();
+    } else if (weekdayFormat === 'minimal') {
+      return ['MO', 'TU', 'WE', 'TH', 'FR', 'SA', 'SU'][(index + weekStartDay) % 7];
+    }
+    return ['MON', 'TUE', 'WED', 'THU', 'FRI', 'SAT', 'SUN'][(index + weekStartDay) % 7];
+  };
+
   const renderMonth = (monthOffset = 0) => {
     const displayDate = new Date(date);
     displayDate.setMonth(date.getMonth() + monthOffset);
@@ -103,7 +121,6 @@ const MonthView = ({
       showNeighboringMonth
     );
     const weeks = showWeekNumbers ? getWeeksInMonth(displayDate, weekStartDay) : [];
-    const weekdays = ['MO', 'TU', 'WE', 'TH', 'FR', 'SA', 'SU'];
 
     const rangeStart = Array.isArray(value) ? value[0] : null;
     const rangeEnd = Array.isArray(value) && value.length === 2 ? value[1] : null;
@@ -112,9 +129,9 @@ const MonthView = ({
       <div className={`calendar-instance ${className || ''}`}>
         <div className="calendar-weekdays">
           {showWeekNumbers && <div className="weekday week-number">Week</div>}
-          {weekdays.map((day, index) => (
+          {Array.from({ length: 7 }).map((_, index) => (
             <div
-              key={day}
+              key={index}
               className={`weekday ${
                 index === (5 + weekStartDay) % 7
                   ? 'saturday'
@@ -123,9 +140,7 @@ const MonthView = ({
                   : ''
               }`}
             >
-              {formatWeekday
-                ? formatWeekday(new Date(today.getFullYear(), 0, index + weekStartDay), locale)
-                : day}
+              {getWeekdayLabel(index)}
             </div>
           ))}
         </div>
