@@ -1,4 +1,5 @@
 import React, { useState, useCallback, useRef, useMemo } from 'react';
+import { ChevronLeft, ChevronRight } from 'lucide-react';
 import Header from './Header';
 import MonthView from './MonthView';
 import YearView from './YearView';
@@ -46,9 +47,9 @@ const Calendar = (props) => {
     navigationLabel,
     navigationAriaLabel,
     navigationAriaLive,
-    prevLabel = '‹',
+    prevLabel = <ChevronLeft size={18} />,
     prevAriaLabel = 'Previous',
-    nextLabel = '›',
+    nextLabel = <ChevronRight size={18} />,
     nextAriaLabel = 'Next',
     prev2Label,
     prev2AriaLabel,
@@ -83,6 +84,7 @@ const Calendar = (props) => {
     weekStartDay = 1,
     disabledViews = [],
     onClickEvent,
+    renderEvent = () => null,
   } = props;
 
   if (calendarType !== 'gregorian') {

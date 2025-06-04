@@ -25,7 +25,7 @@ const MonthView = ({
   onHover,
   onClearHover,
   today = new Date(),
-  weekStartDay = 1,
+  weekStartDay = 0,
   className,
   onClickEvent,
   events = [],
@@ -94,7 +94,7 @@ const MonthView = ({
   }, []);
 
   const getWeekdayLabel = (index) => {
-    const weekdayDate = new Date(today.getFullYear(), 0, index + weekStartDay);
+    const weekdayDate = new Date(today.getFullYear(), 0, ((index + weekStartDay) % 7) + 4); 
     if (formatWeekday) {
       return formatWeekday(weekdayDate, locale);
     }
@@ -164,8 +164,8 @@ const MonthView = ({
             ))}
           {days.map((dayInfo, index) => {
             const isToday = dayInfo.date.toDateString() === today.toDateString();
-            const isSaturday = dayInfo.date.getDay() === (6 + weekStartDay) % 7;
-            const isSunday = dayInfo.date.getDay() === (0 + weekStartDay) % 7;
+            const isSaturday = dayInfo.date.getDay() === (5 + weekStartDay) % 7;
+            const isSunday = dayInfo.date.getDay() === (6 + weekStartDay) % 7;
             const isDisabled = tileDisabled?.({ date: dayInfo.date });
             const isSelectedStart = rangeStart && dayInfo.date.toDateString() === rangeStart.toDateString();
             const isSelectedEnd = rangeEnd && dayInfo.date.toDateString() === rangeEnd.toDateString();

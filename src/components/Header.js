@@ -1,4 +1,5 @@
 import React from 'react';
+import { ChevronDown } from 'lucide-react';
 import './styles.css';
 
 const Header = ({
@@ -128,7 +129,7 @@ const Header = ({
               </option>
             ))}
           </select>
-          <span className="chevron-down">▼</span>
+          <ChevronDown className="chevron-down" strokeWidth={1}/>
         </div>
       )}
     </div>
