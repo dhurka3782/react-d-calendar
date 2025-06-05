@@ -98,7 +98,7 @@ const Calendar = (props) => {
   const controlledRangeStart = props.rangeStart ?? internalRangeStart;
   const hoverRef = useRef(null);
   const [viewHistory, setViewHistory] = useState([]);
-  const [hoveredDate, setHoveredDate] = useState(null);
+  const [controlledHoveredDate, setcontrolledHoveredDate] = useState(null);
 
   const handleViewChange = useCallback(
     (newView) => {
@@ -139,7 +139,7 @@ const Calendar = (props) => {
         if (!controlledRangeStart) {
           setInternalRangeStart(date);
           setSelectedValue([date]);
-          setHoveredDate(null);
+          setcontrolledHoveredDate(null);
           onChange?.([date]);
         } else {
           if (rangeLimit) {
@@ -153,7 +153,7 @@ const Calendar = (props) => {
           setSelectedValue(range);
           setInternalRangeStart(null);
           onChange?.(range);
-          setHoveredDate(null);
+          setcontrolledHoveredDate(null);
         }
       } else {
         setSelectedValue(date);
@@ -186,7 +186,7 @@ const Calendar = (props) => {
     (date) => {
       if (selectionMode === 'range' && controlledRangeStart && !selectedValue[1]) {
         hoverRef.current = date;
-        setHoveredDate(date);
+        setcontrolledHoveredDate(date);
         onRangeHover?.({ start: controlledRangeStart, end: date });
       }
     },
@@ -241,19 +241,19 @@ const Calendar = (props) => {
       if (
         selectionMode === 'range' &&
         controlledRangeStart &&
-        hoveredDate &&
+        controlledHoveredDate &&
         (!Array.isArray(selectedValue) || selectedValue.length < 2)
       ) {
         const [start, end] =
-          controlledRangeStart < hoveredDate
-            ? [controlledRangeStart, hoveredDate]
-            : [hoveredDate, controlledRangeStart];
+          controlledRangeStart < controlledHoveredDate
+            ? [controlledRangeStart, controlledHoveredDate]
+            : [controlledHoveredDate, controlledRangeStart];
 
         if (date >= start && date <= end) {
           return `${baseClasses} range-preview ${eventClasses} ${holidayClasses}`.trim();
         }
 
-        if (date.toDateString() === hoveredDate.toDateString()) {
+        if (date.toDateString() === controlledHoveredDate.toDateString()) {
           return `${baseClasses} hover-range hover-range-end ${eventClasses} ${holidayClasses}`.trim();
         }
 
@@ -279,7 +279,7 @@ const Calendar = (props) => {
 
       return `${baseClasses} ${eventClasses} ${holidayClasses}`.trim();
     },
-    [tileClassName, selectionMode, controlledRangeStart, selectedValue, events, hoveredDate, holidayDates]
+    [tileClassName, selectionMode, controlledRangeStart, selectedValue, events, controlledHoveredDate, holidayDates]
   );
 
   const memoizedTileContent = useMemo(
@@ -383,7 +383,7 @@ const Calendar = (props) => {
             showDoubleView={showDoubleView}
             value={selectedValue}
             onHover={handleHover}
-            onClearHover={() => setHoveredDate(null)}
+            onClearHover={() => setcontrolledHoveredDate(null)}
             today={today}
             weekStartDay={weekStartDay}
             className={monthViewClassName}

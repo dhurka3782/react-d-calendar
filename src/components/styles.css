@@ -253,7 +253,6 @@
   background: #fff5f5;
 }
 
-.calendar-day.selected,
 .calendar-day.selected-start,
 .calendar-day.selected-end {
   background: linear-gradient(135deg, #0d2f53, #081f3a);
@@ -310,7 +309,7 @@
 }
 
 .calendar-day.range-preview {
-  background: rgba(0, 123, 255, 0.1);
+  background: rgba(0, 123, 255, 0.3);
   color: #212529;
   position: relative;
 }
@@ -509,11 +508,11 @@
 
 /* Custom Event Types */
 .calendar-day.event-meeting::before {
-  background: #28a745; /* Green for meetings */
+  background: #28a745; 
 }
 
 .calendar-day.event-holiday::before {
-  background: #ff5733; /* Orange for holidays */
+  background: #ff5733;
 }
 
 /* Enhanced Animation for Selected Dates */
