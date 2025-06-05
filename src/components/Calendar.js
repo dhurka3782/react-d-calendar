@@ -242,7 +242,7 @@ const Calendar = (props) => {
       ) ? 'holiday' : '';
 
       if (selectionMode === 'range' && controlledRangeStart && controlledHoveredDate) {
-        console.log('Applying hover classes for date:', date.toISOString(), 'hover:', controlledHoveredDate.toISOString()); // Debug
+        console.log('Applying hover classes for date:', date.toISOString(), 'hover:', controlledHoveredDate.toISOString());
         const [start, end] =
           controlledRangeStart < controlledHoveredDate
             ? [controlledRangeStart, controlledHoveredDate]

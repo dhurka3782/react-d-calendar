@@ -1,5 +1,6 @@
 import React, { useCallback } from 'react';
 import { FixedSizeList } from 'react-window';
+import './styles.css';
 
 const YearView = ({
   date,
@@ -21,14 +22,17 @@ const YearView = ({
     months.push(new Date(year + 1, 0, 1));
   }
 
-  const handleKeyDown = useCallback((e, monthDate) => {
-    if (e.key === 'Enter' || e.key === ' ') {
-      e.preventDefault();
-      if (!tileDisabled?.(monthDate)) {
-        onMonthSelect(monthDate);
+  const handleKeyDown = useCallback(
+    (e, monthDate) => {
+      if (e.key === 'Enter' || e.key === ' ') {
+        e.preventDefault();
+        if (!tileDisabled?.(monthDate)) {
+          onMonthSelect(monthDate);
+        }
       }
-    }
-  }, [onMonthSelect, tileDisabled]);
+    },
+    [onMonthSelect, tileDisabled]
+  );
 
   const renderMonth = ({ index, style }) => {
     const monthDate = months[index];
@@ -53,7 +57,9 @@ const YearView = ({
         aria-label={`Select ${monthDate.toLocaleString(locale, { month: 'long', year: 'numeric' })}`}
         tabIndex={isDisabled ? -1 : 0}
       >
-        {formatMonth ? formatMonth(monthDate, locale) : monthDate.toLocaleString(locale, { month: 'short' })}
+        <span className="month-content">
+          {formatMonth ? formatMonth(monthDate, locale) : monthDate.toLocaleString(locale, { month: 'short' })}
+        </span>
       </button>
     );
   };
@@ -66,7 +72,7 @@ const YearView = ({
         itemCount={months.length}
         itemSize={50}
         layout="vertical"
-        style={{ overflow: 'hidden' }}
+        className="year-view-list"
       >
         {renderMonth}
       </FixedSizeList>

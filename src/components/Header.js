@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import { ChevronDown } from 'lucide-react';
 import './styles.css';
 
@@ -58,14 +58,26 @@ const Header = ({
     onChange(newDate);
   };
 
-  const handleYearChange = (e) => {
+  const [search, setSearch] = useState('');
+  const [isDropdownOpen, setIsDropdownOpen] = useState(false);
+  const dropdownRef = useRef(null);
+  const activeYearRef = useRef(null);
+
+  const handleYearChange = (year) => {
     const newDate = new Date(date);
-    newDate.setFullYear(parseInt(e.target.value));
+    newDate.setFullYear(year);
     onChange(newDate);
+    setIsDropdownOpen(false);
+    setSearch('');
   };
 
   const currentYear = date.getFullYear();
-  const years = Array.from({ length: 21 }, (_, i) => currentYear - 10 + i);
+  const years = Array.from({ length: 151 }, (_, i) => currentYear - 75 + i); 
+  const decades = Array.from({ length: 16 }, (_, i) => currentYear - 75 + i * 10);
+
+  const filteredYears = years.filter((year) =>
+    year.toString().includes(search.toLowerCase())
+  );
 
   const getNavigationLabel = () => {
     if (navigationLabel) return navigationLabel({ date, view, locale });
@@ -98,6 +110,28 @@ const Header = ({
     }
   };
 
+  // Close dropdown when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
+        setIsDropdownOpen(false);
+        setSearch('');
+      }
+    };
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, []);
+
+  // Scroll to active year when dropdown opens
+  useEffect(() => {
+    if (isDropdownOpen && activeYearRef.current && !search) {
+      activeYearRef.current.scrollIntoView({
+        behavior: 'smooth',
+        block: 'center',
+      });
+    }
+  }, [isDropdownOpen, search]);
+
   return (
     <div className="header" aria-live={navigationAriaLive}>
       <div className="header-month-section">
@@ -116,20 +150,58 @@ const Header = ({
         </div>
       </div>
       {view !== 'day' && (
-        <div className="header-year-section">
-          <select
-            value={currentYear}
-            onChange={handleYearChange}
+        <div className="header-year-section" ref={dropdownRef}>
+          <div
+            className="year-select-wrapper"
+            onClick={() => setIsDropdownOpen(!isDropdownOpen)}
+            aria-expanded={isDropdownOpen}
+            role="combobox"
             aria-label={getAriaLabel('select')}
-            className="year-select"
+            tabIndex={0}
+            onKeyDown={(e) => {
+              if (e.key === 'Enter' || e.key === ' ') {
+                setIsDropdownOpen(!isDropdownOpen);
+              }
+            }}
           >
-            {years.map((year) => (
-              <option key={year} value={year}>
-                {formatYear ? formatYear(new Date(date.setFullYear(year)), locale) : year}
-              </option>
-            ))}
-          </select>
-          <ChevronDown className="chevron-down" strokeWidth={1}/>
+            <span className="year-select-display">
+              {formatYear ? formatYear(date, locale) : currentYear}
+            </span>
+            <ChevronDown className="chevron-down" strokeWidth={1} />
+          </div>
+          {isDropdownOpen && (
+            <div className="year-dropdown">
+              <input
+                type="text"
+                className="year-search"
+                placeholder="Search year..."
+                value={search}
+                onChange={(e) => setSearch(e.target.value)}
+                aria-label="Search for a year"
+              />
+              <div className="year-dropdown-scroll">
+                {decades.map((decade) => (
+                  <div key={decade} className="decade-group">
+                    <div className="decade-label">{`${decade}-${decade + 9}`}</div>
+                    {filteredYears
+                      .filter((year) => year >= decade && year < decade + 10)
+                      .map((year) => (
+                        <button
+                          key={year}
+                          ref={year === currentYear ? activeYearRef : null}
+                          className={`year-option ${year === currentYear ? 'selected' : ''}`}
+                          onClick={() => handleYearChange(year)}
+                          aria-selected={year === currentYear}
+                          role="option"
+                        >
+                          {formatYear ? formatYear(new Date(date.setFullYear(year)), locale) : year}
+                        </button>
+                      ))}
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
         </div>
       )}
     </div>
