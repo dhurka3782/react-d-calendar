@@ -43,7 +43,7 @@ const Calendar = (props) => {
     weekdayFormat = 'short',
     dateFormat = 'mm/dd/yyyy',
     monthFormat = 'long',
-    includeTime = false, 
+    includeTime = false,
     navigationLabel,
     navigationAriaLabel,
     navigationAriaLive,
@@ -184,13 +184,16 @@ const Calendar = (props) => {
 
   const handleHover = useCallback(
     (date) => {
-      if (selectionMode === 'range' && controlledRangeStart && !selectedValue[1]) {
+      if (selectionMode === 'range' && controlledRangeStart) {
+        console.log('Hovering date:', date.toISOString());
         hoverRef.current = date;
         setcontrolledHoveredDate(date);
-        onRangeHover?.({ start: controlledRangeStart, end: date });
+        if (onRangeHover && !tileDisabled?.({ date })) {
+          onRangeHover({ start: controlledRangeStart, end: date });
+        }
       }
     },
-    [selectionMode, controlledRangeStart, selectedValue, onRangeHover]
+    [selectionMode, controlledRangeStart, onRangeHover, tileDisabled]
   );
 
   const handleKeyDown = useCallback(
@@ -238,23 +241,15 @@ const Calendar = (props) => {
         (holiday) => holiday.toDateString() === date.toDateString()
       ) ? 'holiday' : '';
 
-      if (
-        selectionMode === 'range' &&
-        controlledRangeStart &&
-        controlledHoveredDate &&
-        (!Array.isArray(selectedValue) || selectedValue.length < 2)
-      ) {
+      if (selectionMode === 'range' && controlledRangeStart && controlledHoveredDate) {
+        console.log('Applying hover classes for date:', date.toISOString(), 'hover:', controlledHoveredDate.toISOString()); // Debug
         const [start, end] =
           controlledRangeStart < controlledHoveredDate
             ? [controlledRangeStart, controlledHoveredDate]
             : [controlledHoveredDate, controlledRangeStart];
 
         if (date >= start && date <= end) {
-          return `${baseClasses} range-preview ${eventClasses} ${holidayClasses}`.trim();
-        }
-
-        if (date.toDateString() === controlledHoveredDate.toDateString()) {
-          return `${baseClasses} hover-range hover-range-end ${eventClasses} ${holidayClasses}`.trim();
+          return `${baseClasses} range-preview ${date.toDateString() === controlledHoveredDate.toDateString() ? 'hover-range-end' : ''} ${eventClasses} ${holidayClasses}`.trim();
         }
 
         if (date.toDateString() === controlledRangeStart.toDateString()) {
@@ -334,6 +329,7 @@ const Calendar = (props) => {
         ) : (
           <YearView
             date={activeDate}
+            value={selectedValue}
             onMonthSelect={(monthDate) => {
               handleActiveDateChange(monthDate);
               handleViewChange('month');
@@ -383,7 +379,11 @@ const Calendar = (props) => {
             showDoubleView={showDoubleView}
             value={selectedValue}
             onHover={handleHover}
-            onClearHover={() => setcontrolledHoveredDate(null)}
+            onClearHover={() => {
+              hoverRef.current = null;
+              setcontrolledHoveredDate(null);
+              onRangeHover?.({ start: controlledRangeStart, end: null });
+            }}
             today={today}
             weekStartDay={weekStartDay}
             className={monthViewClassName}

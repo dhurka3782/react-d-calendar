@@ -55,13 +55,14 @@ const MonthView = ({
     [onDateSelect, tileDisabled]
   );
 
-  const handleMouseOver = useCallback(
+ const handleMouseOver = useCallback(
     (date) => {
-      if (isDragging && !tileDisabled?.({ date })) {
+      if (!tileDisabled?.({ date })) {
+        console.log('Mouse over date:', date.toISOString());
         onHover?.(date);
       }
     },
-    [isDragging, onHover, tileDisabled]
+    [onHover, tileDisabled]
   );
 
   const handleMouseUp = useCallback(() => {
@@ -82,11 +83,11 @@ const MonthView = ({
   const handleTouchMove = useCallback(
     (e, date) => {
       e.preventDefault();
-      if (isDragging && !tileDisabled?.({ date })) {
-        onHover?.(date);
+      if (!tileDisabled?.({ date })) {
+        onHover?.(date); 
       }
     },
-    [isDragging, onHover, tileDisabled]
+    [onHover, tileDisabled]
   );
 
   const handleTouchEnd = useCallback(() => {
@@ -94,7 +95,7 @@ const MonthView = ({
   }, []);
 
   const getWeekdayLabel = (index) => {
-    const weekdayDate = new Date(today.getFullYear(), 0, ((index + weekStartDay) % 7) + 4); 
+    const weekdayDate = new Date(today.getFullYear(), 0, ((index + weekStartDay) % 7) + 4);
     if (formatWeekday) {
       return formatWeekday(weekdayDate, locale);
     }
@@ -177,7 +178,7 @@ const MonthView = ({
                 key={index}
                 onClick={() => !isDisabled && (event ? onClickEvent?.(event) : onDateSelect(dayInfo.date))}
                 onDoubleClick={() => !isDisabled && onDrillDown?.()}
-                onMouseDown={() => handleMouseDown(dayInfo.date)}
+                onMouseDown={() => handleMouseDown(dayInfo)}
                 onMouseEnter={() => handleMouseOver(dayInfo.date)}
                 onTouchStart={(e) => handleTouchStart(e, dayInfo.date)}
                 onTouchMove={(e) => handleTouchMove(e, dayInfo.date)}

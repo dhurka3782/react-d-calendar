@@ -3,6 +3,7 @@ import { FixedSizeList } from 'react-window';
 
 const YearView = ({
   date,
+  value,
   onMonthSelect,
   tileDisabled,
   tileClassName,
@@ -32,6 +33,14 @@ const YearView = ({
   const renderMonth = ({ index, style }) => {
     const monthDate = months[index];
     const isDisabled = tileDisabled?.(monthDate);
+
+    const selectedDate = Array.isArray(value) ? value[0] : value;
+    const isSelected = selectedDate &&
+      monthDate.getMonth() === selectedDate.getMonth() &&
+      monthDate.getFullYear() === selectedDate.getFullYear();
+
+    const extraClass = tileClassName?.({ date: monthDate }) || '';
+
     return (
       <button
         style={style}
@@ -40,7 +49,7 @@ const YearView = ({
         onDoubleClick={() => !isDisabled && onDrillUp?.()}
         onKeyDown={(e) => handleKeyDown(e, monthDate)}
         disabled={isDisabled}
-        className={`year-month ${monthDate.getFullYear() !== year ? 'adjacent-year' : ''} ${tileClassName?.({ date: monthDate }) || ''}`}
+        className={`year-month ${isSelected ? 'selected' : ''} ${monthDate.getFullYear() !== year ? 'adjacent-year' : ''} ${extraClass}`}
         aria-label={`Select ${monthDate.toLocaleString(locale, { month: 'long', year: 'numeric' })}`}
         tabIndex={isDisabled ? -1 : 0}
       >
