@@ -62,6 +62,13 @@ const Header = ({
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const dropdownRef = useRef(null);
   const activeYearRef = useRef(null);
+  const [selectedIndex, setSelectedIndex] = useState(-1);
+
+  const currentYear = date.getFullYear();
+  const years = Array.from({ length: 151 }, (_, i) => currentYear - 75 + i);
+  const filteredYears = years.filter((year) =>
+    year.toString().includes(search.toLowerCase())
+  );
 
   const handleYearChange = (year) => {
     const newDate = new Date(date);
@@ -69,15 +76,8 @@ const Header = ({
     onChange(newDate);
     setIsDropdownOpen(false);
     setSearch('');
+    setSelectedIndex(-1);
   };
-
-  const currentYear = date.getFullYear();
-  const years = Array.from({ length: 151 }, (_, i) => currentYear - 75 + i); 
-  const decades = Array.from({ length: 16 }, (_, i) => currentYear - 75 + i * 10);
-
-  const filteredYears = years.filter((year) =>
-    year.toString().includes(search.toLowerCase())
-  );
 
   const getNavigationLabel = () => {
     if (navigationLabel) return navigationLabel({ date, view, locale });
@@ -116,21 +116,58 @@ const Header = ({
       if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
         setIsDropdownOpen(false);
         setSearch('');
+        setSelectedIndex(-1);
       }
     };
     document.addEventListener('mousedown', handleClickOutside);
     return () => document.removeEventListener('mousedown', handleClickOutside);
   }, []);
 
-  // Scroll to active year when dropdown opens
+  // Scroll to selected year and handle keyboard navigation
   useEffect(() => {
     if (isDropdownOpen && activeYearRef.current && !search) {
       activeYearRef.current.scrollIntoView({
         behavior: 'smooth',
-        block: 'center',
+        block: 'nearest',
       });
     }
   }, [isDropdownOpen, search]);
+
+  const handleKeyDown = (e) => {
+    if (!isDropdownOpen) return;
+
+    switch (e.key) {
+      case 'ArrowUp':
+        e.preventDefault();
+        setSelectedIndex((prev) => (prev > 0 ? prev - 1 : filteredYears.length - 1));
+        break;
+      case 'ArrowDown':
+        e.preventDefault();
+        setSelectedIndex((prev) => (prev < filteredYears.length - 1 ? prev + 1 : 0));
+        break;
+      case 'Enter':
+        e.preventDefault();
+        if (selectedIndex >= 0 && selectedIndex < filteredYears.length) {
+          handleYearChange(filteredYears[selectedIndex]);
+        }
+        break;
+      case 'Escape':
+        e.preventDefault();
+        setIsDropdownOpen(false);
+        setSearch('');
+        setSelectedIndex(-1);
+        break;
+      default:
+        break;
+    }
+
+    if (selectedIndex >= 0) {
+      const selectedElement = document.querySelectorAll('.year-option')[selectedIndex];
+      if (selectedElement) {
+        selectedElement.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+      }
+    }
+  };
 
   return (
     <div className="header" aria-live={navigationAriaLive}>
@@ -158,16 +195,12 @@ const Header = ({
             role="combobox"
             aria-label={getAriaLabel('select')}
             tabIndex={0}
-            onKeyDown={(e) => {
-              if (e.key === 'Enter' || e.key === ' ') {
-                setIsDropdownOpen(!isDropdownOpen);
-              }
-            }}
+            onKeyDown={handleKeyDown}
           >
             <span className="year-select-display">
               {formatYear ? formatYear(date, locale) : currentYear}
             </span>
-            <ChevronDown className="chevron-down" strokeWidth={1} />
+            <ChevronDown className="chevron-down" strokeWidth={1.5} />
           </div>
           {isDropdownOpen && (
             <div className="year-dropdown">
@@ -176,28 +209,29 @@ const Header = ({
                 className="year-search"
                 placeholder="Search year..."
                 value={search}
-                onChange={(e) => setSearch(e.target.value)}
+                onChange={(e) => {
+                  setSearch(e.target.value);
+                  setSelectedIndex(-1); 
+                }}
                 aria-label="Search for a year"
+                onKeyDown={handleKeyDown}
               />
-              <div className="year-dropdown-scroll">
-                {decades.map((decade) => (
-                  <div key={decade} className="decade-group">
-                    <div className="decade-label">{`${decade}-${decade + 9}`}</div>
-                    {filteredYears
-                      .filter((year) => year >= decade && year < decade + 10)
-                      .map((year) => (
-                        <button
-                          key={year}
-                          ref={year === currentYear ? activeYearRef : null}
-                          className={`year-option ${year === currentYear ? 'selected' : ''}`}
-                          onClick={() => handleYearChange(year)}
-                          aria-selected={year === currentYear}
-                          role="option"
-                        >
-                          {formatYear ? formatYear(new Date(date.setFullYear(year)), locale) : year}
-                        </button>
-                      ))}
-                  </div>
+              <div className="year-list" role="listbox">
+                {filteredYears.map((year, index) => (
+                  <button
+                    key={year}
+                    ref={year === currentYear ? activeYearRef : null}
+                    className={`year-option ${index === selectedIndex ? 'focused' : ''} ${
+                      year === currentYear ? 'current-year' : ''
+                    }`}
+                    onClick={() => handleYearChange(year)}
+                    aria-selected={year === currentYear}
+                    role="option"
+                    onMouseEnter={() => setSelectedIndex(index)}
+                    onMouseLeave={() => setSelectedIndex(-1)}
+                  >
+                    {formatYear ? formatYear(new Date(date.setFullYear(year)), locale) : year}
+                  </button>
                 ))}
               </div>
             </div>
