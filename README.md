@@ -4,13 +4,13 @@ A highly customizable, accessible, and responsive React calendar component for b
 
 ---
 ## 📸 Preview
+
 <p align="center">
-  <img src="./assets/images/month-view.png" alt="Month View" width="45%" />
-  <img src="./assets/images/range-selection.png" alt="Range Selection" width="45%" />
+  <img src="./src/assets/images/img-1.png" alt="Month View" width="45%" />
+  <img src="./src/assets/images/img-2.png" alt="Range Selection" width="45%" />
 </p>
 <p align="center">
-  <img src="./assets/images/year-view.png" alt="Year View" width="45%" />
-  <img src="./assets/images/mobile-view.png" alt="Mobile View" width="30%" />
+  <img src="./src/assets/images/video-1.gif" alt="Demo GIF" width="45%" />
 </p>
 
 ---
