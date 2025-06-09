@@ -7,6 +7,9 @@ export interface DayInfo {
 
 export interface Event {
   date: Date;
+  title?: string;
+  type?: string;
+  color?: string;
   [key: string]: any;
 }
 
@@ -55,7 +58,7 @@ export interface CalendarProps {
   showNeighboringMonth?: boolean;
   showWeekNumbers?: boolean;
   showNeighboringDecade?: boolean;
-  weekStartDay?: number;
+  weekStartDay?: 0 | 1 | 2 | 3 | 4 | 5 | 6;
   navigationAriaLabel?: string;
   navigationAriaLive?: string;
   navigationLabel?: ({ date, view, locale }: { date: Date; view: string; locale: string }) => string;
@@ -70,7 +73,7 @@ export interface CalendarProps {
   events?: Event[];
   theme?: string;
   weekdayFormat?: 'short' | 'full' | 'minimal';
-  dateFormat?: string;
+  dateFormat?: 'mm/dd/yyyy' | 'dd/mm/yyyy' | 'yyyy-mm-dd' | 'mm-dd-yyyy' | 'dd-mm-yyyy';
   monthFormat?: 'long' | 'short' | 'numeric';
   includeTime?: boolean;
   inputRef?: React.RefObject<HTMLElement>;
@@ -94,4 +97,5 @@ export interface CalendarProps {
   disabledViews?: string[];
   onClickEvent?: (event: Event) => void;
   renderEvent?: ({ event, date }: { event: Event; date: Date }) => React.ReactNode;
+  selectOnEventClick?: boolean;
 }

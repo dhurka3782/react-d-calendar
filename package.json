@@ -26,12 +26,16 @@
   "license": "MIT",
   "peerDependencies": {
     "react": "^18.2.0",
-    "react-dom": "^18.2.0"
+    "react-dom": "^18.2.0",
+    "lucide-react": "^0.511.0",
+     "react-window": "^1.8.11"
   },
   "dependencies": {
     "@tippyjs/react": "^4.2.6",
     "date-fns": "^3.6.0",
     "lucide-react": "^0.511.0",
+    "prop-types": "^15.8.1",
+    "react-virtualized-auto-sizer": "^1.0.26",
     "react-window": "^1.8.11",
     "styled-components": "^6.1.18"
   },

@@ -1,4 +1,5 @@
 import React from 'react';
+import PropTypes from 'prop-types';
 
 const DayView = ({
   date,
@@ -18,7 +19,14 @@ const DayView = ({
   onClickEvent,
   events = [],
   renderEvent,
+  selectOnEventClick = true,
 }) => {
+  const validDateFormats = ['mm/dd/yyyy', 'dd/mm/yyyy', 'yyyy-mm-dd', 'mm-dd-yyyy', 'dd-mm-yyyy'];
+  if (!validDateFormats.includes(dateFormat)) {
+    console.warn(`Invalid dateFormat: ${dateFormat}. Defaulting to 'mm/dd/yyyy'.`);
+    dateFormat = 'mm/dd/yyyy';
+  }
+
   const isDisabled = tileDisabled?.({ date });
   const isToday = date.toDateString() === today.toDateString();
   const event = events.find((e) => e.date.toDateString() === date.toDateString());
@@ -29,7 +37,6 @@ const DayView = ({
       year: dateFormat.includes('yyyy') ? 'numeric' : '2-digit',
     };
 
-    // Weekday format
     if (weekdayFormat === 'long') {
       options.weekday = 'long';
     } else if (weekdayFormat === 'short') {
@@ -38,7 +45,6 @@ const DayView = ({
       options.weekday = 'narrow';
     }
 
-    // Month format
     if (monthFormat === 'long') {
       options.month = 'long';
     } else if (monthFormat === 'short') {
@@ -47,20 +53,16 @@ const DayView = ({
       options.month = '2-digit';
     }
 
-    // Time inclusion
     if (includeTime) {
       options.hour = '2-digit';
       options.minute = '2-digit';
       options.second = '2-digit';
     }
 
-    // Custom date format
     let formattedDate = formatLongDate
       ? formatLongDate(date, locale)
       : date.toLocaleDateString(locale, options);
 
-    // Adjust for custom date formats
-    const [part1, part2, part3] = dateFormat.split(/[-/]/);
     const parts = {
       mm: options.month === '2-digit' ? date.toLocaleDateString(locale, { month: '2-digit' }) : date.toLocaleDateString(locale, { month: 'short' }),
       dd: date.toLocaleDateString(locale, { day: '2-digit' }),
@@ -101,7 +103,18 @@ const DayView = ({
   return (
     <div className={`day-view ${className || ''}`}>
       <button
-        onClick={() => !isDisabled && (event ? onClickEvent?.(event) : onDateSelect(date))}
+        onClick={() => {
+          if (!isDisabled) {
+            if (event) {
+              onClickEvent?.(event);
+              if (selectOnEventClick) {
+                onDateSelect(date);
+              }
+            } else {
+              onDateSelect(date);
+            }
+          }
+        }}
         onDoubleClick={() => !isDisabled && onDrillUp?.()}
         disabled={isDisabled}
         className={`day-detail ${isToday ? 'today' : ''} ${tileClassName?.({ date }) || ''}`}
@@ -110,12 +123,57 @@ const DayView = ({
           day: 'numeric',
           year: 'numeric',
         })}`}
+        aria-describedby={event ? `event-day-${date.toISOString()}` : undefined}
         tabIndex={isDisabled ? -1 : 0}
       >
+        {event && (
+          <span id={`event-day-${date.toISOString()}`} className="sr-only">
+            {event.title || 'Event'}
+          </span>
+        )}
         {content}
       </button>
     </div>
   );
+};
+
+DayView.propTypes = {
+  date: PropTypes.instanceOf(Date).isRequired,
+  onDateSelect: PropTypes.func.isRequired,
+  tileContent: PropTypes.func,
+  tileClassName: PropTypes.func,
+  tileDisabled: PropTypes.func,
+  formatLongDate: PropTypes.func,
+  dateFormat: PropTypes.oneOf(['mm/dd/yyyy', 'dd/mm/yyyy', 'yyyy-mm-dd', 'mm-dd-yyyy', 'dd-mm-yyyy']),
+  weekdayFormat: PropTypes.oneOf(['short', 'full', 'minimal']),
+  monthFormat: PropTypes.oneOf(['long', 'short', 'numeric']),
+  includeTime: PropTypes.bool,
+  locale: PropTypes.string,
+  onDrillUp: PropTypes.func,
+  today: PropTypes.instanceOf(Date),
+  className: PropTypes.string,
+  onClickEvent: PropTypes.func,
+  events: PropTypes.arrayOf(
+    PropTypes.shape({
+      date: PropTypes.instanceOf(Date).isRequired,
+      title: PropTypes.string,
+      type: PropTypes.string,
+      color: PropTypes.string,
+    })
+  ),
+  renderEvent: PropTypes.func,
+  selectOnEventClick: PropTypes.bool,
+};
+
+DayView.defaultProps = {
+  dateFormat: 'mm/dd/yyyy',
+  weekdayFormat: 'short',
+  monthFormat: 'long',
+  includeTime: false,
+  locale: 'en-US',
+  today: new Date(),
+  events: [],
+  selectOnEventClick: true,
 };
 
 export default React.memo(DayView);

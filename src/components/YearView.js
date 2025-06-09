@@ -1,4 +1,5 @@
 import React, { useCallback } from 'react';
+import PropTypes from 'prop-types';
 import { FixedSizeList } from 'react-window';
 import './styles.css';
 
@@ -78,6 +79,25 @@ const YearView = ({
       </FixedSizeList>
     </div>
   );
+};
+
+YearView.propTypes = {
+  date: PropTypes.instanceOf(Date).isRequired,
+  value: PropTypes.oneOfType([PropTypes.instanceOf(Date), PropTypes.arrayOf(PropTypes.instanceOf(Date))]),
+  onMonthSelect: PropTypes.func.isRequired,
+  tileDisabled: PropTypes.func,
+  tileClassName: PropTypes.func,
+  formatMonth: PropTypes.func,
+  showNeighboringDecade: PropTypes.bool,
+  locale: PropTypes.string,
+  onDrillUp: PropTypes.func,
+  className: PropTypes.string,
+};
+
+YearView.defaultProps = {
+  showNeighboringDecade: true,
+  locale: 'en-US',
+  className: '',
 };
 
 export default React.memo(YearView);

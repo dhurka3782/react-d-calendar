@@ -3,22 +3,6 @@ import PropTypes from 'prop-types';
 import { FixedSizeList } from 'react-window';
 import { getDecadesInCentury } from '../utils/dateUtils';
 
-/**
- * A component to display a grid of years for a decade.
- * @param {Object} props - Component props
- * @param {Date} props.date - The current date
- * @param {Date|Date[]} props.value - Selected date or range
- * @param {Function} props.onYearSelect - Callback for year selection
- * @param {Function} [props.tileDisabled] - Function to disable specific years
- * @param {Function} [props.tileClassName] - Function to add custom classes to year tiles
- * @param {Function} [props.formatYear] - Custom year formatting function
- * @param {boolean} [props.showNeighboringCentury] - Show years from adjacent centuries
- * @param {string} [props.locale] - Locale for formatting
- * @param {string} [props.calendarType] - Calendar type
- * @param {Object} [props.calendarPlugin] - Custom calendar plugin
- * @param {Function} [props.onDrillUp] - Callback for navigating up
- * @param {string} [props.className] - Additional CSS class
- */
 const DecadeView = ({
   date,
   value,
@@ -90,10 +74,7 @@ const DecadeView = ({
 
 DecadeView.propTypes = {
   date: PropTypes.instanceOf(Date).isRequired,
-  value: PropTypes.oneOfType([
-    PropTypes.instanceOf(Date),
-    PropTypes.arrayOf(PropTypes.instanceOf(Date)),
-  ]),
+  value: PropTypes.oneOfType([PropTypes.instanceOf(Date), PropTypes.arrayOf(PropTypes.instanceOf(Date))]),
   onYearSelect: PropTypes.func.isRequired,
   tileDisabled: PropTypes.func,
   tileClassName: PropTypes.func,
@@ -104,6 +85,13 @@ DecadeView.propTypes = {
   calendarPlugin: PropTypes.object,
   onDrillUp: PropTypes.func,
   className: PropTypes.string,
+};
+
+DecadeView.defaultProps = {
+  showNeighboringCentury: true,
+  locale: 'en-US',
+  calendarType: 'gregorian',
+  className: '',
 };
 
 export default React.memo(DecadeView);

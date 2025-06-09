@@ -1,4 +1,5 @@
 import React, { useState, useRef, useEffect } from 'react';
+import PropTypes from 'prop-types';
 import { ChevronDown } from 'lucide-react';
 import './styles.css';
 
@@ -110,7 +111,6 @@ const Header = ({
     }
   };
 
-  // Close dropdown when clicking outside
   useEffect(() => {
     const handleClickOutside = (event) => {
       if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
@@ -123,7 +123,6 @@ const Header = ({
     return () => document.removeEventListener('mousedown', handleClickOutside);
   }, []);
 
-  // Scroll to selected year and handle keyboard navigation
   useEffect(() => {
     if (isDropdownOpen && activeYearRef.current && !search) {
       activeYearRef.current.scrollIntoView({
@@ -211,7 +210,7 @@ const Header = ({
                 value={search}
                 onChange={(e) => {
                   setSearch(e.target.value);
-                  setSelectedIndex(-1); 
+                  setSelectedIndex(-1);
                 }}
                 aria-label="Search for a year"
                 onKeyDown={handleKeyDown}
@@ -240,6 +239,38 @@ const Header = ({
       )}
     </div>
   );
+};
+
+Header.propTypes = {
+  showDoubleView: PropTypes.bool,
+  date: PropTypes.instanceOf(Date).isRequired,
+  onChange: PropTypes.func.isRequired,
+  view: PropTypes.oneOf(['day', 'month', 'year', 'decade']).isRequired,
+  minDetail: PropTypes.oneOf(['day', 'month', 'year', 'decade']),
+  maxDetail: PropTypes.oneOf(['day', 'month', 'year', 'decade']),
+  prevLabel: PropTypes.node,
+  prevAriaLabel: PropTypes.string,
+  nextLabel: PropTypes.node,
+  nextAriaLabel: PropTypes.string,
+  prev2Label: PropTypes.node,
+  prev2AriaLabel: PropTypes.string,
+  next2Label: PropTypes.node,
+  next2AriaLabel: PropTypes.string,
+  navigationLabel: PropTypes.func,
+  navigationAriaLabel: PropTypes.string,
+  navigationAriaLive: PropTypes.string,
+  formatMonthYear: PropTypes.func,
+  formatYear: PropTypes.func,
+  locale: PropTypes.string,
+};
+
+Header.defaultProps = {
+  showDoubleView: false,
+  minDetail: 'year',
+  maxDetail: 'month',
+  prevLabel: '‹',
+  nextLabel: '›',
+  locale: 'en-US',
 };
 
 export default Header;

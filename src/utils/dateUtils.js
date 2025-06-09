@@ -13,7 +13,6 @@ export const getDaysInMonth = (date, weekStartDay = 1, calendarType = 'gregorian
   const lastDayOfMonth = new Date(year, month + 1, 0);
   const firstDayIndex = (firstDayOfMonth.getDay() + 7 - weekStartDay) % 7;
 
-  // Days from previous month
   if (showNeighboringMonth) {
     const prevMonthLastDay = new Date(year, month, 0);
     for (let i = firstDayIndex - 1; i >= 0; i--) {
@@ -21,12 +20,10 @@ export const getDaysInMonth = (date, weekStartDay = 1, calendarType = 'gregorian
     }
   }
 
-  // Days of current month
   for (let d = new Date(firstDayOfMonth); d <= lastDayOfMonth; d.setDate(d.getDate() + 1)) {
     days.push({ date: new Date(d), isCurrentMonth: true });
   }
 
-  // Days from next month
   if (showNeighboringMonth || showFixedNumberOfWeeks) {
     const totalDays = days.length;
     const remainingDays = showFixedNumberOfWeeks ? 42 - totalDays : (Math.ceil(totalDays / 7) * 7) - totalDays;
