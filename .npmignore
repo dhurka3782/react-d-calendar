@@ -1,0 +1,15 @@
+node_modules/
+tests/
+coverage/
+src/
+*.test.js
+jest.config.js
+jest.setup.js
+jest.cssMock.js
+.babelrc
+webpack.config.js
+package-lock.json
+.gitignore
+tsconfig.json
+.eslintrc.json
+.prettierrc

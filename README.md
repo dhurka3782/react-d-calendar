@@ -1,21 +1,23 @@
-# 📅 react-d-calendar
+# react-d-calendar
 
 A highly customizable, accessible, and responsive React calendar component for building modern date pickers with ease.
 
 ---
-## 📸 Preview
+## Preview
 
 <p align="center">
-  <img src="./src/assets/images/img-1.png" alt="Month View" width="45%" />
-  <img src="./src/assets/images/img-2.png" alt="Range Selection" width="45%" />
+  <img src="./docs/assets/img-1.png" alt="Month View" width="45%" />
+  <img src="./docs/assets/img-2.png" alt="Range Selection" width="45%" />
 </p>
 <p align="center">
-  <img src="./src/assets/images/video-1.gif" alt="Demo GIF" width="45%" />
+  <img src="./docs/assets/video-1.gif" alt="Demo GIF" width="90%" />
 </p>
+
+Explore the `react-d-calendar` library in action at [https://dhurka3782.github.io/react-d-calendar-demo](https://dhurka3782.github.io/react-d-calendar-demo).
 
 ---
 
-## ✨ Features
+## Features
 
 - **Fully Customizable**: Style and render every part of the calendar to match your application's design.
 - **Multiple Views**: Supports day, month, year, and decade views with smooth navigation.
@@ -28,7 +30,7 @@ A highly customizable, accessible, and responsive React calendar component for b
 
 ---
 
-## 🚀 Installation
+## Installation
 
 ### Install via npm:
 ```bash
@@ -41,7 +43,7 @@ yarn add react-d-calendar
 ```
 ---
 
-## 📦 Usage
+## Usage
 
 ### Basic Example
 
@@ -79,7 +81,7 @@ function App() {
   return (
     <Calendar
       onDateSelect={(date) => alert(date.toDateString())}
-      formatDay={customDay}
+      tileContent={customDay}
       style={{ border: '1px solid #ccc', padding: '10px' }}
     />
   );
@@ -128,7 +130,7 @@ export default App;
 ---
 
 
-## ⚙️ Props
+## Props
 
 | Prop                   | Type                                     | Default        | Description                                |
 | ---------------------- | ---------------------------------------- | -------------- | ------------------------------------------ |
@@ -161,7 +163,7 @@ export default App;
 
 ---
 
-## 🎨 Customization
+## Customization
 ### Custom Theming
 #### Override default styles using the customTheme prop:
 ```jsx
@@ -209,7 +211,7 @@ const customFooter = ({ selectedValue }) => (
 ```
 ---
 
-## 🛠️ Development
+## Development
 ### Setup
 #### Clone the repository:
 ```bash
@@ -229,22 +231,22 @@ npm run build
 npm test
 ```
 ---
-## 📝 License
+## License
 
-This project is licensed under the [MIT License](./LICENSE).
+### This project is licensed under the [MIT License](./LICENSE).
 ---
 
-## 🌐 Resources
+## Resources
 
-- **📖 Documentation**
-- **🎥 Live Demo**
-- **📱 GitHub Repository**
+- [Documentation](https://github.com/dhurka3782/react-d-calendar/wiki)
+- [Live Demo](https://dhurka3782.github.io/react-d-calendar-demo)
+- [GitHub Repository](https://github.com/dhurka3782/react-d-calendar)
 
 ---
-## 🤝 Contributing
+## Contributing
 ### Contributions are welcome! Please feel free to submit a Pull Request.
 ---
-## 📧 Support
+## Support
 ### If you have any questions or need help, please open an issue on GitHub.
 
- Made with ❤️ by the React-D-Calendar team
+### Made with ❤️ by the React-D-Calendar team
