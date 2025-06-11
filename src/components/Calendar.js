@@ -5,6 +5,7 @@ import Header from './Header';
 import MonthView from './MonthView';
 import YearView from './YearView';
 import DayView from './DayView';
+import DecadeView from './DecadeView';
 import { getDaysInMonth, getWeeksInMonth } from '../utils/dateUtils';
 import './styles.css';
 
@@ -86,6 +87,10 @@ const Calendar = (props) => {
     onClickEvent,
     renderEvent = () => null,
     selectOnEventClick = true,
+    disableBeforeToday = false,
+    customDisabledDates = [],
+    customDisabledYears = [],
+    customDisabledMonths = [],
   } = props;
 
   // Validate props
@@ -114,13 +119,16 @@ const Calendar = (props) => {
   const hoverRef = useRef(null);
   const [viewHistory, setViewHistory] = useState([]);
   const [controlledHoveredDate, setControlledHoveredDate] = useState(null);
+  const today = new Date();
+  today.setHours(0, 0, 0, 0); 
 
   const handleViewChange = useCallback(
     (newView) => {
       if (
         disabledViews.includes(newView) ||
         (newView === 'day' && maxDetail === 'month') ||
-        (newView === 'year' && minDetail === 'month')
+        (newView === 'year' && minDetail === 'month') ||
+        (newView === 'decade' && minDetail === 'year')
       ) {
         return;
       }
@@ -181,20 +189,35 @@ const Calendar = (props) => {
 
   const isDateDisabled = useCallback(
     (date) => {
+      const isBeforeToday = disableBeforeToday && date < today;
+      const isCustomDisabled = customDisabledDates.some((d) => d.toDateString() === date.toDateString());
       if (minDate && date < minDate) return true;
       if (maxDate && date > maxDate) return true;
       if (disableDate) return disableDate(date);
-      return false;
+      return isBeforeToday || isCustomDisabled;
     },
-    [minDate, maxDate, disableDate]
+    [minDate, maxDate, disableDate, disableBeforeToday, customDisabledDates, today]
   );
 
   const isYearDisabled = useCallback(
     (year) => {
+      const currentYear = today.getFullYear();
+      const isBeforeCurrentYear = year < currentYear;
+      const isCustomDisabled = customDisabledYears.includes(year);
       if (disableYear) return disableYear(year);
-      return false;
+      return isBeforeCurrentYear || isCustomDisabled;
     },
-    [disableYear]
+    [disableYear, customDisabledYears, today]
+  );
+
+  const isMonthDisabled = useCallback(
+    (monthDate) => {
+      const isBeforeToday = disableBeforeToday && monthDate < new Date(today.getFullYear(), today.getMonth(), 1);
+      const isCustomDisabled = customDisabledMonths.some((m) => m.year === monthDate.getFullYear() && m.month === monthDate.getMonth());
+      if (disableYear) return disableYear(monthDate.getFullYear());
+      return isBeforeToday || isCustomDisabled;
+    },
+    [disableYear, disableBeforeToday, customDisabledMonths, today]
   );
 
   const handleHover = useCallback(
@@ -326,7 +349,7 @@ const Calendar = (props) => {
     [events, tileContent]
   );
 
- const memoizedDays = useMemo(() => {
+  const memoizedDays = useMemo(() => {
     const firstDays = getDaysInMonth(activeDate, weekStartDay, calendarType, showFixedNumberOfWeeks, showNeighboringMonth);
     const secondDays = showDoubleView
       ? getDaysInMonth(
@@ -338,13 +361,12 @@ const Calendar = (props) => {
         )
       : [];
     return {
-      first: firstDays.map(d => ({ ...d })), 
-      second: secondDays.map(d => ({ ...d })),
+      first: firstDays.map((d) => ({ ...d })),
+      second: secondDays.map((d) => ({ ...d })),
     };
   }, [activeDate, weekStartDay, calendarType, showFixedNumberOfWeeks, showNeighboringMonth, showDoubleView]);
 
   const renderView = () => {
-    const today = new Date();
     switch (currentView) {
       case 'day':
         return renderDayView ? (
@@ -387,7 +409,7 @@ const Calendar = (props) => {
               onClickMonth?.(monthDate);
               onDrillDown?.();
             }}
-            tileDisabled={isYearDisabled}
+            tileDisabled={isMonthDisabled}
             tileClassName={tileClassName}
             formatMonth={formatMonth}
             showNeighboringDecade={showNeighboringDecade}
@@ -399,51 +421,73 @@ const Calendar = (props) => {
             className={yearViewClassName}
           />
         );
+      case 'decade':
+        return (
+          <DecadeView
+            date={activeDate}
+            value={selectedValue}
+            onYearSelect={(yearDate) => {
+              handleActiveDateChange(yearDate);
+              handleViewChange('year');
+              onDrillDown?.();
+            }}
+            tileDisabled={isYearDisabled}
+            tileClassName={tileClassName}
+            formatYear={formatYear}
+            showNeighboringCentury={showNeighboringDecade}
+            locale={locale}
+            onDrillUp={() => {
+              handleViewChange('year'); 
+              onDrillUp?.();
+            }}
+            className={yearViewClassName}
+          />
+        );
       case 'month':
         return renderMonthView ? (
           renderMonthView({ date: activeDate, onDateSelect: handleDateSelect })
         ) : (
-            <MonthView
-              date={activeDate}
-              onDateSelect={handleDateSelect}
-              onClickWeekNumber={onClickWeekNumber}
-              tileContent={customTileContent}
-              tileClassName={getTileClassName}
-              tileDisabled={tileDisabled || isDateDisabled}
-              showWeekNumbers={showWeekNumbers}
-              showNeighboringMonth={showNeighboringMonth}
-              showFixedNumberOfWeeks={showFixedNumberOfWeeks}
-              formatDay={formatDay}
-              formatWeekday={formatWeekday}
-              formatShortWeekday={formatShortWeekday}
-              weekdayFormat={weekdayFormat}
-              locale={locale}
-              calendarType={calendarType}
-              onDrillDown={() => {
-                handleViewChange('day');
-                onDrillDown?.();
-              }}
-              onDrillUp={() => {
-                handleViewChange('year');
-                onDrillUp?.();
-              }}
-              showDoubleView={showDoubleView}
-              value={selectedValue}
-              onHover={handleHover}
-              onClearHover={() => {
-                hoverRef.current = null;
-                setControlledHoveredDate(null);
-                onRangeHover?.({ start: controlledRangeStart, end: null });
-              }}
-              today={today}
-              weekStartDay={weekStartDay}
-              className={monthViewClassName}
-              onClickEvent={onClickEvent}
-              events={events}
-              renderEvent={renderEvent}
-              selectOnEventClick={selectOnEventClick}
-              days={memoizedDays}
-            />
+          <MonthView
+            date={activeDate}
+            onDateSelect={handleDateSelect}
+            onClickWeekNumber={onClickWeekNumber}
+            tileContent={customTileContent}
+            tileClassName={getTileClassName}
+            tileDisabled={tileDisabled || isDateDisabled}
+            showWeekNumbers={showWeekNumbers}
+            showNeighboringMonth={showNeighboringMonth}
+            showFixedNumberOfWeeks={showFixedNumberOfWeeks}
+            formatDay={formatDay}
+            formatWeekday={formatWeekday}
+            formatShortWeekday={formatShortWeekday}
+            weekdayFormat={weekdayFormat}
+            locale={locale}
+            calendarType={calendarType}
+            onDrillDown={() => {
+              handleViewChange('day');
+              onDrillDown?.();
+            }}
+            onDrillUp={() => {
+              handleViewChange('year');
+              onDrillUp?.();
+            }}
+            showDoubleView={showDoubleView}
+            value={selectedValue}
+            onHover={handleHover}
+            onClearHover={() => {
+              hoverRef.current = null;
+              setControlledHoveredDate(null);
+              onRangeHover?.({ start: controlledRangeStart, end: null });
+            }}
+            today={today}
+            weekStartDay={weekStartDay}
+            className={monthViewClassName}
+            onClickEvent={onClickEvent}
+            events={events}
+            renderEvent={renderEvent}
+            selectOnEventClick={selectOnEventClick}
+            days={memoizedDays}
+          />
         );
       default:
         return null;
@@ -611,6 +655,10 @@ Calendar.propTypes = {
   onClickEvent: PropTypes.func,
   renderEvent: PropTypes.func,
   selectOnEventClick: PropTypes.bool,
+  disableBeforeToday: PropTypes.bool,
+  customDisabledDates: PropTypes.arrayOf(PropTypes.instanceOf(Date)),
+  customDisabledYears: PropTypes.arrayOf(PropTypes.number),
+  customDisabledMonths: PropTypes.arrayOf(PropTypes.shape({ year: PropTypes.number, month: PropTypes.number })),
 };
 
 Calendar.defaultProps = {
@@ -642,6 +690,10 @@ Calendar.defaultProps = {
   weekStartDay: 1,
   disabledViews: [],
   selectOnEventClick: true,
+  disableBeforeToday: false,
+  customDisabledDates: [],
+  customDisabledYears: [],
+  customDisabledMonths: [],
 };
 
 export default Calendar;
