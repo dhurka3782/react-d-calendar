@@ -13,20 +13,21 @@ A highly customizable, accessible, and responsive React calendar component for b
   <img src="./docs/assets/video-1.gif" alt="Demo GIF" width="90%" />
 </p>
 
-Explore the `react-d-calendar` library in action at [https://dhurka3782.github.io/react-d-calendar-demo](https://dhurka3782.github.io/react-d-calendar-demo).
+Explore the `react-d-calendar` library in action at [Live Demo](https://dhurka3782.github.io/react-d-calendar-demo).
 
 ---
 
 ## Features
 
-- **Fully Customizable**: Style and render every part of the calendar to match your application's design.
-- **Multiple Views**: Supports day, month, year, and decade views with smooth navigation.
-- **Range Selection**: Enable single-date or range selection for flexible use cases.
-- **Accessible**: Built with ARIA support for screen readers and keyboard navigation.
-- **Responsive Design**: Adapts seamlessly to different screen sizes, including mobile devices.
-- **Event Support**: Highlight holidays, events, or custom markers with ease.
-- **Theming**: Light, dark, or custom themes with CSS variable support.
-- **Internationalization**: Locale support for date formatting and weekday labels.
+- **Highly Customizable**: Tailor every aspect of the calendar (styles, rendering, and behavior) to fit your application's design system.
+- **Multiple Views**: Supports day, month, year, and decade views with intuitive navigation.
+- **Range Selection**: Offers single-date or range selection modes for flexible use cases.
+- **Accessibility (a11y)**: Built with ARIA labels, keyboard navigation, and screen reader support for an inclusive experience.
+- **Responsive Design**: Adapts effortlessly to various screen sizes, including mobile and tablet devices.
+- **Event Management**: Easily highlight holidays, events, or custom markers with customizable styling.
+- **Theming**: Supports light, dark, and custom themes using CSS variables for consistent branding.
+- **Internationalization**: Full locale support for date formatting and weekday labels.
+- **Performance Optimized**: Utilizes React memoization for efficient rendering and updates.
 
 ---
 
@@ -43,7 +44,7 @@ yarn add react-d-calendar
 ```
 ---
 
-## Usage
+## Quick Start
 
 ### Basic Example
 
@@ -160,11 +161,10 @@ export default App;
 | `onClickEvent`         | `function`                               | `undefined`    | Event click callback.                      |
 | `selectOnEventClick`   | `boolean`                                | `true`         | Select date on event click.                |
 
-
 ---
 
 ## Customization
-### Custom Theming
+### Theming
 #### Override default styles using the customTheme prop:
 ```jsx
 <Calendar
@@ -176,19 +176,23 @@ export default App;
 />
 ```
 ### Custom Styles
-#### Add custom CSS to the calendar:
+#### Add custom styles via CSS variables or classes:
 ```css
 .calendar {
   --primary-color: #2a4365;
   --accent-color: #22c55e;
   --day-size: 48px;
 }
+
+.custom-calendar .calendar-day:hover {
+  background-color: #f0f4f8;
+}
 ```
 ```jsx
 <Calendar className="calendar" />
 ```
 ### Custom Event Rendering
-#### Render custom event indicators:
+#### Customize event indicators:
 ```jsx
 const renderEvent = ({ event, date }) => (
   <span className="custom-event" style={{ backgroundColor: event.color }}>
@@ -199,7 +203,7 @@ const renderEvent = ({ event, date }) => (
 <Calendar events={events} renderEvent={renderEvent} />
 ```
 ### Custom Footer
-#### Add a custom footer to display selected dates or additional controls:
+#### Add a footer with selected date information:
 ```jsx
 const customFooter = ({ selectedValue }) => (
   <div style={{ padding: '10px', textAlign: 'center' }}>
@@ -209,6 +213,7 @@ const customFooter = ({ selectedValue }) => (
 
 <Calendar renderCustomFooter={customFooter} />
 ```
+#### For a complete list of props and advanced usage, refer to the [Documentation](https://github.com/dhurka3782/react-d-calendar/wiki/Customization).
 ---
 
 ## Development
@@ -244,9 +249,21 @@ npm test
 
 ---
 ## Contributing
-### Contributions are welcome! Please feel free to submit a Pull Request.
+### We welcome contributions! Please follow these steps:
+
+- Fork the repository.
+- Create a feature branch  ``` git checkout -b feature/new-feature ``` .
+- Commit your changes ``` git commit -m 'Add new feature ```.
+- Push to the branch ``` git push origin feature/new-feature ```.
+- Open a Pull Request with a clear description of your changes.
+
+### Guidelines
+- Ensure code follows [ESLint](https://eslint.org/) and [Prettier](https://prettier.io/) standards.
+- Add tests for new features or bug fixes.
+- Update documentation as needed.
 ---
 ## Support
-### If you have any questions or need help, please open an issue on GitHub.
+### For questions, bugs, or feature requests, please open an issue on [GitHub](https://github.com/dhurka3782/react-d-calendar/issues).
+---
 
 ### Made with ❤️ by the React-D-Calendar team

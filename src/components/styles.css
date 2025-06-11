@@ -272,7 +272,8 @@
 .calendar-day {
   width: 40px;
   height: 40px;
-  padding: 0.5rem;
+  margin: 0;
+  padding: 8px;
   border: none;
   background: #f7fafc;
   cursor: pointer;
@@ -304,6 +305,17 @@
   box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
 }
 
+.calendar-day.today::after {
+  content: "";
+  position: absolute;
+  bottom: 6px;
+  left: 30%;
+  width: 40%;
+  height: 1px;
+  background-color: #024575;
+  border-radius: 2px; 
+}
+
 .calendar-day.today:hover {
   background: #2085ad;
   transform: scale(1.1);
@@ -328,6 +340,8 @@
   font-weight: 700;
   border-radius: 8px;
   box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+  border: 1px solid #4b6cb7;
+  z-index: 2;
 }
 
 .calendar-day.selected-start:hover,
@@ -370,6 +384,22 @@
   color: #2b2a2a;
   border-radius: 0;
   transition: all 0.3s ease-in-out;
+  border-left: 1px solid #e2e8f0; 
+  border-right: 1px solid #e2e8f0;
+  position: relative; 
+  z-index: 1;
+}
+
+.calendar-day.in-range + .calendar-day.in-range {
+  border-left: none; 
+}
+
+.calendar-day.in-range:first-child {
+  border-left: 1px solid #e2e8f0; 
+}
+
+.calendar-day.in-range:last-child {
+  border-right: 1px solid #e2e8f0;
 }
 
 .calendar-day.in-range:hover {

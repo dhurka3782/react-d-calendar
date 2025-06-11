@@ -55,7 +55,7 @@ const MonthView = ({
     [onDateSelect, tileDisabled]
   );
 
- const handleMouseOver = useCallback(
+  const handleMouseOver = useCallback(
     (date) => {
       if (!tileDisabled?.({ date })) {
         console.log('Mouse over date:', date.toISOString());
@@ -84,7 +84,7 @@ const MonthView = ({
     (e, date) => {
       e.preventDefault();
       if (!tileDisabled?.({ date })) {
-        onHover?.(date); 
+        onHover?.(date);
       }
     },
     [onHover, tileDisabled]
@@ -95,7 +95,7 @@ const MonthView = ({
   }, []);
 
   const getWeekdayLabel = (index) => {
-    const weekdayDate = new Date(today.getFullYear(), 0, ((index + weekStartDay) % 7) + 4);
+    const weekdayDate = new Date(today.getFullYear(), 0, ((index + weekStartDay) % 7) + 1); 
     if (formatWeekday) {
       return formatWeekday(weekdayDate, locale);
     }
@@ -106,9 +106,10 @@ const MonthView = ({
         ? formatShortWeekday(weekdayDate, locale)
         : weekdayDate.toLocaleString(locale, { weekday: 'short' }).toUpperCase();
     } else if (weekdayFormat === 'minimal') {
-      return ['MO', 'TU', 'WE', 'TH', 'FR', 'SA', 'SU'][(index + weekStartDay) % 7];
+      const minimalDays = ['SU', 'MO', 'TU', 'WE', 'TH', 'FR', 'SA'];
+      return minimalDays[(index + weekStartDay) % 7];
     }
-    return ['MON', 'TUE', 'WED', 'THU', 'FRI', 'SAT', 'SUN'][(index + weekStartDay) % 7];
+    return ['SUN', 'MON', 'TUE', 'WED', 'THU', 'FRI', 'SAT'][(index + weekStartDay) % 7];
   };
 
   const renderMonth = (monthOffset = 0) => {
@@ -130,20 +131,19 @@ const MonthView = ({
       <div className={`calendar-instance ${className || ''}`}>
         <div className="calendar-weekdays">
           {showWeekNumbers && <div className="weekday week-number">Week</div>}
-          {Array.from({ length: 7 }).map((_, index) => (
-            <div
-              key={index}
-              className={`weekday ${
-                index === (5 + weekStartDay) % 7
-                  ? 'saturday'
-                  : index === (6 + weekStartDay) % 7
-                  ? 'sunday'
-                  : ''
-              }`}
-            >
-              {getWeekdayLabel(index)}
-            </div>
-          ))}
+          {Array.from({ length: 7 }).map((_, index) => {
+            const absoluteIndex = (index + weekStartDay) % 7;
+            const isSaturday = absoluteIndex === 6;
+            const isSunday = absoluteIndex === 0;
+            return (
+              <div
+                key={index}
+                className={`weekday ${isSaturday ? 'saturday' : ''} ${isSunday ? 'sunday' : ''}`}
+              >
+                {getWeekdayLabel(index)}
+              </div>
+            );
+          })}
         </div>
         <div
           className="calendar-days"
@@ -165,8 +165,8 @@ const MonthView = ({
             ))}
           {days.map((dayInfo, index) => {
             const isToday = dayInfo.date.toDateString() === today.toDateString();
-            const isSaturday = dayInfo.date.getDay() === (5 + weekStartDay) % 7;
-            const isSunday = dayInfo.date.getDay() === (6 + weekStartDay) % 7;
+            const isSaturday = dayInfo.date.getDay() === 6;
+            const isSunday = dayInfo.date.getDay() === 0;
             const isDisabled = tileDisabled?.({ date: dayInfo.date });
             const isSelectedStart = rangeStart && dayInfo.date.toDateString() === rangeStart.toDateString();
             const isSelectedEnd = rangeEnd && dayInfo.date.toDateString() === rangeEnd.toDateString();
