@@ -24,6 +24,7 @@ const Header = ({
   formatMonthYear,
   formatYear,
   locale,
+  isYearDisabled, 
 }) => {
   const prev = () => {
     const newDate = new Date(date);
@@ -72,12 +73,14 @@ const Header = ({
   );
 
   const handleYearChange = (year) => {
-    const newDate = new Date(date);
-    newDate.setFullYear(year);
-    onChange(newDate);
-    setIsDropdownOpen(false);
-    setSearch('');
-    setSelectedIndex(-1);
+    if (!isYearDisabled || !isYearDisabled(year)) {
+      const newDate = new Date(date);
+      newDate.setFullYear(year);
+      onChange(newDate);
+      setIsDropdownOpen(false);
+      setSearch('');
+      setSelectedIndex(-1);
+    }
   };
 
   const getNavigationLabel = () => {
@@ -138,15 +141,27 @@ const Header = ({
     switch (e.key) {
       case 'ArrowUp':
         e.preventDefault();
-        setSelectedIndex((prev) => (prev > 0 ? prev - 1 : filteredYears.length - 1));
+        setSelectedIndex((prev) => {
+          let newIndex = prev > 0 ? prev - 1 : filteredYears.length - 1;
+          while (newIndex > 0 && isYearDisabled && isYearDisabled(filteredYears[newIndex])) {
+            newIndex--;
+          }
+          return newIndex;
+        });
         break;
       case 'ArrowDown':
         e.preventDefault();
-        setSelectedIndex((prev) => (prev < filteredYears.length - 1 ? prev + 1 : 0));
+        setSelectedIndex((prev) => {
+          let newIndex = prev < filteredYears.length - 1 ? prev + 1 : 0;
+          while (newIndex < filteredYears.length - 1 && isYearDisabled && isYearDisabled(filteredYears[newIndex])) {
+            newIndex++;
+          }
+          return newIndex;
+        });
         break;
       case 'Enter':
         e.preventDefault();
-        if (selectedIndex >= 0 && selectedIndex < filteredYears.length) {
+        if (selectedIndex >= 0 && selectedIndex < filteredYears.length && (!isYearDisabled || !isYearDisabled(filteredYears[selectedIndex]))) {
           handleYearChange(filteredYears[selectedIndex]);
         }
         break;
@@ -222,12 +237,13 @@ const Header = ({
                     ref={year === currentYear ? activeYearRef : null}
                     className={`year-option ${index === selectedIndex ? 'focused' : ''} ${
                       year === currentYear ? 'current-year' : ''
-                    }`}
+                    } ${isYearDisabled && isYearDisabled(year) ? 'disabled' : ''}`} 
                     onClick={() => handleYearChange(year)}
                     aria-selected={year === currentYear}
                     role="option"
                     onMouseEnter={() => setSelectedIndex(index)}
                     onMouseLeave={() => setSelectedIndex(-1)}
+                    disabled={isYearDisabled && isYearDisabled(year)} 
                   >
                     {formatYear ? formatYear(new Date(date.setFullYear(year)), locale) : year}
                   </button>
@@ -262,6 +278,7 @@ Header.propTypes = {
   formatMonthYear: PropTypes.func,
   formatYear: PropTypes.func,
   locale: PropTypes.string,
+  isYearDisabled: PropTypes.func,
 };
 
 Header.defaultProps = {
@@ -271,6 +288,7 @@ Header.defaultProps = {
   prevLabel: '‹',
   nextLabel: '›',
   locale: 'en-US',
+  isYearDisabled: null, 
 };
 
 export default Header;

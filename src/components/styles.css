@@ -230,9 +230,9 @@
 }
 
 .year-option:disabled {
-  background: #ffffff;
-  color: #6b6868;
+  color: #ccc;
   cursor: not-allowed;
+  background-color: #f9f9f9;
   opacity: 0.6;
 }
 

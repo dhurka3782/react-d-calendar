@@ -1,4 +1,4 @@
-import React, { useState, useCallback, useRef, useMemo } from 'react';
+import React, { useState, useCallback, useRef, useMemo, useEffect } from 'react';
 import PropTypes from 'prop-types';
 import { ChevronLeft, ChevronRight } from 'lucide-react';
 import Header from './Header';
@@ -87,6 +87,7 @@ const Calendar = (props) => {
     onClickEvent,
     renderEvent = () => null,
     selectOnEventClick = true,
+    // New props for flexible disabling
     disableBeforeToday = false,
     customDisabledDates = [],
     customDisabledYears = [],
@@ -120,7 +121,13 @@ const Calendar = (props) => {
   const [viewHistory, setViewHistory] = useState([]);
   const [controlledHoveredDate, setControlledHoveredDate] = useState(null);
   const today = new Date();
-  today.setHours(0, 0, 0, 0); 
+  today.setHours(0, 0, 0, 0);
+
+  useEffect(() => {
+    if (!activeStartDate && !defaultActiveStartDate && (!activeDate || activeDate.getFullYear() < today.getFullYear())) {
+      setActiveDate(new Date(today.getFullYear(), 0, 1));
+    }
+  }, [activeStartDate, defaultActiveStartDate, activeDate, today]);
 
   const handleViewChange = useCallback(
     (newView) => {
@@ -353,12 +360,12 @@ const Calendar = (props) => {
     const firstDays = getDaysInMonth(activeDate, weekStartDay, calendarType, showFixedNumberOfWeeks, showNeighboringMonth);
     const secondDays = showDoubleView
       ? getDaysInMonth(
-          new Date(activeDate.getFullYear(), activeDate.getMonth() + 1),
-          weekStartDay,
-          calendarType,
-          showFixedNumberOfWeeks,
-          showNeighboringMonth
-        )
+        new Date(activeDate.getFullYear(), activeDate.getMonth() + 1),
+        weekStartDay,
+        calendarType,
+        showFixedNumberOfWeeks,
+        showNeighboringMonth
+      )
       : [];
     return {
       first: firstDays.map((d) => ({ ...d })),
@@ -437,7 +444,7 @@ const Calendar = (props) => {
             showNeighboringCentury={showNeighboringDecade}
             locale={locale}
             onDrillUp={() => {
-              handleViewChange('year'); 
+              handleViewChange('year');
               onDrillUp?.();
             }}
             className={yearViewClassName}
@@ -541,6 +548,7 @@ const Calendar = (props) => {
             locale={locale}
             showDoubleView={showDoubleView}
             style={styleOverrides.header}
+            isYearDisabled={isYearDisabled}
           />
         ))}
       <div className="calendar-container" style={styleOverrides.container}>
