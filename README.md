@@ -13,21 +13,25 @@ A highly customizable, accessible, and responsive React calendar component for b
   <img src="./docs/assets/video-1.gif" alt="Demo GIF" width="90%" />
 </p>
 
-Explore the `react-d-calendar` library in action at [Live Demo](https://dhurka3782.github.io/react-d-calendar-demo).
+Try `react-d-calendar` in action at our [Live Demo](https://dhurka3782.github.io/react-d-calendar-demo).
 
 ---
 
 ## Features
 
-- **Highly Customizable**: Tailor every aspect of the calendar (styles, rendering, and behavior) to fit your application's design system.
-- **Multiple Views**: Supports day, month, year, and decade views with intuitive navigation.
-- **Range Selection**: Offers single-date or range selection modes for flexible use cases.
-- **Accessibility (a11y)**: Built with ARIA labels, keyboard navigation, and screen reader support for an inclusive experience.
-- **Responsive Design**: Adapts effortlessly to various screen sizes, including mobile and tablet devices.
-- **Event Management**: Easily highlight holidays, events, or custom markers with customizable styling.
-- **Theming**: Supports light, dark, and custom themes using CSS variables for consistent branding.
-- **Internationalization**: Full locale support for date formatting and weekday labels.
-- **Performance Optimized**: Utilizes React memoization for efficient rendering and updates.
+- **Highly Customizable**: Tailor styles, rendering, and behavior to match your application's design system.
+- **Multiple Views**: Seamlessly switch between day, month, year, and decade views.
+- **Single & Range Selection**: Support for single date or date range selection with customizable range limits.
+- **Accessibility (a11y)**: ARIA-compliant with keyboard navigation and screen reader support.
+- **Responsive Design**: Optimized for desktops, tablets, and mobile devices with fluid layouts.
+- **Event & Holiday Support**: Display events and holidays with custom styling and rendering.
+- **Theming**: Light, dark, and custom themes via CSS variables for consistent branding.
+- **Internationalization**: Full locale support for date formats, weekdays, and month names.
+- **Performance Optimized**: Leverages React memoization and `react-window` for efficient rendering.
+- **Custom Rendering**: Customize headers, footers, tiles, and events with flexible render props.
+- **Week Number Display**: Optional week numbers for better usability in scheduling apps.
+- **Disable Dates/Years/Months**: Fine-grained control over disabling specific dates, years, or months.
+- **Touch Support**: Optimized for touch devices with drag-and-drop range selection.
 
 ---
 
@@ -46,7 +50,7 @@ yarn add react-d-calendar
 
 ## Quick Start
 
-### Basic Example
+### Basic Usage
 
 ```jsx
 import React from 'react';
@@ -127,15 +131,85 @@ function App() {
 
 export default App;
 ```
+### Custom Day Rendering
 
+```jsx
+import React from 'react';
+import { Calendar } from 'react-d-calendar';
+import 'react-d-calendar/dist/styles.css';
+
+function App() {
+  const tileContent = ({ date }) => (
+    <div style={{ color: date.getDate() % 2 === 0 ? 'blue' : 'red' }}>
+      {date.getDate()}
+    </div>
+  );
+
+  return (
+    <Calendar
+      onChange={(date) => alert(date.toDateString())}
+      tileContent={tileContent}
+      style={{ border: '1px solid #ccc', padding: '16px', borderRadius: '8px' }}
+    />
+  );
+}
+
+export default App;
+```
+### Custom Footer with Selected Date
+
+```jsx
+import React from 'react';
+import { Calendar } from 'react-d-calendar';
+import 'react-d-calendar/dist/styles.css';
+
+function App() {
+  const renderCustomFooter = ({ selectedValue }) => (
+    <div style={{ padding: '12px', textAlign: 'center', fontSize: '14px' }}>
+      Selected: {selectedValue ? (Array.isArray(selectedValue) ? `${selectedValue[0].toDateString()} - ${selectedValue[1].toDateString()}` : selectedValue.toDateString()) : 'None'}
+    </div>
+  );
+
+  return (
+    <Calendar
+      selectionMode="range"
+      renderCustomFooter={renderCustomFooter}
+      onChange={(range) => console.log('Selected:', range)}
+    />
+  );
+}
+
+export default App;
+```
 ---
 
 
 ## Props
+### Below is a comprehensive list of props supported by react-d-calendar. For detailed usage, refer to the [Wiki](https://github.com/dhurka3782/react-d-calendar/wiki).
 
 | Prop                   | Type                                     | Default        | Description                                |
 | ---------------------- | ---------------------------------------- | -------------- | ------------------------------------------ |
-| `date`                 | `Date`                                   | `new Date()`   | The initial date to display.               |
+| `date`                 | `Date`                                   | `new Date()`   | Initial date to display.                   |
+| `activeStartDate`      | `Date`                                   | `undefined`    | Controlled start date for the calendar view. |
+| `defaultActiveStartDate` | `Date`                                 | `undefined`    | Default start date if `activeStartDate` is not provided. |
+| `value`                | `Date \| [Date, Date]`                   | `undefined`    | Controlled selected date or range.         |
+| `defaultValue`         | `Date \| [Date, Date]`                   | `undefined`    | Default selected date or range if `value` is not provided. |
+| `defaultView`          | `'day' \| 'month' \| 'year' \| 'decade'` | `'month'`      | Initial view mode.                         |
+| `disableDate`          | `(date: Date) => boolean`                | `undefined`    | Function to disable specific dates.        |
+| `disableYear`          | `(year: number) => boolean`              | `undefined`    | Function to disable specific years.        |
+| `disableMonth`         | `(monthDate: Date) => boolean`           | `undefined`    | Function to disable specific months.       |
+| `onChange`             | `(value: Date \| [Date, Date]) => void`  | `undefined`    | Callback for date or range selection.      |
+| `onClickMonth`         | `(date: Date) => void`                   | `undefined`    | Callback when a month is clicked.          |
+| `onClickWeekNumber`    | `(week: number, date: Date) => void`     | `undefined`    | Callback when a week number is clicked.    |
+| `onActiveStartDateChange` | `({ activeStartDate }: { activeStartDate: Date }) => void` | `undefined` | Callback for active start date changes. |
+| `onViewChange`         | `({ view }: { view: 'day' \| 'month' \| 'year' \| 'decade' }) => void` | `undefined` | Callback for view changes. |
+| `onDrillDown`          | `() => void`                             | `undefined`    | Callback when drilling down (e.g., month to day). |
+| `onDrillUp`            | `() => void`                             | `undefined`    | Callback when drilling up (e.g., day to month). |
+| `onRangeHover`         | `({ start, end }: { start: Date; end: Date \| null }) => void` | `undefined` | Callback for range hover events. |
+| `tileClassName`        | `({ date, view }: { date: Date; view: string }) => string \| null` | `undefined` | Add custom classes to tiles. |
+| `tileContent`          | `({ date, view, event }) => ReactNode`   | `undefined`    | Custom content for tiles.                  |
+| `tileDisabled`         | `({ date }: { date: Date }) => boolean`  | `undefined`    | Disable specific tiles.                    |
+| `customTileContent`    | `({ date, view, event }) => ReactNode`   | `undefined`    | Custom tile content for specific views.    |
 | `onDateSelect`         | `function`                               | `() => {}`     | Callback when a date or range is selected. |
 | `selectionMode`        | `'single' \| 'range'`                    | `'single'`     | Date selection mode.                       |
 | `events`               | `Array<{ date, title?, type?, color? }>` | `[]`           | Events to display.                         |
@@ -165,13 +239,14 @@ export default App;
 
 ## Customization
 ### Theming
-#### Override default styles using the customTheme prop:
+#### Customize the calendar's appearance using the customTheme prop:
 ```jsx
 <Calendar
   customTheme={{
-    primary: '#4b6cb7',
-    accent: '#48bb78',
-    daySize: '48px',
+    'background-color': '#1a202c',
+    'text-color': '#e2e8f0',
+    'primary-color': '#63b3ed',
+    'accent-color': '#68d391',
   }}
 />
 ```
@@ -181,11 +256,11 @@ export default App;
 .calendar {
   --primary-color: #2a4365;
   --accent-color: #22c55e;
-  --day-size: 48px;
 }
 
 .custom-calendar .calendar-day:hover {
   background-color: #f0f4f8;
+  transform: scale(1.1);
 }
 ```
 ```jsx
@@ -195,25 +270,36 @@ export default App;
 #### Customize event indicators:
 ```jsx
 const renderEvent = ({ event, date }) => (
-  <span className="custom-event" style={{ backgroundColor: event.color }}>
+  <span className="custom-event" style={{ backgroundColor: event.color, padding: '2px 6px', borderRadius: '4px' }}>
     {event.title}
   </span>
 );
 
 <Calendar events={events} renderEvent={renderEvent} />
 ```
-### Custom Footer
-#### Add a footer with selected date information:
+### Custom Header
+#### Customize the header:
 ```jsx
-const customFooter = ({ selectedValue }) => (
-  <div style={{ padding: '10px', textAlign: 'center' }}>
-    Selected: {selectedValue ? selectedValue.toDateString() : 'None'}
+const renderHeader = ({ date, onChange, view }) => (
+  <div style={{ display: 'flex', justifyContent: 'space-between', padding: '12px' }}>
+    <button onClick={() => onChange(new Date(date.setMonth(date.getMonth() - 1)))}>Prev</button>
+    <span>{date.toLocaleString('en-US', { month: 'long', year: 'numeric' })}</span>
+    <button onClick={() => onChange(new Date(date.setMonth(date.getMonth() + 1)))}>Next</button>
   </div>
 );
 
-<Calendar renderCustomFooter={customFooter} />
+<Calendar renderHeader={renderHeader} />
 ```
-#### For a complete list of props and advanced usage, refer to the [Documentation](https://github.com/dhurka3782/react-d-calendar/wiki/Customization).
+
+###  Disabling Dates
+#### Disable specific dates or ranges:
+```jsx
+<Calendar
+  disableDate={(date) => date.getDay() === 0} // Disable Sundays
+  customDisabledDates={[new Date(2025, 5, 10)]}
+  disableBeforeToday={true}
+/>
+```
 ---
 
 ## Development
@@ -236,6 +322,25 @@ npm run build
 npm test
 ```
 ---
+## Contributing
+### We welcome contributions! Follow these steps:
+
+- Fork the repository.
+- Create a feature branch  ``` git checkout -b feature/new-feature ``` .
+- Commit your changes ``` git commit -m 'Add new feature ```.
+- Push to the branch ``` git push origin feature/new-feature ```.
+- Open a Pull Request with a detailed description.
+
+### Guidelines
+- Adhere to [ESLint](https://eslint.org/) and [Prettier](https://prettier.io/) standards.
+- Write tests for new features or bug fixes using Jest.
+- Update documentation in the wiki for new features.
+- Ensure accessibility compliance (e.g., ARIA labels, keyboard support).
+---
+
+## Support
+### For questions, bugs, or feature requests, please open an issue on [GitHub](https://github.com/dhurka3782/react-d-calendar/issues).
+---
 ## License
 
 ### This project is licensed under the [MIT License](./LICENSE).
@@ -248,22 +353,5 @@ npm test
 - [GitHub Repository](https://github.com/dhurka3782/react-d-calendar)
 
 ---
-## Contributing
-### We welcome contributions! Please follow these steps:
 
-- Fork the repository.
-- Create a feature branch  ``` git checkout -b feature/new-feature ``` .
-- Commit your changes ``` git commit -m 'Add new feature ```.
-- Push to the branch ``` git push origin feature/new-feature ```.
-- Open a Pull Request with a clear description of your changes.
-
-### Guidelines
-- Ensure code follows [ESLint](https://eslint.org/) and [Prettier](https://prettier.io/) standards.
-- Add tests for new features or bug fixes.
-- Update documentation as needed.
----
-## Support
-### For questions, bugs, or feature requests, please open an issue on [GitHub](https://github.com/dhurka3782/react-d-calendar/issues).
----
-
-### Made with ❤️ by the React-D-Calendar team
+   ### Made with ❤️ by the React-D-Calendar team

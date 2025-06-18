@@ -36,18 +36,19 @@
   "author": "Dhurka D <dhurka3782@example.com>",
   "license": "MIT",
   "peerDependencies": {
-    "react": "^16.8.0 || ^17.0.0 || ^18.0.0 || ^19.0.0",
-    "react-dom": "^16.8.0 || ^17.0.0 || ^18.0.0 || ^19.0.0",
     "lucide-react": "^0.441.0 || ^0.511.0",
+    "react": "^19.1.0",
+    "react-dom": "^16.8.0 || ^17.0.0 || ^18.0.0 || ^19.0.0",
     "react-window": "^1.8.10 || ^1.8.11"
   },
   "dependencies": {
+    "@testing-library/user-event": "^14.6.1",
     "@tippyjs/react": "^4.2.6",
     "date-fns": "^3.6.0",
-    "lucide-react": "^0.511.0",
+    "lucide-react": "^0.441.0 || ^0.511.0",
     "prop-types": "^15.8.1",
     "react-virtualized-auto-sizer": "^1.0.26",
-    "react-window": "^1.8.11",
+    "react-window": "^1.8.10 || ^1.8.11",
     "styled-components": "^6.1.18"
   },
   "devDependencies": {

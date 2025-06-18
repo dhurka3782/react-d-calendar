@@ -9,6 +9,24 @@ import DecadeView from './DecadeView';
 import { getDaysInMonth, getWeeksInMonth } from '../utils/dateUtils';
 import './styles.css';
 
+const lightTheme = {
+  'background-color': '#f7fafc',
+  'text-color': '#2d3748',
+  'primary-color': '#4b6cb7',
+  'accent-color': '#48bb78',
+  'header-background': '#f7fafc',
+  'disabled-color': '#a0aec0',
+};
+
+const darkTheme = {
+  'background-color': '#1a202c',
+  'text-color': '#e2e8f0',
+  'primary-color': '#63b3ed',
+  'accent-color': '#68d391',
+  'header-background': '#2d3748',
+  'disabled-color': '#718096',
+};
+
 const Calendar = (props) => {
   const {
     date = new Date(),
@@ -74,6 +92,7 @@ const Calendar = (props) => {
     renderMonthView,
     renderYearView,
     renderDayView,
+    renderDecadeView,
     customTileContent,
     customTheme = {},
     dayViewClassName,
@@ -87,14 +106,14 @@ const Calendar = (props) => {
     onClickEvent,
     renderEvent = () => null,
     selectOnEventClick = true,
-    // New props for flexible disabling
     disableBeforeToday = false,
     customDisabledDates = [],
     customDisabledYears = [],
     customDisabledMonths = [],
+    backLabel = 'Back',
   } = props;
 
-  // Validate props
+  // Validation
   if (calendarType !== 'gregorian') {
     throw new Error(`Unsupported calendar type: ${calendarType}. Only 'gregorian' is supported.`);
   }
@@ -112,6 +131,7 @@ const Calendar = (props) => {
     props.selectionMode = 'single';
   }
 
+  // State
   const [currentView, setCurrentView] = useState(defaultView);
   const [activeDate, setActiveDate] = useState(activeStartDate || defaultActiveStartDate || date);
   const [selectedValue, setSelectedValue] = useState(value || defaultValue || null);
@@ -123,12 +143,25 @@ const Calendar = (props) => {
   const today = new Date();
   today.setHours(0, 0, 0, 0);
 
+  // Ensure activeDate is set correctly on mount
   useEffect(() => {
     if (!activeStartDate && !defaultActiveStartDate && (!activeDate || activeDate.getFullYear() < today.getFullYear())) {
       setActiveDate(new Date(today.getFullYear(), 0, 1));
     }
   }, [activeStartDate, defaultActiveStartDate, activeDate, today]);
 
+  // Theme handling
+  const baseTheme = theme === 'dark' ? darkTheme : lightTheme;
+  const finalTheme = { ...baseTheme, ...customTheme };
+  const themeStyles = Object.entries(finalTheme).reduce(
+    (styles, [key, value]) => {
+      styles[`--${key}`] = value;
+      return styles;
+    },
+    {}
+  );
+
+  // Handlers
   const handleViewChange = useCallback(
     (newView) => {
       if (
@@ -175,9 +208,7 @@ const Calendar = (props) => {
           if (rangeLimit) {
             const diffTime = Math.abs(date - controlledRangeStart);
             const diffDays = diffTime / (1000 * 60 * 60 * 24);
-            if (diffDays > rangeLimit) {
-              return;
-            }
+            if (diffDays > rangeLimit) return;
           }
           const range = [controlledRangeStart, date].sort((a, b) => a - b);
           setSelectedValue(range);
@@ -197,7 +228,9 @@ const Calendar = (props) => {
   const isDateDisabled = useCallback(
     (date) => {
       const isBeforeToday = disableBeforeToday && date < today;
-      const isCustomDisabled = customDisabledDates.some((d) => d.toDateString() === date.toDateString());
+      const isCustomDisabled = customDisabledDates.some(
+        (d) => d.toDateString() === date.toDateString()
+      );
       if (minDate && date < minDate) return true;
       if (maxDate && date > maxDate) return true;
       if (disableDate) return disableDate(date);
@@ -220,7 +253,9 @@ const Calendar = (props) => {
   const isMonthDisabled = useCallback(
     (monthDate) => {
       const isBeforeToday = disableBeforeToday && monthDate < new Date(today.getFullYear(), today.getMonth(), 1);
-      const isCustomDisabled = customDisabledMonths.some((m) => m.year === monthDate.getFullYear() && m.month === monthDate.getMonth());
+      const isCustomDisabled = customDisabledMonths.some(
+        (m) => m.year === monthDate.getFullYear() && m.month === monthDate.getMonth()
+      );
       if (disableYear) return disableYear(monthDate.getFullYear());
       return isBeforeToday || isCustomDisabled;
     },
@@ -230,9 +265,6 @@ const Calendar = (props) => {
   const handleHover = useCallback(
     (date) => {
       if (selectionMode === 'range' && controlledRangeStart) {
-        if (process.env.NODE_ENV === 'development') {
-          console.log('Hovering date:', date.toISOString());
-        }
         hoverRef.current = date;
         setControlledHoveredDate(date);
         if (onRangeHover && !tileDisabled?.({ date })) {
@@ -298,18 +330,13 @@ const Calendar = (props) => {
       ) ? 'holiday' : '';
 
       if (selectionMode === 'range' && controlledRangeStart && controlledHoveredDate) {
-        if (process.env.NODE_ENV === 'development') {
-          console.log('Applying hover classes for date:', date.toISOString(), 'hover:', controlledHoveredDate.toISOString());
-        }
         const [start, end] =
           controlledRangeStart < controlledHoveredDate
             ? [controlledRangeStart, controlledHoveredDate]
             : [controlledHoveredDate, controlledRangeStart];
-
         if (date >= start && date <= end) {
           return `${baseClasses} range-preview ${date.toDateString() === controlledHoveredDate.toDateString() ? 'hover-range-end' : ''} ${eventClasses} ${holidayClasses}`.trim();
         }
-
         if (date.toDateString() === controlledRangeStart.toDateString()) {
           return `${baseClasses} selected-start ${eventClasses} ${holidayClasses}`.trim();
         }
@@ -388,7 +415,7 @@ const Calendar = (props) => {
             formatLongDate={formatLongDate}
             dateFormat={dateFormat}
             weekdayFormat={weekdayFormat}
-            monthFormat={monthFormat}
+            monthFormat={formatMonth}
             includeTime={includeTime}
             locale={locale}
             onDrillUp={() => {
@@ -429,7 +456,9 @@ const Calendar = (props) => {
           />
         );
       case 'decade':
-        return (
+        return renderDecadeView ? (
+          renderDecadeView({ date: activeDate, onYearSelect })
+        ) : (
           <DecadeView
             date={activeDate}
             value={selectedValue}
@@ -501,18 +530,6 @@ const Calendar = (props) => {
     }
   };
 
-  const themeStyles = Object.entries(customTheme).reduce(
-    (styles, [key, value]) => {
-      styles[`--custom-${key}`] = value;
-      return styles;
-    },
-    {
-      '--primary-color': customTheme.primary || '#4b6cb7',
-      '--accent-color': customTheme.accent || '#48bb78',
-      '--day-size': customTheme.daySize || '40px',
-    }
-  );
-
   return (
     <div
       className={`calendar ${className} ${showDoubleView ? 'double-view' : ''} theme-${theme} ${customTheme ? 'custom-theme' : ''}`}
@@ -521,6 +538,7 @@ const Calendar = (props) => {
       onKeyDown={handleKeyDown}
       tabIndex={0}
       aria-label="Interactive Calendar"
+      role="calendar"
     >
       {showNavigation &&
         (renderHeader ? (
@@ -561,7 +579,7 @@ const Calendar = (props) => {
           aria-label="Back to previous view"
           style={styleOverrides.backButton}
         >
-          Back
+          {backLabel}
         </button>
       )}
       {renderCustomFooter && (
@@ -573,6 +591,7 @@ const Calendar = (props) => {
   );
 };
 
+// PropTypes
 Calendar.propTypes = {
   date: PropTypes.instanceOf(Date),
   defaultValue: PropTypes.oneOfType([PropTypes.instanceOf(Date), PropTypes.arrayOf(PropTypes.instanceOf(Date))]),
@@ -644,6 +663,7 @@ Calendar.propTypes = {
   renderMonthView: PropTypes.func,
   renderYearView: PropTypes.func,
   renderDayView: PropTypes.func,
+  renderDecadeView: PropTypes.func,
   customTileContent: PropTypes.func,
   customTheme: PropTypes.object,
   dayViewClassName: PropTypes.string,
@@ -667,8 +687,10 @@ Calendar.propTypes = {
   customDisabledDates: PropTypes.arrayOf(PropTypes.instanceOf(Date)),
   customDisabledYears: PropTypes.arrayOf(PropTypes.number),
   customDisabledMonths: PropTypes.arrayOf(PropTypes.shape({ year: PropTypes.number, month: PropTypes.number })),
+  backLabel: PropTypes.string,
 };
 
+// Default Props
 Calendar.defaultProps = {
   date: new Date(),
   selectionMode: 'single',
@@ -702,6 +724,7 @@ Calendar.defaultProps = {
   customDisabledDates: [],
   customDisabledYears: [],
   customDisabledMonths: [],
+  backLabel: 'Back',
 };
 
 export default Calendar;

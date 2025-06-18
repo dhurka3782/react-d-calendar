@@ -1,0 +1,584 @@
+// Jest Snapshot v1, https://jestjs.io/docs/snapshot-testing
+
+exports[`Calendar component matches snapshot 1`] = `
+<div>
+  <div
+    aria-label="Interactive Calendar"
+    class="calendar   theme-light custom-theme"
+    style="--background-color: #f7fafc; --text-color: #2d3748; --primary-color: #4b6cb7; --accent-color: #48bb78; --header-background: #f7fafc; --disabled-color: #a0aec0;"
+    tabindex="0"
+  >
+    <div
+      class="header"
+    >
+      <div
+        class="header-month-section"
+      >
+        <div
+          class="header-month-nav"
+        >
+          <button
+            aria-label="Previous"
+            class="nav-button"
+          >
+            <svg
+              aria-hidden="true"
+              class="lucide lucide-chevron-left"
+              fill="none"
+              height="18"
+              stroke="currentColor"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              stroke-width="2"
+              viewBox="0 0 24 24"
+              width="18"
+              xmlns="http://www.w3.org/2000/svg"
+            >
+              <path
+                d="m15 18-6-6 6-6"
+              />
+            </svg>
+          </button>
+          <span
+            class="header-month-label"
+          >
+            January 2025
+          </span>
+          <button
+            aria-label="Next"
+            class="nav-button"
+          >
+            <svg
+              aria-hidden="true"
+              class="lucide lucide-chevron-right"
+              fill="none"
+              height="18"
+              stroke="currentColor"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              stroke-width="2"
+              viewBox="0 0 24 24"
+              width="18"
+              xmlns="http://www.w3.org/2000/svg"
+            >
+              <path
+                d="m9 18 6-6-6-6"
+              />
+            </svg>
+          </button>
+        </div>
+      </div>
+      <div
+        class="header-year-section"
+      >
+        <div
+          aria-expanded="false"
+          aria-label="Select year for month view"
+          class="year-select-wrapper"
+          role="combobox"
+          tabindex="0"
+        >
+          <span
+            class="year-select-display"
+          >
+            2025
+          </span>
+          <svg
+            aria-hidden="true"
+            class="lucide lucide-chevron-down chevron-down"
+            fill="none"
+            height="24"
+            stroke="currentColor"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            stroke-width="1.5"
+            viewBox="0 0 24 24"
+            width="24"
+            xmlns="http://www.w3.org/2000/svg"
+          >
+            <path
+              d="m6 9 6 6 6-6"
+            />
+          </svg>
+        </div>
+      </div>
+    </div>
+    <div
+      class="calendar-container"
+    >
+      <div
+        class="calendar-container "
+      >
+        <div
+          class="calendar-instance "
+        >
+          <div
+            class="calendar-weekdays"
+          >
+            <div
+              class="weekday  "
+            >
+              THU
+            </div>
+            <div
+              class="weekday  "
+            >
+              FRI
+            </div>
+            <div
+              class="weekday  "
+            >
+              SAT
+            </div>
+            <div
+              class="weekday  "
+            >
+              SUN
+            </div>
+            <div
+              class="weekday  "
+            >
+              MON
+            </div>
+            <div
+              class="weekday saturday "
+            >
+              TUE
+            </div>
+            <div
+              class="weekday  sunday"
+            >
+              WED
+            </div>
+          </div>
+          <div
+            class="calendar-days"
+          >
+            <button
+              aria-label="Select December 30, 2024"
+              class="calendar-day
+                  
+                  
+                  
+                  adjacent-month"
+              tabindex="0"
+            >
+              <span
+                class="day-number"
+              >
+                30
+              </span>
+            </button>
+            <button
+              aria-label="Select December 31, 2024"
+              class="calendar-day
+                  
+                  
+                  
+                  adjacent-month"
+              tabindex="0"
+            >
+              <span
+                class="day-number"
+              >
+                31
+              </span>
+            </button>
+            <button
+              aria-label="Select January 1, 2025"
+              class="calendar-day"
+              tabindex="0"
+            >
+              <span
+                class="day-number"
+              >
+                1
+              </span>
+            </button>
+            <button
+              aria-label="Select January 2, 2025"
+              class="calendar-day"
+              tabindex="0"
+            >
+              <span
+                class="day-number"
+              >
+                2
+              </span>
+            </button>
+            <button
+              aria-label="Select January 3, 2025"
+              class="calendar-day"
+              tabindex="0"
+            >
+              <span
+                class="day-number"
+              >
+                3
+              </span>
+            </button>
+            <button
+              aria-label="Select January 4, 2025"
+              class="calendar-day
+                  
+                  saturday"
+              tabindex="0"
+            >
+              <span
+                class="day-number"
+              >
+                4
+              </span>
+            </button>
+            <button
+              aria-label="Select January 5, 2025"
+              class="calendar-day
+                  
+                  
+                  sunday"
+              tabindex="0"
+            >
+              <span
+                class="day-number"
+              >
+                5
+              </span>
+            </button>
+            <button
+              aria-label="Select January 6, 2025"
+              class="calendar-day"
+              tabindex="0"
+            >
+              <span
+                class="day-number"
+              >
+                6
+              </span>
+            </button>
+            <button
+              aria-label="Select January 7, 2025"
+              class="calendar-day"
+              tabindex="0"
+            >
+              <span
+                class="day-number"
+              >
+                7
+              </span>
+            </button>
+            <button
+              aria-label="Select January 8, 2025"
+              class="calendar-day"
+              tabindex="0"
+            >
+              <span
+                class="day-number"
+              >
+                8
+              </span>
+            </button>
+            <button
+              aria-label="Select January 9, 2025"
+              class="calendar-day"
+              tabindex="0"
+            >
+              <span
+                class="day-number"
+              >
+                9
+              </span>
+            </button>
+            <button
+              aria-label="Select January 10, 2025"
+              class="calendar-day"
+              tabindex="0"
+            >
+              <span
+                class="day-number"
+              >
+                10
+              </span>
+            </button>
+            <button
+              aria-label="Select January 11, 2025"
+              class="calendar-day
+                  
+                  saturday"
+              tabindex="0"
+            >
+              <span
+                class="day-number"
+              >
+                11
+              </span>
+            </button>
+            <button
+              aria-label="Select January 12, 2025"
+              class="calendar-day
+                  
+                  
+                  sunday"
+              tabindex="0"
+            >
+              <span
+                class="day-number"
+              >
+                12
+              </span>
+            </button>
+            <button
+              aria-label="Select January 13, 2025"
+              class="calendar-day"
+              tabindex="0"
+            >
+              <span
+                class="day-number"
+              >
+                13
+              </span>
+            </button>
+            <button
+              aria-label="Select January 14, 2025"
+              class="calendar-day"
+              tabindex="0"
+            >
+              <span
+                class="day-number"
+              >
+                14
+              </span>
+            </button>
+            <button
+              aria-label="Select January 15, 2025"
+              class="calendar-day"
+              tabindex="0"
+            >
+              <span
+                class="day-number"
+              >
+                15
+              </span>
+            </button>
+            <button
+              aria-label="Select January 16, 2025"
+              class="calendar-day"
+              tabindex="0"
+            >
+              <span
+                class="day-number"
+              >
+                16
+              </span>
+            </button>
+            <button
+              aria-label="Select January 17, 2025"
+              class="calendar-day"
+              tabindex="0"
+            >
+              <span
+                class="day-number"
+              >
+                17
+              </span>
+            </button>
+            <button
+              aria-label="Select January 18, 2025"
+              class="calendar-day
+                  
+                  saturday"
+              tabindex="0"
+            >
+              <span
+                class="day-number"
+              >
+                18
+              </span>
+            </button>
+            <button
+              aria-label="Select January 19, 2025"
+              class="calendar-day
+                  
+                  
+                  sunday"
+              tabindex="0"
+            >
+              <span
+                class="day-number"
+              >
+                19
+              </span>
+            </button>
+            <button
+              aria-label="Select January 20, 2025"
+              class="calendar-day"
+              tabindex="0"
+            >
+              <span
+                class="day-number"
+              >
+                20
+              </span>
+            </button>
+            <button
+              aria-label="Select January 21, 2025"
+              class="calendar-day"
+              tabindex="0"
+            >
+              <span
+                class="day-number"
+              >
+                21
+              </span>
+            </button>
+            <button
+              aria-label="Select January 22, 2025"
+              class="calendar-day"
+              tabindex="0"
+            >
+              <span
+                class="day-number"
+              >
+                22
+              </span>
+            </button>
+            <button
+              aria-label="Select January 23, 2025"
+              class="calendar-day"
+              tabindex="0"
+            >
+              <span
+                class="day-number"
+              >
+                23
+              </span>
+            </button>
+            <button
+              aria-label="Select January 24, 2025"
+              class="calendar-day"
+              tabindex="0"
+            >
+              <span
+                class="day-number"
+              >
+                24
+              </span>
+            </button>
+            <button
+              aria-label="Select January 25, 2025"
+              class="calendar-day
+                  
+                  saturday"
+              tabindex="0"
+            >
+              <span
+                class="day-number"
+              >
+                25
+              </span>
+            </button>
+            <button
+              aria-label="Select January 26, 2025"
+              class="calendar-day
+                  
+                  
+                  sunday"
+              tabindex="0"
+            >
+              <span
+                class="day-number"
+              >
+                26
+              </span>
+            </button>
+            <button
+              aria-label="Select January 27, 2025"
+              class="calendar-day"
+              tabindex="0"
+            >
+              <span
+                class="day-number"
+              >
+                27
+              </span>
+            </button>
+            <button
+              aria-label="Select January 28, 2025"
+              class="calendar-day"
+              tabindex="0"
+            >
+              <span
+                class="day-number"
+              >
+                28
+              </span>
+            </button>
+            <button
+              aria-label="Select January 29, 2025"
+              class="calendar-day"
+              tabindex="0"
+            >
+              <span
+                class="day-number"
+              >
+                29
+              </span>
+            </button>
+            <button
+              aria-label="Select January 30, 2025"
+              class="calendar-day"
+              tabindex="0"
+            >
+              <span
+                class="day-number"
+              >
+                30
+              </span>
+            </button>
+            <button
+              aria-label="Select January 31, 2025"
+              class="calendar-day"
+              tabindex="0"
+            >
+              <span
+                class="day-number"
+              >
+                31
+              </span>
+            </button>
+            <button
+              aria-label="Select February 1, 2025"
+              class="calendar-day
+                  
+                  saturday
+                  
+                  adjacent-month"
+              tabindex="0"
+            >
+              <span
+                class="day-number"
+              >
+                1
+              </span>
+            </button>
+            <button
+              aria-label="Select February 2, 2025"
+              class="calendar-day
+                  
+                  
+                  sunday
+                  adjacent-month"
+              tabindex="0"
+            >
+              <span
+                class="day-number"
+              >
+                2
+              </span>
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+`;
