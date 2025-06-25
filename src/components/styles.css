@@ -13,6 +13,10 @@
   --event-meeting-color: #22c55e;
   --event-holiday-color: #f43f5e;
   --shadow-color: rgba(0, 0, 0, 0.1);
+  --range-preview-color: rgba(75, 108, 183, 0.3);
+  --tooltip-background: #ffffff;
+  --tooltip-text-color: #2d3748;
+  --tooltip-shadow: rgba(0, 0, 0, 0.2);
 }
 
 .theme-dark {
@@ -30,6 +34,10 @@
   --event-meeting-color: #16a34a;
   --event-holiday-color: #e11d48;
   --shadow-color: rgba(0, 0, 0, 0.3);
+  --range-preview-color: rgba(99, 179, 237, 0.3);
+  --tooltip-background: #2d3748;
+  --tooltip-text-color: #e2e8f0;
+  --tooltip-shadow: rgba(0, 0, 0, 0.4);
 }
 
 /* Global Reset */
@@ -359,6 +367,30 @@
   transform: scale(1.05);
 }
 
+/* Event Tooltip */
+.calendar-day .event-tooltip {
+  position: absolute;
+  top: -2.5rem;
+  left: 50%;
+  transform: translateX(-50%);
+  background: var(--tooltip-background);
+  color: var(--tooltip-text-color);
+  padding: 0.5rem 1rem;
+  border-radius: 6px;
+  box-shadow: 0 2px 8px var(--tooltip-shadow);
+  font-size: 0.85rem;
+  white-space: nowrap;
+  z-index: 10;
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity 0.2s ease-in-out, visibility 0.2s ease-in-out;
+}
+
+.calendar-day:hover .event-tooltip {
+  opacity: 1;
+  visibility: visible;
+}
+
 /* Today Highlight */
 .calendar-day.today {
   background: var(--today-color);
@@ -443,7 +475,7 @@
 }
 
 .calendar-day.in-range {
-  background: rgba(75, 108, 183, 0.2);
+  background: var(--range-preview-color);
   color: var(--text-color);
   border-radius: 0;
   border-left: 1px solid var(--border-color);
@@ -465,23 +497,23 @@
 }
 
 .calendar-day.in-range:hover {
-  background: rgba(75, 108, 183, 0.3);
+  background: var(--range-preview-color);
 }
 
 /* Range Preview */
 .calendar-day.range-preview {
-  background: rgba(75, 108, 183, 0.3);
+  background: var(--range-preview-color);
   color: var(--text-color);
   border-radius: 0;
   z-index: 1;
 }
 
 .calendar-day.range-preview:hover {
-  background: rgba(75, 108, 183, 0.4);
+  background: var(--range-preview-color);
 }
 
 .calendar-day.hover-range-end {
-  background: rgba(75, 108, 183, 0.6);
+  background: var(--range-preview-color);
   color: #ffffff;
   border-radius: 8px;
   z-index: 2;
@@ -489,13 +521,12 @@
 }
 
 .calendar-day.hover-range {
-  background: rgba(2, 69, 117, 0.4);
+  background: var(--range-preview-color);
   color: #ffffff;
   border-radius: 8px;
   z-index: 2;
   transform: scale(1.05);
 }
-
 
 /* Disabled Dates */
 .calendar-day:disabled {
@@ -778,6 +809,12 @@
   .year-select-wrapper {
     min-width: 100px;
   }
+
+  .calendar-day .event-tooltip {
+    top: -3rem;
+    font-size: 0.8rem;
+    padding: 0.4rem 0.8rem;
+  }
 }
 
 @media (max-width: 600px) {
@@ -807,6 +844,11 @@
     width: 2.25rem;
     height: 2.25rem;
   }
+
+  .calendar-day .event-tooltip {
+    top: -2.8rem;
+    font-size: 0.75rem;
+  }
 }
 
 @media (max-width: 400px) {
@@ -822,5 +864,10 @@
 
   .year-select-wrapper {
     font-size: 0.85rem;
+  }
+
+  .calendar-day .event-tooltip {
+    top: -2.5rem;
+    font-size: 0.7rem;
   }
 }

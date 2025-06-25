@@ -65,3 +65,16 @@ export const getDecadesInCentury = (date, showNeighboringCentury = false) => {
   }
   return decades;
 };
+
+// New validation utilities
+export function isValidDate(d) {
+  return d instanceof Date && !isNaN(d);
+}
+
+export function sanitizeDate(d, fallback = new Date()) {
+  return isValidDate(d) ? new Date(d) : new Date(fallback);
+}
+
+export function sanitizeDateArray(arr, fallback = []) {
+  return Array.isArray(arr) ? arr.filter(isValidDate).map((d) => new Date(d)) : fallback;
+}

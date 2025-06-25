@@ -19,12 +19,11 @@ export interface DisabledMonth {
 }
 
 export interface CalendarProps {
-  date?: Date;
+  date: Date;
   activeStartDate?: Date;
-  defaultActiveStartDate?: Date;
   value?: Date | [Date, Date];
-  defaultValue?: Date | [Date, Date];
-  defaultView?: 'day' | 'month' | 'year' | 'decade';
+  minDate?: Date;
+  maxDate?: Date;
   disableDate?: (date: Date) => boolean;
   disableYear?: (year: number) => boolean;
   disableMonth?: (monthDate: Date) => boolean;
@@ -51,12 +50,9 @@ export interface CalendarProps {
   style?: React.CSSProperties;
   locale?: string;
   calendarType?: 'gregorian';
-  maxDate?: Date;
-  minDate?: Date;
   maxDetail?: 'day' | 'month' | 'year' | 'decade';
   minDetail?: 'day' | 'month' | 'year' | 'decade';
   selectionMode?: 'single' | 'range';
-  rangeStart?: Date;
   rangeLimit?: number | null;
   showDoubleView?: boolean;
   showFixedNumberOfWeeks?: boolean;
@@ -80,7 +76,6 @@ export interface CalendarProps {
   theme?: 'light' | 'dark';
   weekdayFormat?: 'short' | 'full' | 'minimal';
   dateFormat?: 'mm/dd/yyyy' | 'dd/mm/yyyy' | 'yyyy-mm-dd' | 'mm-dd-yyyy' | 'dd-mm-yyyy';
-  monthFormat?: 'long' | 'short' | 'numeric';
   includeTime?: boolean;
   inputRef?: React.RefObject<HTMLElement> | ((instance: HTMLElement | null) => void);
   renderHeader?: ({ date, onChange, view }: { date: Date; onChange: (date: Date) => void; view: string }) => React.ReactNode;
@@ -110,6 +105,8 @@ export interface CalendarProps {
   customDisabledYears?: number[];
   customDisabledMonths?: DisabledMonth[];
   backLabel?: string;
+  eventTooltip?: boolean;
+  customEventStyles?: { [key: string]: string };
 }
 
 export interface HeaderProps {
@@ -167,6 +164,20 @@ export interface MonthViewProps {
   renderEvent?: ({ event, date }: { event: Event; date: Date }) => React.ReactNode;
   selectOnEventClick?: boolean;
   days?: { first: DayInfo[]; second: DayInfo[] };
+  rangeLimit?: number | null;
+  renderDayCell?: ({ date, isCurrentMonth, isToday, isDisabled, isSelectedStart, isSelectedEnd, isInRange, event, defaultContent }: {
+    date: Date;
+    isCurrentMonth: boolean;
+    isToday: boolean;
+    isDisabled: boolean;
+    isSelectedStart: boolean;
+    isSelectedEnd: boolean;
+    isInRange: boolean;
+    event?: Event;
+    defaultContent: React.ReactNode;
+  }) => React.ReactNode;
+  eventTooltip?: boolean;
+  customEventStyles?: { [key: string]: string };
 }
 
 export interface YearViewProps {
