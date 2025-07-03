@@ -4,7 +4,6 @@ const MiniCssExtractPlugin = require('mini-css-extract-plugin');
 module.exports = [
   // UMD build
   {
-    mode: 'development',
     entry: './src/index.js',
     output: {
       path: path.resolve(__dirname, 'dist'),
@@ -56,7 +55,6 @@ module.exports = [
   },
   // ESM build
   {
-    mode: 'development',
     entry: './src/index.js',
     output: {
       path: path.resolve(__dirname, 'dist'),
@@ -66,7 +64,7 @@ module.exports = [
       },
     },
     experiments: {
-      outputModule: true, 
+      outputModule: true, // Enable ESM output
     },
     module: {
       rules: [

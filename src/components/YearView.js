@@ -1,22 +1,21 @@
 import React, { useCallback } from 'react';
 import PropTypes from 'prop-types';
 import { FixedSizeList } from 'react-window';
-import { isValidDate, sanitizeDate } from '../utils/dateUtils';
+import './styles.css';
 
 const YearView = ({
-  date = new Date(),
+  date,
   value,
   onMonthSelect,
   tileDisabled,
   tileClassName,
   formatMonth,
-  showNeighboringDecade = true,
-  locale = 'en-US',
+  showNeighboringDecade,
+  locale,
   onDrillUp,
-  className = '',
+  className,
 }) => {
-  const validDate = isValidDate(date) ? sanitizeDate(date) : new Date();
-  const year = validDate.getFullYear();
+  const year = date.getFullYear();
   const months = Array.from({ length: 12 }, (_, i) => new Date(year, i, 1));
 
   if (showNeighboringDecade) {
@@ -26,11 +25,10 @@ const YearView = ({
 
   const handleKeyDown = useCallback(
     (e, monthDate) => {
-      if (!isValidDate(monthDate)) return;
       if (e.key === 'Enter' || e.key === ' ') {
         e.preventDefault();
         if (!tileDisabled?.(monthDate)) {
-          onMonthSelect?.(monthDate);
+          onMonthSelect(monthDate);
         }
       }
     },
@@ -39,12 +37,10 @@ const YearView = ({
 
   const renderMonth = ({ index, style }) => {
     const monthDate = months[index];
-    if (!isValidDate(monthDate)) return null;
     const isDisabled = tileDisabled?.(monthDate);
 
     const selectedDate = Array.isArray(value) ? value[0] : value;
-    const isSelected =
-      isValidDate(selectedDate) &&
+    const isSelected = selectedDate &&
       monthDate.getMonth() === selectedDate.getMonth() &&
       monthDate.getFullYear() === selectedDate.getFullYear();
 
@@ -54,13 +50,11 @@ const YearView = ({
       <button
         style={style}
         key={index}
-        onClick={() => !isDisabled && onMonthSelect?.(monthDate)}
+        onClick={() => !isDisabled && onMonthSelect(monthDate)}
         onDoubleClick={() => !isDisabled && onDrillUp?.()}
         onKeyDown={(e) => handleKeyDown(e, monthDate)}
         disabled={isDisabled}
-        className={`year-month ${isSelected ? 'selected' : ''} ${
-          monthDate.getFullYear() !== year ? 'adjacent-year' : ''
-        } ${extraClass}`}
+        className={`year-month ${isSelected ? 'selected' : ''} ${monthDate.getFullYear() !== year ? 'adjacent-year' : ''} ${extraClass}`}
         aria-label={`Select ${monthDate.toLocaleString(locale, { month: 'long', year: 'numeric' })}`}
         tabIndex={isDisabled ? -1 : 0}
       >
@@ -72,7 +66,7 @@ const YearView = ({
   };
 
   return (
-    <div className={`year-view ${className}`}>
+    <div className={`year-view ${className || ''}`}>
       <FixedSizeList
         height={300}
         width="100%"
@@ -88,7 +82,7 @@ const YearView = ({
 };
 
 YearView.propTypes = {
-  date: PropTypes.instanceOf(Date),
+  date: PropTypes.instanceOf(Date).isRequired,
   value: PropTypes.oneOfType([PropTypes.instanceOf(Date), PropTypes.arrayOf(PropTypes.instanceOf(Date))]),
   onMonthSelect: PropTypes.func.isRequired,
   tileDisabled: PropTypes.func,
@@ -98,6 +92,12 @@ YearView.propTypes = {
   locale: PropTypes.string,
   onDrillUp: PropTypes.func,
   className: PropTypes.string,
+};
+
+YearView.defaultProps = {
+  showNeighboringDecade: true,
+  locale: 'en-US',
+  className: '',
 };
 
 export default React.memo(YearView);

@@ -1,9 +1,8 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import { isValidDate, sanitizeDate } from '../utils/dateUtils';
 
 const DayView = ({
-  date = new Date(),
+  date,
   onDateSelect,
   tileContent,
   tileClassName,
@@ -13,30 +12,29 @@ const DayView = ({
   weekdayFormat = 'short',
   monthFormat = 'long',
   includeTime = false,
-  locale = 'en-US',
+  locale,
   onDrillUp,
   today = new Date(),
-  className = '',
+  className,
   onClickEvent,
   events = [],
   renderEvent,
   selectOnEventClick = true,
 }) => {
-  const validDate = isValidDate(date) ? sanitizeDate(date) : new Date();
-  const validToday = isValidDate(today) ? sanitizeDate(today) : new Date();
-  const validEvents = events.filter((e) => isValidDate(e.date)).map((e) => ({ ...e, date: sanitizeDate(e.date) }));
-
   const validDateFormats = ['mm/dd/yyyy', 'dd/mm/yyyy', 'yyyy-mm-dd', 'mm-dd-yyyy', 'dd-mm-yyyy'];
-  const effectiveDateFormat = validDateFormats.includes(dateFormat) ? dateFormat : 'mm/dd/yyyy';
+  if (!validDateFormats.includes(dateFormat)) {
+    console.warn(`Invalid dateFormat: ${dateFormat}. Defaulting to 'mm/dd/yyyy'.`);
+    dateFormat = 'mm/dd/yyyy';
+  }
 
-  const isDisabled = tileDisabled?.({ date: validDate });
-  const isToday = validDate.toDateString() === validToday.toDateString();
-  const event = validEvents.find((e) => e.date.toDateString() === validDate.toDateString());
+  const isDisabled = tileDisabled?.({ date });
+  const isToday = date.toDateString() === today.toDateString();
+  const event = events.find((e) => e.date.toDateString() === date.toDateString());
 
   const getFormattedDate = () => {
     const options = {
       day: 'numeric',
-      year: effectiveDateFormat.includes('yyyy') ? 'numeric' : '2-digit',
+      year: dateFormat.includes('yyyy') ? 'numeric' : '2-digit',
     };
 
     if (weekdayFormat === 'long') {
@@ -62,31 +60,31 @@ const DayView = ({
     }
 
     let formattedDate = formatLongDate
-      ? formatLongDate(validDate, locale)
-      : validDate.toLocaleDateString(locale, options);
+      ? formatLongDate(date, locale)
+      : date.toLocaleDateString(locale, options);
 
     const parts = {
-      mm: options.month === '2-digit' ? validDate.toLocaleDateString(locale, { month: '2-digit' }) : validDate.toLocaleDateString(locale, { month: 'short' }),
-      dd: validDate.toLocaleDateString(locale, { day: '2-digit' }),
-      yyyy: validDate.toLocaleDateString(locale, { year: 'numeric' }),
-      yy: validDate.toLocaleDateString(locale, { year: '2-digit' }),
+      mm: options.month === '2-digit' ? date.toLocaleDateString(locale, { month: '2-digit' }) : date.toLocaleDateString(locale, { month: 'short' }),
+      dd: date.toLocaleDateString(locale, { day: '2-digit' }),
+      yyyy: date.toLocaleDateString(locale, { year: 'numeric' }),
+      yy: date.toLocaleDateString(locale, { year: '2-digit' }),
     };
 
-    formattedDate = effectiveDateFormat
+    formattedDate = dateFormat
       .replace('mm', parts.mm)
       .replace('dd', parts.dd)
       .replace('yyyy', parts.yyyy)
       .replace('yy', parts.yy);
 
     if (includeTime) {
-      formattedDate += ` ${validDate.toLocaleTimeString(locale, { hour: '2-digit', minute: '2-digit', second: '2-digit' })}`;
+      formattedDate += ` ${date.toLocaleTimeString(locale, { hour: '2-digit', minute: '2-digit', second: '2-digit' })}`;
     }
 
     return formattedDate;
   };
 
   const content = tileContent ? (
-    tileContent({ date: validDate, view: 'day', event })
+    tileContent({ date, view: 'day', event })
   ) : (
     <div className="day-detail-content">
       <span className="day-detail-date">{getFormattedDate()}</span>
@@ -94,7 +92,7 @@ const DayView = ({
         {isToday && !event && <span className="event-indicator">Today's Events: None</span>}
         {event &&
           (renderEvent ? (
-            renderEvent({ event, date: validDate })
+            renderEvent({ event, date })
           ) : (
             <span className="event-indicator">{event.title || 'Event'}</span>
           ))}
@@ -103,34 +101,34 @@ const DayView = ({
   );
 
   return (
-    <div className={`day-view ${className}`}>
+    <div className={`day-view ${className || ''}`}>
       <button
         onClick={() => {
           if (!isDisabled) {
             if (event) {
               onClickEvent?.(event);
               if (selectOnEventClick) {
-                onDateSelect?.(validDate);
+                onDateSelect(date);
               }
             } else {
-              onDateSelect?.(validDate);
+              onDateSelect(date);
             }
           }
         }}
         onDoubleClick={() => !isDisabled && onDrillUp?.()}
         disabled={isDisabled}
-        className={`day-detail ${isToday ? 'today' : ''} ${tileClassName?.({ date: validDate }) || ''}`}
-        aria-label={`Select ${validDate.toLocaleDateString(locale, {
+        className={`day-detail ${isToday ? 'today' : ''} ${tileClassName?.({ date }) || ''}`}
+        aria-label={`Select ${date.toLocaleDateString(locale, {
           month: 'long',
           day: 'numeric',
           year: 'numeric',
-        })} ${event ? `with event ${event.title || 'unnamed'}` : ''}`}
-        aria-describedby={event ? `event-day-${validDate.toISOString()}` : undefined}
+        })}`}
+        aria-describedby={event ? `event-day-${date.toISOString()}` : undefined}
         tabIndex={isDisabled ? -1 : 0}
       >
         {event && (
-          <span id={`event-day-${validDate.toISOString()}`} className="sr-only">
-            Event: {event.title || 'Unnamed'}
+          <span id={`event-day-${date.toISOString()}`} className="sr-only">
+            {event.title || 'Event'}
           </span>
         )}
         {content}
@@ -140,7 +138,7 @@ const DayView = ({
 };
 
 DayView.propTypes = {
-  date: PropTypes.instanceOf(Date),
+  date: PropTypes.instanceOf(Date).isRequired,
   onDateSelect: PropTypes.func.isRequired,
   tileContent: PropTypes.func,
   tileClassName: PropTypes.func,
@@ -165,6 +163,17 @@ DayView.propTypes = {
   ),
   renderEvent: PropTypes.func,
   selectOnEventClick: PropTypes.bool,
+};
+
+DayView.defaultProps = {
+  dateFormat: 'mm/dd/yyyy',
+  weekdayFormat: 'short',
+  monthFormat: 'long',
+  includeTime: false,
+  locale: 'en-US',
+  today: new Date(),
+  events: [],
+  selectOnEventClick: true,
 };
 
 export default React.memo(DayView);

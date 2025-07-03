@@ -58,7 +58,7 @@ describe('Calendar component', () => {
       if (/Support for defaultProps will be removed/.test(args[0])) {
         return;
       }
-      originalConsoleError(...args); 
+      originalConsoleError(...args); // Safe logging
     });
   });
 
@@ -67,18 +67,18 @@ describe('Calendar component', () => {
   });
 
   test('renders correct month and year', () => {
-    render(<Calendar activeStartDate={new Date(Date.UTC(2025, 0, 1))} />);
-    expect(screen.getByText(/January 2025/i)).toBeInTheDocument();
+    render(<Calendar activeStartDate={new Date(Date.UTC(2023, 0, 1))} />);
+    expect(screen.getByText(/January 2023/i)).toBeInTheDocument();
   });
 
   test('renders correct number of days', () => {
-    render(<Calendar activeStartDate={new Date(Date.UTC(2025, 0, 1))} />);
+    render(<Calendar activeStartDate={new Date(Date.UTC(2023, 0, 1))} />);
     const dayButtons = screen.getAllByRole('button', { name: /Select /i });
     expect(dayButtons.length).toBeGreaterThan(7);
   });
 
   test('navigation buttons work', () => {
-    render(<Calendar activeStartDate={new Date(Date.UTC(2025, 0, 1))} />);
+    render(<Calendar activeStartDate={new Date(Date.UTC(2023, 0, 1))} />);
     expect(screen.getByText(/January/i)).toBeInTheDocument();
 
     const nextButton = screen.getByRole('button', { name: /Next/i });
@@ -96,8 +96,8 @@ describe('Calendar component', () => {
 
   test('onChange callback is called', () => {
     const onChange = jest.fn();
-    render(<Calendar activeStartDate={new Date(Date.UTC(2025, 0, 1))} onChange={onChange} />);
-    const day15 = screen.getByRole('button', { name: 'Select January 15, 2025' });
+    render(<Calendar activeStartDate={new Date(Date.UTC(2023, 0, 1))} onChange={onChange} />);
+    const day15 = screen.getByRole('button', { name: 'Select January 15, 2023' });
 
     act(() => {
       fireEvent.click(day15);
@@ -105,7 +105,7 @@ describe('Calendar component', () => {
 
     expect(onChange).toHaveBeenCalledWith(expect.any(Date));
     const calledWith = onChange.mock.calls[0][0];
-    expect(calledWith.getUTCFullYear()).toBe(2025);
+    expect(calledWith.getUTCFullYear()).toBe(2023);
     expect(calledWith.getUTCMonth()).toBe(0);
     expect(calledWith.getUTCDate()).toBe(15);
   });
@@ -118,7 +118,7 @@ describe('Calendar component', () => {
       render(
         <Calendar
           selectionMode="range"
-          activeStartDate={new Date(Date.UTC(2025, 0, 1))}
+          activeStartDate={new Date(Date.UTC(2023, 0, 1))}
           onChange={(value) => {
             onChange(value);
             selectedRange = value;
@@ -127,7 +127,7 @@ describe('Calendar component', () => {
       );
     });
 
-    const day1 = await screen.findByRole('button', { name: 'Select January 1, 2025' });
+    const day1 = await screen.findByRole('button', { name: 'Select January 1, 2023' });
 
     await act(async () => {
       fireEvent.click(day1);
@@ -138,7 +138,7 @@ describe('Calendar component', () => {
       expect(onChange.mock.calls[0][0][0].getUTCDate()).toBe(1);
     });
 
-    const day2 = await screen.findByRole('button', { name: 'Select January 2, 2025' });
+    const day2 = await screen.findByRole('button', { name: 'Select January 2, 2023' });
 
     await act(async () => {
       fireEvent.click(day2);
@@ -156,17 +156,17 @@ describe('Calendar component', () => {
   test('disables dates', () => {
     render(
       <Calendar
-        activeStartDate={new Date(Date.UTC(2025, 0, 1))}
+        activeStartDate={new Date(Date.UTC(2023, 0, 1))}
         tileDisabled={({ date }) => date.getUTCDate() === 1}
       />
     );
 
-    const day1 = screen.getByRole('button', { name: 'Select January 1, 2025' });
+    const day1 = screen.getByRole('button', { name: 'Select January 1, 2023' });
     expect(day1).toBeDisabled();
   });
 
   test('renders month view', () => {
-    render(<Calendar defaultView="month" activeStartDate={new Date(Date.UTC(2025, 0, 1))} />);
+    render(<Calendar defaultView="month" activeStartDate={new Date(Date.UTC(2023, 0, 1))} />);
     expect(screen.getByText(/January/i)).toBeInTheDocument();
   });
 
@@ -176,7 +176,7 @@ describe('Calendar component', () => {
   });
 
   test('renders week numbers', () => {
-    render(<Calendar showWeekNumbers activeStartDate={new Date(Date.UTC(2025, 0, 1))} />);
+    render(<Calendar showWeekNumbers activeStartDate={new Date(Date.UTC(2023, 0, 1))} />);
     const weekNumbers = screen.getAllByRole('button', { name: /^\d+$/ });
     expect(weekNumbers.some((el) => el.classList.contains('week-number'))).toBe(true);
   });
@@ -189,11 +189,11 @@ describe('Calendar component', () => {
     render(
       <Calendar
         customTileContent={customRenderDay}
-        activeStartDate={new Date(Date.UTC(2025, 0, 1))}
+        activeStartDate={new Date(Date.UTC(2023, 0, 1))}
       />
     );
 
-    const day1Button = await screen.findByRole('button', { name: 'Select January 1, 2025' });
+    const day1Button = await screen.findByRole('button', { name: 'Select January 1, 2023' });
     const customDay = within(day1Button).queryByText('1', { selector: '.custom-day-number' });
     expect(customDay).toBeInTheDocument();
   });
@@ -206,7 +206,7 @@ describe('Calendar component', () => {
       render(
         <Calendar
           selectionMode="range"
-          activeStartDate={new Date(Date.UTC(2025, 0, 1))}
+          activeStartDate={new Date(Date.UTC(2023, 0, 1))}
           onChange={(value) => {
             selectedRange = value;
           }}
@@ -215,7 +215,7 @@ describe('Calendar component', () => {
       );
     });
 
-    const day1 = await screen.findByRole('button', { name: 'Select January 1, 2025' });
+    const day1 = await screen.findByRole('button', { name: 'Select January 1, 2023' });
 
     await act(async () => {
       fireEvent.click(day1);
@@ -225,7 +225,7 @@ describe('Calendar component', () => {
       expect(selectedRange).toEqual([expect.any(Date)]);
     });
 
-    const day2 = await screen.findByRole('button', { name: 'Select January 2, 2025' });
+    const day2 = await screen.findByRole('button', { name: 'Select January 2, 2023' });
 
     await act(async () => {
       fireEvent.mouseOver(day2);
@@ -245,13 +245,13 @@ describe('Calendar component', () => {
 });
 
 describe('dateUtils', () => {
-  test('days in month for January 2025', () => {
-    const days = getDaysInMonth(new Date(Date.UTC(2025, 0, 1)), 1);
+  test('days in month for January 2023', () => {
+    const days = getDaysInMonth(new Date(Date.UTC(2023, 0, 1)), 1);
     expect(days.filter((d) => d.isCurrentMonth).length).toBe(31);
   });
 
   test('weeks in correctly', () => {
-    const weeks = getWeeksInMonth(new Date(Date.UTC(2025, 0, 1)), 1);
+    const weeks = getWeeksInMonth(new Date(Date.UTC(2023, 0, 1)), 1);
     expect(weeks.length).toBeGreaterThanOrEqual(5);
   });
 });

@@ -1,18 +1,11 @@
 import React from 'react';
 import PropTypes from 'prop-types';
-import { isValidDate } from '../utils/dateUtils';
 
-const Day = ({ dayInfo, formatDay, locale = 'en-US' }) => {
-  if (!isValidDate(dayInfo.date)) {
-    return <span className="day-number">Invalid</span>;
-  }
-
-  return (
-    <span className="day-number" aria-label={`Day ${dayInfo.date.getDate()}`}>
-      {formatDay ? formatDay(dayInfo.date, locale) : dayInfo.date.getDate()}
-    </span>
-  );
-};
+const Day = ({ dayInfo, formatDay, locale }) => (
+  <span className="day-number">
+    {formatDay ? formatDay(dayInfo.date, locale) : dayInfo.date.getDate()}
+  </span>
+);
 
 Day.propTypes = {
   dayInfo: PropTypes.shape({
@@ -21,6 +14,10 @@ Day.propTypes = {
   }).isRequired,
   formatDay: PropTypes.func,
   locale: PropTypes.string,
+};
+
+Day.defaultProps = {
+  locale: 'en-US',
 };
 
 export default React.memo(Day);

@@ -1,65 +1,63 @@
 import React, { useState, useRef, useEffect } from 'react';
 import PropTypes from 'prop-types';
 import { ChevronDown } from 'lucide-react';
-import { isValidDate, sanitizeDate } from '../utils/dateUtils';
+import './styles.css';
 
 const Header = ({
-  showDoubleView = false,
-  date = new Date(),
+  showDoubleView,
+  date,
   onChange,
-  view = 'month',
-  minDetail = 'year',
-  maxDetail = 'month',
+  view,
+  minDetail,
+  maxDetail,
   prevLabel = '‹',
-  prevAriaLabel = 'Previous',
+  prevAriaLabel,
   nextLabel = '›',
-  nextAriaLabel = 'Next',
+  nextAriaLabel,
   prev2Label,
   prev2AriaLabel,
   next2Label,
   next2AriaLabel,
   navigationLabel,
-  navigationAriaLabel = 'Select year',
+  navigationAriaLabel,
   navigationAriaLive,
   formatMonthYear,
   formatYear,
-  locale = 'en-US',
-  isYearDisabled,
+  locale,
+  isYearDisabled, 
 }) => {
-  const validDate = isValidDate(date) ? sanitizeDate(date) : new Date();
-
   const prev = () => {
-    const newDate = new Date(validDate);
-    if (view === 'day') newDate.setDate(validDate.getDate() - 1);
-    else if (view === 'month') newDate.setMonth(validDate.getMonth() - 1);
-    else if (view === 'year') newDate.setFullYear(validDate.getFullYear() - 1);
-    else if (view === 'decade') newDate.setFullYear(validDate.getFullYear() - 10);
-    onChange?.(newDate);
+    const newDate = new Date(date);
+    if (view === 'day') newDate.setDate(date.getDate() - 1);
+    else if (view === 'month') newDate.setMonth(date.getMonth() - 1);
+    else if (view === 'year') newDate.setFullYear(date.getFullYear() - 1);
+    else if (view === 'decade') newDate.setFullYear(date.getFullYear() - 10);
+    onChange(newDate);
   };
 
   const next = () => {
-    const newDate = new Date(validDate);
-    if (view === 'day') newDate.setDate(validDate.getDate() + 1);
-    else if (view === 'month') newDate.setMonth(validDate.getMonth() + 1);
-    else if (view === 'year') newDate.setFullYear(validDate.getFullYear() + 1);
-    else if (view === 'decade') newDate.setFullYear(validDate.getFullYear() + 10);
-    onChange?.(newDate);
+    const newDate = new Date(date);
+    if (view === 'day') newDate.setDate(date.getDate() + 1);
+    else if (view === 'month') newDate.setMonth(date.getMonth() + 1);
+    else if (view === 'year') newDate.setFullYear(date.getFullYear() + 1);
+    else if (view === 'decade') newDate.setFullYear(date.getFullYear() + 10);
+    onChange(newDate);
   };
 
   const prev2 = () => {
     if (!prev2Label) return;
-    const newDate = new Date(validDate);
-    if (view === 'year') newDate.setFullYear(validDate.getFullYear() - 10);
-    else if (view === 'decade') newDate.setFullYear(validDate.getFullYear() - 100);
-    onChange?.(newDate);
+    const newDate = new Date(date);
+    if (view === 'year') newDate.setFullYear(date.getFullYear() - 10);
+    else if (view === 'decade') newDate.setFullYear(date.getFullYear() - 100);
+    onChange(newDate);
   };
 
   const next2 = () => {
     if (!next2Label) return;
-    const newDate = new Date(validDate);
-    if (view === 'year') newDate.setFullYear(validDate.getFullYear() + 10);
-    else if (view === 'decade') newDate.setFullYear(validDate.getFullYear() + 100);
-    onChange?.(newDate);
+    const newDate = new Date(date);
+    if (view === 'year') newDate.setFullYear(date.getFullYear() + 10);
+    else if (view === 'decade') newDate.setFullYear(date.getFullYear() + 100);
+    onChange(newDate);
   };
 
   const [search, setSearch] = useState('');
@@ -68,17 +66,17 @@ const Header = ({
   const activeYearRef = useRef(null);
   const [selectedIndex, setSelectedIndex] = useState(-1);
 
-  const currentYear = validDate.getFullYear();
-  const years = Array.from({ length: 101 }, (_, i) => currentYear - 50 + i); // Reduced range for performance
+  const currentYear = date.getFullYear();
+  const years = Array.from({ length: 151 }, (_, i) => currentYear - 75 + i);
   const filteredYears = years.filter((year) =>
     year.toString().includes(search.toLowerCase())
   );
 
   const handleYearChange = (year) => {
     if (!isYearDisabled || !isYearDisabled(year)) {
-      const newDate = new Date(validDate);
+      const newDate = new Date(date);
       newDate.setFullYear(year);
-      onChange?.(newDate);
+      onChange(newDate);
       setIsDropdownOpen(false);
       setSearch('');
       setSelectedIndex(-1);
@@ -86,21 +84,21 @@ const Header = ({
   };
 
   const getNavigationLabel = () => {
-    if (navigationLabel) return navigationLabel({ date: validDate, view, locale });
+    if (navigationLabel) return navigationLabel({ date, view, locale });
     if (view === 'month') {
       if (showDoubleView) {
-        const nextMonth = new Date(validDate);
-        nextMonth.setMonth(validDate.getMonth() + 1);
-        return `${validDate.toLocaleString(locale, { month: 'long' })}-${nextMonth.toLocaleString(locale, { month: 'long' })} ${validDate.getFullYear()}`;
+        const nextMonth = new Date(date);
+        nextMonth.setMonth(date.getMonth() + 1);
+        return `${date.toLocaleString(locale, { month: 'long' })}-${nextMonth.toLocaleString(locale, { month: 'long' })} ${date.getFullYear()}`;
       }
-      return formatMonthYear ? formatMonthYear(validDate, locale) : validDate.toLocaleString(locale, { month: 'long', year: 'numeric' });
+      return formatMonthYear ? formatMonthYear(date, locale) : date.toLocaleString(locale, { month: 'long', year: 'numeric' });
     }
-    if (view === 'year') return formatYear ? formatYear(validDate, locale) : validDate.getFullYear();
+    if (view === 'year') return formatYear ? formatYear(date, locale) : date.getFullYear();
     if (view === 'decade') {
       const decadeStart = Math.floor(currentYear / 10) * 10;
       return `${decadeStart}-${decadeStart + 9}`;
     }
-    return validDate.toLocaleDateString(locale);
+    return date.toLocaleDateString(locale);
   };
 
   const getAriaLabel = (type) => {
@@ -186,7 +184,7 @@ const Header = ({
   };
 
   return (
-    <div className="header" aria-live={navigationAriaLive} role="navigation">
+    <div className="header" aria-live={navigationAriaLive}>
       <div className="header-month-section">
         <div className="header-month-nav">
           {(view !== minDetail || prev2Label) && (
@@ -214,12 +212,12 @@ const Header = ({
             onKeyDown={handleKeyDown}
           >
             <span className="year-select-display">
-              {formatYear ? formatYear(validDate, locale) : currentYear}
+              {formatYear ? formatYear(date, locale) : currentYear}
             </span>
             <ChevronDown className="chevron-down" strokeWidth={1.5} />
           </div>
           {isDropdownOpen && (
-            <div className="year-dropdown" role="dialog" aria-label="Year selection">
+            <div className="year-dropdown">
               <input
                 type="text"
                 className="year-search"
@@ -231,7 +229,6 @@ const Header = ({
                 }}
                 aria-label="Search for a year"
                 onKeyDown={handleKeyDown}
-                autoFocus
               />
               <div className="year-list" role="listbox">
                 {filteredYears.map((year, index) => (
@@ -240,15 +237,15 @@ const Header = ({
                     ref={year === currentYear ? activeYearRef : null}
                     className={`year-option ${index === selectedIndex ? 'focused' : ''} ${
                       year === currentYear ? 'current-year' : ''
-                    } ${isYearDisabled && isYearDisabled(year) ? 'disabled' : ''}`}
+                    } ${isYearDisabled && isYearDisabled(year) ? 'disabled' : ''}`} 
                     onClick={() => handleYearChange(year)}
                     aria-selected={year === currentYear}
                     role="option"
                     onMouseEnter={() => setSelectedIndex(index)}
                     onMouseLeave={() => setSelectedIndex(-1)}
-                    disabled={isYearDisabled && isYearDisabled(year)}
+                    disabled={isYearDisabled && isYearDisabled(year)} 
                   >
-                    {formatYear ? formatYear(new Date(validDate.setFullYear(year)), locale) : year}
+                    {formatYear ? formatYear(new Date(date.setFullYear(year)), locale) : year}
                   </button>
                 ))}
               </div>
@@ -262,7 +259,7 @@ const Header = ({
 
 Header.propTypes = {
   showDoubleView: PropTypes.bool,
-  date: PropTypes.instanceOf(Date),
+  date: PropTypes.instanceOf(Date).isRequired,
   onChange: PropTypes.func.isRequired,
   view: PropTypes.oneOf(['day', 'month', 'year', 'decade']).isRequired,
   minDetail: PropTypes.oneOf(['day', 'month', 'year', 'decade']),
@@ -282,6 +279,16 @@ Header.propTypes = {
   formatYear: PropTypes.func,
   locale: PropTypes.string,
   isYearDisabled: PropTypes.func,
+};
+
+Header.defaultProps = {
+  showDoubleView: false,
+  minDetail: 'year',
+  maxDetail: 'month',
+  prevLabel: '‹',
+  nextLabel: '›',
+  locale: 'en-US',
+  isYearDisabled: null, 
 };
 
 export default Header;
