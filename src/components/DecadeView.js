@@ -1,7 +1,7 @@
-import React, { useCallback } from 'react';
-import PropTypes from 'prop-types';
-import { FixedSizeList } from 'react-window';
-import { getDecadesInCentury } from '../utils/dateUtils';
+import React, { useCallback } from "react";
+import PropTypes from "prop-types";
+import { FixedSizeList } from "react-window";
+import { getDecadesInCentury } from "../utils/dateUtils";
 
 const DecadeView = ({
   date,
@@ -15,32 +15,38 @@ const DecadeView = ({
   calendarType,
   calendarPlugin,
   onDrillUp,
-  className = '',
+  className = "",
 }) => {
   const year = date.getFullYear();
-  const years = getDecadesInCentury(date, showNeighboringCentury, calendarType, calendarPlugin).map((d) => ({
+  const years = getDecadesInCentury(
+    date,
+    showNeighboringCentury,
+    calendarType,
+    calendarPlugin,
+  ).map((d) => ({
     date: d,
     year: d.getFullYear(),
   }));
 
   const handleKeyDown = useCallback(
     (e, yearDate) => {
-      if (e.key === 'Enter' || e.key === ' ') {
+      if (e.key === "Enter" || e.key === " ") {
         e.preventDefault();
         if (!tileDisabled?.({ date: yearDate })) {
           onYearSelect(yearDate);
         }
       }
     },
-    [onYearSelect, tileDisabled]
+    [onYearSelect, tileDisabled],
   );
 
   const renderYear = ({ index, style }) => {
     const yearData = years[index];
     const isDisabled = tileDisabled?.({ date: yearData.date });
     const selectedDate = Array.isArray(value) ? value[0] : value;
-    const isSelected = selectedDate && yearData.year === selectedDate.getFullYear();
-    const extraClass = tileClassName?.({ date: yearData.date }) || '';
+    const isSelected =
+      selectedDate && yearData.year === selectedDate.getFullYear();
+    const extraClass = tileClassName?.({ date: yearData.date }) || "";
 
     return (
       <button
@@ -50,8 +56,11 @@ const DecadeView = ({
         onDoubleClick={() => !isDisabled && onDrillUp?.()}
         onKeyDown={(e) => handleKeyDown(e, yearData.date)}
         disabled={isDisabled}
-        className={`year-month ${isSelected ? 'selected' : ''} ${
-          yearData.year < Math.floor(year / 10) * 10 || yearData.year >= Math.floor(year / 10) * 10 + 10 ? 'adjacent-year' : ''
+        className={`year-month ${isSelected ? "selected" : ""} ${
+          yearData.year < Math.floor(year / 10) * 10 ||
+          yearData.year >= Math.floor(year / 10) * 10 + 10
+            ? "adjacent-year"
+            : ""
         } ${extraClass}`}
         aria-label={`Select ${formatYear ? formatYear(yearData.date, locale) : yearData.year}`}
         tabIndex={isDisabled ? -1 : 0}
@@ -65,7 +74,14 @@ const DecadeView = ({
 
   return (
     <div className={`year-view ${className}`}>
-      <FixedSizeList height={300} width="100%" itemCount={years.length} itemSize={50} layout="vertical" className="year-view-list">
+      <FixedSizeList
+        height={300}
+        width="100%"
+        itemCount={years.length}
+        itemSize={50}
+        layout="vertical"
+        className="year-view-list"
+      >
         {renderYear}
       </FixedSizeList>
     </div>
@@ -74,7 +90,10 @@ const DecadeView = ({
 
 DecadeView.propTypes = {
   date: PropTypes.instanceOf(Date).isRequired,
-  value: PropTypes.oneOfType([PropTypes.instanceOf(Date), PropTypes.arrayOf(PropTypes.instanceOf(Date))]),
+  value: PropTypes.oneOfType([
+    PropTypes.instanceOf(Date),
+    PropTypes.arrayOf(PropTypes.instanceOf(Date)),
+  ]),
   onYearSelect: PropTypes.func.isRequired,
   tileDisabled: PropTypes.func,
   tileClassName: PropTypes.func,
@@ -89,9 +108,9 @@ DecadeView.propTypes = {
 
 DecadeView.defaultProps = {
   showNeighboringCentury: true,
-  locale: 'en-US',
-  calendarType: 'gregorian',
-  className: '',
+  locale: "en-US",
+  calendarType: "gregorian",
+  className: "",
 };
 
 export default React.memo(DecadeView);

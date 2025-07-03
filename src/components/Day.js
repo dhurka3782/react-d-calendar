@@ -1,5 +1,5 @@
-import React from 'react';
-import PropTypes from 'prop-types';
+import React from "react";
+import PropTypes from "prop-types";
 
 const Day = ({ dayInfo, formatDay, locale }) => (
   <span className="day-number">
@@ -17,7 +17,7 @@ Day.propTypes = {
 };
 
 Day.defaultProps = {
-  locale: 'en-US',
+  locale: "en-US",
 };
 
 export default React.memo(Day);

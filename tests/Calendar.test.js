@@ -44,6 +44,17 @@ jest.mock('../src/utils/dateUtils', () => ({
   getWeeksInMonth: jest.fn(() => [1, 2, 3, 4, 5]),
 }));
 
+// Mock window.matchMedia
+Object.defineProperty(window, 'matchMedia', {
+  writable: true,
+  value: jest.fn().mockImplementation((query) => ({
+    matches: query === '(prefers-color-scheme: dark)' ? true : false,
+    media: query,
+    addEventListener: jest.fn(),
+    removeEventListener: jest.fn(),
+  })),
+});
+
 describe('Calendar component', () => {
   let originalConsoleError;
 
@@ -241,6 +252,38 @@ describe('Calendar component', () => {
       expect(start.getUTCDate()).toBe(1);
       expect(end.getUTCDate()).toBe(2);
     });
+  });
+
+  test('applies light theme by default', () => {
+    render(<Calendar activeStartDate={new Date(Date.UTC(2023, 0, 1))} />);
+    expect(screen.getByLabelText('Interactive Calendar')).toHaveClass('theme-light');
+  });
+
+  test('applies dark theme when theme="dark"', () => {
+    render(<Calendar theme="dark" activeStartDate={new Date(Date.UTC(2023, 0, 1))} />);
+    expect(screen.getByLabelText('Interactive Calendar')).toHaveClass('theme-dark');
+  });
+
+  test('applies system theme (dark) when prefers-color-scheme is dark', () => {
+    window.matchMedia.mockImplementation((query) => ({
+      matches: query === '(prefers-color-scheme: dark)' ? true : false,
+      media: query,
+      addEventListener: jest.fn(),
+      removeEventListener: jest.fn(),
+    }));
+    render(<Calendar theme="system" activeStartDate={new Date(Date.UTC(2023, 0, 1))} />);
+    expect(screen.getByLabelText('Interactive Calendar')).toHaveClass('theme-dark');
+  });
+
+  test('applies system theme (light) when prefers-color-scheme is light', () => {
+    window.matchMedia.mockImplementation((query) => ({
+      matches: query === '(prefers-color-scheme: dark)' ? false : true,
+      media: query,
+      addEventListener: jest.fn(),
+      removeEventListener: jest.fn(),
+    }));
+    render(<Calendar theme="system" activeStartDate={new Date(Date.UTC(2023, 0, 1))} />);
+    expect(screen.getByLabelText('Interactive Calendar')).toHaveClass('theme-light');
   });
 });
 

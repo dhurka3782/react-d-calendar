@@ -25,7 +25,7 @@ Try `react-d-calendar` in action at our [Live Demo](https://dhurka3782.github.io
 - **Accessibility (a11y)**: ARIA-compliant with keyboard navigation and screen reader support.
 - **Responsive Design**: Optimized for desktops, tablets, and mobile devices with fluid layouts.
 - **Event & Holiday Support**: Display events and holidays with custom styling and rendering.
-- **Theming**: Light, dark, and custom themes via CSS variables for consistent branding.
+- **Theming**: Light, dark, and system-adaptive themes via CSS variables for consistent branding.
 - **Internationalization**: Full locale support for date formats, weekdays, and month names.
 - **Performance Optimized**: Leverages React memoization and `react-window` for efficient rendering.
 - **Custom Rendering**: Customize headers, footers, tiles, and events with flexible render props.
@@ -63,6 +63,25 @@ function App() {
   };
 
   return <Calendar onDateSelect={handleDateSelect} />;
+}
+
+export default App;
+```
+
+### Theme Support
+#### The `react-d-calendar` component supports light, dark, and system-adaptive themes. Use the theme prop to specify the desired mode:
+```jsx
+import React from 'react';
+import { Calendar } from 'react-d-calendar';
+import 'react-d-calendar/dist/styles.css';
+
+function App() {
+  return (
+    <Calendar
+      theme="dark"
+      onDateSelect={(date) => console.log('Selected date:', date.toDateString())}
+    />
+  );
 }
 
 export default App;
@@ -226,7 +245,7 @@ export default App;
 | `defaultView`          | `'day' \| 'month' \| ...`                | `'month'`      | Initial view mode.                         |
 | `maxDetail`            | `'day' \| 'month' \| ...`                | `'month'`      | Maximum zoom level.                        |
 | `minDetail`            | `'day' \| 'month' \| ...`                | `'year'`       | Minimum zoom level.                        |
-| `theme`                | `'light' \| 'dark'`                      | `'light'`      | Theme mode.                                |
+| `theme`                | `'light' \| 'dark'\| 'system'`           | `'light'`      | Theme mode.                                |
 | `customTheme`          | `object`                                 | `{}`           | Custom CSS variables.                      |
 | `style`                | `object`                                 | `{}`           | Inline styles.                             |
 | `className`            | `string`                                 | `''`           | Additional container class.                |
@@ -239,6 +258,12 @@ export default App;
 
 ## Customization
 ### Theming
+#### Use the theme prop to switch between light, dark, or system-adaptive themes:
+```jsx
+<Calendar theme="dark" />
+<Calendar theme="system" />
+```
+
 #### Customize the calendar's appearance using the customTheme prop:
 ```jsx
 <Calendar

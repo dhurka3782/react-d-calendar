@@ -1,4 +1,4 @@
-import React from 'react';
+import React from "react";
 
 export interface DayInfo {
   date: Date;
@@ -19,21 +19,45 @@ export interface CalendarProps {
   defaultActiveStartDate?: Date;
   value?: Date | [Date, Date];
   defaultValue?: Date | [Date, Date];
-  defaultView?: 'day' | 'month' | 'year' | 'decade';
+  defaultView?: "day" | "month" | "year" | "decade";
   disableDate?: (date: Date) => boolean;
   disableYear?: (year: number) => boolean;
-  onActiveStartDateChange?: ({ activeStartDate }: { activeStartDate: Date }) => void;
+  onActiveStartDateChange?: ({
+    activeStartDate,
+  }: {
+    activeStartDate: Date;
+  }) => void;
   onChange?: (value: Date | [Date, Date]) => void;
   onClickMonth?: (date: Date) => void;
   onClickWeekNumber?: (week: number, date: Date) => void;
   onDrillDown?: () => void;
   onDrillUp?: () => void;
-  onViewChange?: ({ view }: { view: 'day' | 'month' | 'year' | 'decade' }) => void;
+  onViewChange?: ({
+    view,
+  }: {
+    view: "day" | "month" | "year" | "decade";
+  }) => void;
   onRangeHover?: ({ start, end }: { start: Date; end: Date | null }) => void;
   tileClassName?: ({ date }: { date: Date }) => string;
-  tileContent?: ({ date, view, event }: { date: Date; view: string; event?: Event }) => React.ReactNode;
+  tileContent?: ({
+    date,
+    view,
+    event,
+  }: {
+    date: Date;
+    view: string;
+    event?: Event;
+  }) => React.ReactNode;
   tileDisabled?: ({ date }: { date: Date }) => boolean;
-  customTileContent?: ({ date, view, event }: { date: Date; view: string; event?: Event }) => React.ReactNode;
+  customTileContent?: ({
+    date,
+    view,
+    event,
+  }: {
+    date: Date;
+    view: string;
+    event?: Event;
+  }) => React.ReactNode;
   formatDay?: (date: Date, locale: string) => string;
   formatLongDate?: (date: Date, locale: string) => string;
   formatMonth?: (date: Date, locale: string) => string;
@@ -44,12 +68,12 @@ export interface CalendarProps {
   className?: string;
   style?: React.CSSProperties;
   locale?: string;
-  calendarType?: 'gregorian';
+  calendarType?: "gregorian";
   maxDate?: Date;
   minDate?: Date;
-  maxDetail?: 'day' | 'month' | 'year';
-  minDetail?: 'day' | 'month' | 'year';
-  selectionMode?: 'single' | 'range';
+  maxDetail?: "day" | "month" | "year";
+  minDetail?: "day" | "month" | "year";
+  selectionMode?: "single" | "range";
   rangeStart?: Date;
   rangeLimit?: number | null;
   showDoubleView?: boolean;
@@ -61,7 +85,15 @@ export interface CalendarProps {
   weekStartDay?: 0 | 1 | 2 | 3 | 4 | 5 | 6;
   navigationAriaLabel?: string;
   navigationAriaLive?: string;
-  navigationLabel?: ({ date, view, locale }: { date: Date; view: string; locale: string }) => string;
+  navigationLabel?: ({
+    date,
+    view,
+    locale,
+  }: {
+    date: Date;
+    view: string;
+    locale: string;
+  }) => string;
   next2AriaLabel?: string;
   next2Label?: React.ReactNode;
   nextAriaLabel?: string;
@@ -71,16 +103,46 @@ export interface CalendarProps {
   prevAriaLabel?: string;
   prevLabel?: React.ReactNode;
   events?: Event[];
-  theme?: string;
-  weekdayFormat?: 'short' | 'full' | 'minimal';
-  dateFormat?: 'mm/dd/yyyy' | 'dd/mm/yyyy' | 'yyyy-mm-dd' | 'mm-dd-yyyy' | 'dd-mm-yyyy';
-  monthFormat?: 'long' | 'short' | 'numeric';
+  weekdayFormat?: "short" | "full" | "minimal";
+  dateFormat?:
+    | "mm/dd/yyyy"
+    | "dd/mm/yyyy"
+    | "yyyy-mm-dd"
+    | "mm-dd-yyyy"
+    | "dd-mm-yyyy";
+  monthFormat?: "long" | "short" | "numeric";
   includeTime?: boolean;
   inputRef?: React.RefObject<HTMLElement>;
-  renderHeader?: ({ date, onChange, view }: { date: Date; onChange: (date: Date) => void; view: string }) => React.ReactNode;
-  renderMonthView?: ({ date, onDateSelect }: { date: Date; onDateSelect: (date: Date) => void }) => React.ReactNode;
-  renderYearView?: ({ date, onMonthSelect }: { date: Date; onMonthSelect: (date: Date) => void }) => React.ReactNode;
-  renderDayView?: ({ date, onDateSelect }: { date: Date; onDateSelect: (date: Date) => void }) => React.ReactNode;
+  renderHeader?: ({
+    date,
+    onChange,
+    view,
+  }: {
+    date: Date;
+    onChange: (date: Date) => void;
+    view: string;
+  }) => React.ReactNode;
+  renderMonthView?: ({
+    date,
+    onDateSelect,
+  }: {
+    date: Date;
+    onDateSelect: (date: Date) => void;
+  }) => React.ReactNode;
+  renderYearView?: ({
+    date,
+    onMonthSelect,
+  }: {
+    date: Date;
+    onMonthSelect: (date: Date) => void;
+  }) => React.ReactNode;
+  renderDayView?: ({
+    date,
+    onDateSelect,
+  }: {
+    date: Date;
+    onDateSelect: (date: Date) => void;
+  }) => React.ReactNode;
   customTheme?: { [key: string]: string };
   dayViewClassName?: string;
   monthViewClassName?: string;
@@ -93,9 +155,22 @@ export interface CalendarProps {
     footer?: React.CSSProperties;
   };
   holidayDates?: Date[];
-  renderCustomFooter?: ({ selectedValue, activeDate }: { selectedValue: Date | [Date, Date] | null; activeDate: Date }) => React.ReactNode;
+  renderCustomFooter?: ({
+    selectedValue,
+    activeDate,
+  }: {
+    selectedValue: Date | [Date, Date] | null;
+    activeDate: Date;
+  }) => React.ReactNode;
   disabledViews?: string[];
   onClickEvent?: (event: Event) => void;
-  renderEvent?: ({ event, date }: { event: Event; date: Date }) => React.ReactNode;
+  renderEvent?: ({
+    event,
+    date,
+  }: {
+    event: Event;
+    date: Date;
+  }) => React.ReactNode;
   selectOnEventClick?: boolean;
+  theme?: "light" | "dark" | string;
 }

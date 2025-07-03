@@ -1,6 +1,6 @@
-import React, { useCallback, useState } from 'react';
-import { getDaysInMonth, getWeeksInMonth } from '../utils/dateUtils';
-import Day from './Day';
+import React, { useCallback, useState } from "react";
+import { getDaysInMonth, getWeeksInMonth } from "../utils/dateUtils";
+import Day from "./Day";
 
 const MonthView = ({
   date,
@@ -15,7 +15,7 @@ const MonthView = ({
   formatDay,
   formatWeekday,
   formatShortWeekday,
-  weekdayFormat = 'short',
+  weekdayFormat = "short",
   locale,
   calendarType,
   onDrillDown,
@@ -35,14 +35,14 @@ const MonthView = ({
 
   const handleKeyDown = useCallback(
     (e, dayInfo) => {
-      if (e.key === 'Enter' || e.key === ' ') {
+      if (e.key === "Enter" || e.key === " ") {
         e.preventDefault();
         if (!tileDisabled?.({ date: dayInfo.date })) {
           onDateSelect(dayInfo.date);
         }
       }
     },
-    [onDateSelect, tileDisabled]
+    [onDateSelect, tileDisabled],
   );
 
   const handleMouseDown = useCallback(
@@ -52,17 +52,17 @@ const MonthView = ({
         onDateSelect(dayInfo.date);
       }
     },
-    [onDateSelect, tileDisabled]
+    [onDateSelect, tileDisabled],
   );
 
   const handleMouseOver = useCallback(
     (date) => {
       if (!tileDisabled?.({ date })) {
-        console.log('Mouse over date:', date.toISOString());
+        console.log("Mouse over date:", date.toISOString());
         onHover?.(date);
       }
     },
-    [onHover, tileDisabled]
+    [onHover, tileDisabled],
   );
 
   const handleMouseUp = useCallback(() => {
@@ -77,7 +77,7 @@ const MonthView = ({
         onDateSelect(date);
       }
     },
-    [onDateSelect, tileDisabled]
+    [onDateSelect, tileDisabled],
   );
 
   const handleTouchMove = useCallback(
@@ -87,7 +87,7 @@ const MonthView = ({
         onHover?.(date);
       }
     },
-    [onHover, tileDisabled]
+    [onHover, tileDisabled],
   );
 
   const handleTouchEnd = useCallback(() => {
@@ -95,21 +95,31 @@ const MonthView = ({
   }, []);
 
   const getWeekdayLabel = (index) => {
-    const weekdayDate = new Date(today.getFullYear(), 0, ((index + weekStartDay) % 7) + 1); 
+    const weekdayDate = new Date(
+      today.getFullYear(),
+      0,
+      ((index + weekStartDay) % 7) + 1,
+    );
     if (formatWeekday) {
       return formatWeekday(weekdayDate, locale);
     }
-    if (weekdayFormat === 'full') {
-      return weekdayDate.toLocaleString(locale, { weekday: 'long' }).toUpperCase();
-    } else if (weekdayFormat === 'short') {
+    if (weekdayFormat === "full") {
+      return weekdayDate
+        .toLocaleString(locale, { weekday: "long" })
+        .toUpperCase();
+    } else if (weekdayFormat === "short") {
       return formatShortWeekday
         ? formatShortWeekday(weekdayDate, locale)
-        : weekdayDate.toLocaleString(locale, { weekday: 'short' }).toUpperCase();
-    } else if (weekdayFormat === 'minimal') {
-      const minimalDays = ['SU', 'MO', 'TU', 'WE', 'TH', 'FR', 'SA'];
+        : weekdayDate
+            .toLocaleString(locale, { weekday: "short" })
+            .toUpperCase();
+    } else if (weekdayFormat === "minimal") {
+      const minimalDays = ["SU", "MO", "TU", "WE", "TH", "FR", "SA"];
       return minimalDays[(index + weekStartDay) % 7];
     }
-    return ['SUN', 'MON', 'TUE', 'WED', 'THU', 'FRI', 'SAT'][(index + weekStartDay) % 7];
+    return ["SUN", "MON", "TUE", "WED", "THU", "FRI", "SAT"][
+      (index + weekStartDay) % 7
+    ];
   };
 
   const renderMonth = (monthOffset = 0) => {
@@ -120,15 +130,18 @@ const MonthView = ({
       weekStartDay,
       calendarType,
       showFixedNumberOfWeeks,
-      showNeighboringMonth
+      showNeighboringMonth,
     );
-    const weeks = showWeekNumbers ? getWeeksInMonth(displayDate, weekStartDay) : [];
+    const weeks = showWeekNumbers
+      ? getWeeksInMonth(displayDate, weekStartDay)
+      : [];
 
     const rangeStart = Array.isArray(value) ? value[0] : null;
-    const rangeEnd = Array.isArray(value) && value.length === 2 ? value[1] : null;
+    const rangeEnd =
+      Array.isArray(value) && value.length === 2 ? value[1] : null;
 
     return (
-      <div className={`calendar-instance ${className || ''}`}>
+      <div className={`calendar-instance ${className || ""}`}>
         <div className="calendar-weekdays">
           {showWeekNumbers && <div className="weekday week-number">Week</div>}
           {Array.from({ length: 7 }).map((_, index) => {
@@ -138,7 +151,7 @@ const MonthView = ({
             return (
               <div
                 key={index}
-                className={`weekday ${isSaturday ? 'saturday' : ''} ${isSunday ? 'sunday' : ''}`}
+                className={`weekday ${isSaturday ? "saturday" : ""} ${isSunday ? "sunday" : ""}`}
               >
                 {getWeekdayLabel(index)}
               </div>
@@ -157,26 +170,47 @@ const MonthView = ({
                 key={`week-${index}`}
                 className="week-number"
                 onClick={() =>
-                  onClickWeekNumber?.(week, new Date(displayDate.getFullYear(), displayDate.getMonth(), 1))
+                  onClickWeekNumber?.(
+                    week,
+                    new Date(
+                      displayDate.getFullYear(),
+                      displayDate.getMonth(),
+                      1,
+                    ),
+                  )
                 }
               >
                 {week}
               </button>
             ))}
           {days.map((dayInfo, index) => {
-            const isToday = dayInfo.date.toDateString() === today.toDateString();
+            const isToday =
+              dayInfo.date.toDateString() === today.toDateString();
             const isSaturday = dayInfo.date.getDay() === 6;
             const isSunday = dayInfo.date.getDay() === 0;
             const isDisabled = tileDisabled?.({ date: dayInfo.date });
-            const isSelectedStart = rangeStart && dayInfo.date.toDateString() === rangeStart.toDateString();
-            const isSelectedEnd = rangeEnd && dayInfo.date.toDateString() === rangeEnd.toDateString();
-            const isInRange = rangeStart && rangeEnd && dayInfo.date > rangeStart && dayInfo.date < rangeEnd;
-            const event = events.find((e) => e.date.toDateString() === dayInfo.date.toDateString());
+            const isSelectedStart =
+              rangeStart &&
+              dayInfo.date.toDateString() === rangeStart.toDateString();
+            const isSelectedEnd =
+              rangeEnd &&
+              dayInfo.date.toDateString() === rangeEnd.toDateString();
+            const isInRange =
+              rangeStart &&
+              rangeEnd &&
+              dayInfo.date > rangeStart &&
+              dayInfo.date < rangeEnd;
+            const event = events.find(
+              (e) => e.date.toDateString() === dayInfo.date.toDateString(),
+            );
 
             return (
               <button
                 key={index}
-                onClick={() => !isDisabled && (event ? onClickEvent?.(event) : onDateSelect(dayInfo.date))}
+                onClick={() =>
+                  !isDisabled &&
+                  (event ? onClickEvent?.(event) : onDateSelect(dayInfo.date))
+                }
                 onDoubleClick={() => !isDisabled && onDrillDown?.()}
                 onMouseDown={() => handleMouseDown(dayInfo)}
                 onMouseEnter={() => handleMouseOver(dayInfo.date)}
@@ -184,32 +218,40 @@ const MonthView = ({
                 onTouchMove={(e) => handleTouchMove(e, dayInfo.date)}
                 disabled={isDisabled}
                 className={`calendar-day
-                  ${isToday ? 'today' : ''}
-                  ${isSaturday ? 'saturday' : ''}
-                  ${isSunday ? 'sunday' : ''}
-                  ${!dayInfo.isCurrentMonth ? 'adjacent-month' : ''}
-                  ${tileClassName?.({ date: dayInfo.date }) || ''}
-                  ${isDisabled ? 'disabled' : ''}
-                  ${isSelectedStart ? 'selected-start' : ''}
-                  ${isSelectedEnd ? 'selected-end' : ''}
-                  ${isInRange ? 'in-range' : ''}`.trim()}
+                  ${isToday ? "today" : ""}
+                  ${isSaturday ? "saturday" : ""}
+                  ${isSunday ? "sunday" : ""}
+                  ${!dayInfo.isCurrentMonth ? "adjacent-month" : ""}
+                  ${tileClassName?.({ date: dayInfo.date }) || ""}
+                  ${isDisabled ? "disabled" : ""}
+                  ${isSelectedStart ? "selected-start" : ""}
+                  ${isSelectedEnd ? "selected-end" : ""}
+                  ${isInRange ? "in-range" : ""}`.trim()}
                 aria-label={`Select ${dayInfo.date.toLocaleDateString(locale, {
-                  month: 'long',
-                  day: 'numeric',
-                  year: 'numeric',
+                  month: "long",
+                  day: "numeric",
+                  year: "numeric",
                 })}`}
                 tabIndex={isDisabled ? -1 : 0}
               >
                 {tileContent ? (
-                  tileContent({ date: dayInfo.date, view: 'month', event })
+                  tileContent({ date: dayInfo.date, view: "month", event })
                 ) : event ? (
                   renderEvent ? (
                     renderEvent({ event, date: dayInfo.date })
                   ) : (
-                    <Day dayInfo={dayInfo} formatDay={formatDay} locale={locale} />
+                    <Day
+                      dayInfo={dayInfo}
+                      formatDay={formatDay}
+                      locale={locale}
+                    />
                   )
                 ) : (
-                  <Day dayInfo={dayInfo} formatDay={formatDay} locale={locale} />
+                  <Day
+                    dayInfo={dayInfo}
+                    formatDay={formatDay}
+                    locale={locale}
+                  />
                 )}
               </button>
             );
@@ -220,7 +262,9 @@ const MonthView = ({
   };
 
   return (
-    <div className={`calendar-container ${showDoubleView ? 'double-view' : ''}`}>
+    <div
+      className={`calendar-container ${showDoubleView ? "double-view" : ""}`}
+    >
       {showDoubleView ? (
         <>
           {renderMonth(0)}

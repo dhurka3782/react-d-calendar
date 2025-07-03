@@ -1,8 +1,16 @@
-import { getISOWeek } from 'date-fns';
+import { getISOWeek } from "date-fns";
 
-export const getDaysInMonth = (date, weekStartDay = 1, calendarType = 'gregorian', showFixedNumberOfWeeks = false, showNeighboringMonth = true) => {
-  if (calendarType !== 'gregorian') {
-    throw new Error(`Unsupported calendar type: ${calendarType}. Only 'gregorian' is supported.`);
+export const getDaysInMonth = (
+  date,
+  weekStartDay = 1,
+  calendarType = "gregorian",
+  showFixedNumberOfWeeks = false,
+  showNeighboringMonth = true,
+) => {
+  if (calendarType !== "gregorian") {
+    throw new Error(
+      `Unsupported calendar type: ${calendarType}. Only 'gregorian' is supported.`,
+    );
   }
 
   const year = date.getFullYear();
@@ -16,17 +24,26 @@ export const getDaysInMonth = (date, weekStartDay = 1, calendarType = 'gregorian
   if (showNeighboringMonth) {
     const prevMonthLastDay = new Date(year, month, 0);
     for (let i = firstDayIndex - 1; i >= 0; i--) {
-      days.push({ date: new Date(year, month - 1, prevMonthLastDay.getDate() - i), isCurrentMonth: false });
+      days.push({
+        date: new Date(year, month - 1, prevMonthLastDay.getDate() - i),
+        isCurrentMonth: false,
+      });
     }
   }
 
-  for (let d = new Date(firstDayOfMonth); d <= lastDayOfMonth; d.setDate(d.getDate() + 1)) {
+  for (
+    let d = new Date(firstDayOfMonth);
+    d <= lastDayOfMonth;
+    d.setDate(d.getDate() + 1)
+  ) {
     days.push({ date: new Date(d), isCurrentMonth: true });
   }
 
   if (showNeighboringMonth || showFixedNumberOfWeeks) {
     const totalDays = days.length;
-    const remainingDays = showFixedNumberOfWeeks ? 42 - totalDays : (Math.ceil(totalDays / 7) * 7) - totalDays;
+    const remainingDays = showFixedNumberOfWeeks
+      ? 42 - totalDays
+      : Math.ceil(totalDays / 7) * 7 - totalDays;
     for (let i = 1; i <= remainingDays; i++) {
       days.push({ date: new Date(year, month + 1, i), isCurrentMonth: false });
     }
@@ -58,7 +75,10 @@ export const getMonthsInYear = (date, showNeighboringDecade = false) => {
 export const getDecadesInCentury = (date, showNeighboringCentury = false) => {
   const year = date.getFullYear();
   const decadeStart = Math.floor(year / 10) * 10;
-  const decades = Array.from({ length: 10 }, (_, i) => new Date(decadeStart + i * 10, 0, 1));
+  const decades = Array.from(
+    { length: 10 },
+    (_, i) => new Date(decadeStart + i * 10, 0, 1),
+  );
   if (showNeighboringCentury) {
     decades.unshift(new Date(decadeStart - 10, 0, 1));
     decades.push(new Date(decadeStart + 100, 0, 1));
@@ -76,5 +96,7 @@ export function sanitizeDate(d, fallback = new Date()) {
 }
 
 export function sanitizeDateArray(arr, fallback = []) {
-  return Array.isArray(arr) ? arr.filter(isValidDate).map((d) => new Date(d)) : fallback;
+  return Array.isArray(arr)
+    ? arr.filter(isValidDate).map((d) => new Date(d))
+    : fallback;
 }

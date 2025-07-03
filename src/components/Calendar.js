@@ -1,13 +1,19 @@
-import React, { useState, useCallback, useRef, useMemo, useEffect } from 'react';
-import PropTypes from 'prop-types';
-import { ChevronLeft, ChevronRight } from 'lucide-react';
-import Header from './Header';
-import MonthView from './MonthView';
-import YearView from './YearView';
-import DayView from './DayView';
-import DecadeView from './DecadeView';
-import { getDaysInMonth, getWeeksInMonth } from '../utils/dateUtils';
-import './styles.css';
+import React, {
+  useState,
+  useCallback,
+  useRef,
+  useMemo,
+  useEffect,
+} from "react";
+import PropTypes from "prop-types";
+import { ChevronLeft, ChevronRight } from "lucide-react";
+import Header from "./Header";
+import MonthView from "./MonthView";
+import YearView from "./YearView";
+import DayView from "./DayView";
+import DecadeView from "./DecadeView";
+import { getDaysInMonth, getWeeksInMonth } from "../utils/dateUtils";
+import "./styles.css";
 
 const Calendar = (props) => {
   const {
@@ -20,19 +26,19 @@ const Calendar = (props) => {
     maxDate,
     disableDate,
     disableYear,
-    selectionMode = 'single',
-    calendarType = 'gregorian',
-    locale = 'en-US',
+    selectionMode = "single",
+    calendarType = "gregorian",
+    locale = "en-US",
     showDoubleView = false,
     showFixedNumberOfWeeks = false,
     showNavigation = true,
     showNeighboringMonth = true,
     showNeighboringDecade = true,
     showWeekNumbers = false,
-    defaultView = 'month',
-    maxDetail = 'month',
-    minDetail = 'year',
-    theme = 'light',
+    defaultView = "month",
+    maxDetail = "month",
+    minDetail = "year",
+    theme = "light",
     events = [],
     rangeLimit = null,
     formatDay,
@@ -42,16 +48,16 @@ const Calendar = (props) => {
     formatWeekday,
     formatShortWeekday,
     formatLongDate,
-    weekdayFormat = 'short',
-    dateFormat = 'mm/dd/yyyy',
+    weekdayFormat = "short",
+    dateFormat = "mm/dd/yyyy",
     includeTime = false,
     navigationLabel,
     navigationAriaLabel,
     navigationAriaLive,
     prevLabel = <ChevronLeft size={18} />,
-    prevAriaLabel = 'Previous',
+    prevAriaLabel = "Previous",
     nextLabel = <ChevronRight size={18} />,
-    nextAriaLabel = 'Next',
+    nextAriaLabel = "Next",
     prev2Label,
     prev2AriaLabel,
     next2Label,
@@ -67,7 +73,7 @@ const Calendar = (props) => {
     tileClassName,
     tileContent,
     tileDisabled,
-    className = '',
+    className = "",
     style = {},
     inputRef,
     renderHeader,
@@ -87,7 +93,6 @@ const Calendar = (props) => {
     onClickEvent,
     renderEvent = () => null,
     selectOnEventClick = true,
-    // New props for flexible disabling
     disableBeforeToday = false,
     customDisabledDates = [],
     customDisabledYears = [],
@@ -95,26 +100,44 @@ const Calendar = (props) => {
   } = props;
 
   // Validate props
-  if (calendarType !== 'gregorian') {
-    throw new Error(`Unsupported calendar type: ${calendarType}. Only 'gregorian' is supported.`);
+  if (calendarType !== "gregorian") {
+    throw new Error(
+      `Unsupported calendar type: ${calendarType}. Only 'gregorian' is supported.`,
+    );
   }
   if (weekStartDay < 0 || weekStartDay > 6) {
-    console.warn(`Invalid weekStartDay: ${weekStartDay}. Defaulting to 1 (Monday).`);
+    console.warn(
+      `Invalid weekStartDay: ${weekStartDay}. Defaulting to 1 (Monday).`,
+    );
     props.weekStartDay = 1;
   }
-  const validDateFormats = ['mm/dd/yyyy', 'dd/mm/yyyy', 'yyyy-mm-dd', 'mm-dd-yyyy', 'dd-mm-yyyy'];
+  const validDateFormats = [
+    "mm/dd/yyyy",
+    "dd/mm/yyyy",
+    "yyyy-mm-dd",
+    "mm-dd-yyyy",
+    "dd-mm-yyyy",
+  ];
   if (!validDateFormats.includes(dateFormat)) {
-    console.warn(`Invalid dateFormat: ${dateFormat}. Defaulting to 'mm/dd/yyyy'.`);
-    props.dateFormat = 'mm/dd/yyyy';
+    console.warn(
+      `Invalid dateFormat: ${dateFormat}. Defaulting to 'mm/dd/yyyy'.`,
+    );
+    props.dateFormat = "mm/dd/yyyy";
   }
-  if (!['single', 'range'].includes(selectionMode)) {
-    console.warn(`Invalid selectionMode: ${selectionMode}. Defaulting to 'single'.`);
-    props.selectionMode = 'single';
+  if (!["single", "range"].includes(selectionMode)) {
+    console.warn(
+      `Invalid selectionMode: ${selectionMode}. Defaulting to 'single'.`,
+    );
+    props.selectionMode = "single";
   }
 
   const [currentView, setCurrentView] = useState(defaultView);
-  const [activeDate, setActiveDate] = useState(activeStartDate || defaultActiveStartDate || date);
-  const [selectedValue, setSelectedValue] = useState(value || defaultValue || null);
+  const [activeDate, setActiveDate] = useState(
+    activeStartDate || defaultActiveStartDate || date,
+  );
+  const [selectedValue, setSelectedValue] = useState(
+    value || defaultValue || null,
+  );
   const [internalRangeStart, setInternalRangeStart] = useState(null);
   const controlledRangeStart = props.rangeStart ?? internalRangeStart;
   const hoverRef = useRef(null);
@@ -124,7 +147,11 @@ const Calendar = (props) => {
   today.setHours(0, 0, 0, 0);
 
   useEffect(() => {
-    if (!activeStartDate && !defaultActiveStartDate && (!activeDate || activeDate.getFullYear() < today.getFullYear())) {
+    if (
+      !activeStartDate &&
+      !defaultActiveStartDate &&
+      (!activeDate || activeDate.getFullYear() < today.getFullYear())
+    ) {
       setActiveDate(new Date(today.getFullYear(), 0, 1));
     }
   }, [activeStartDate, defaultActiveStartDate, activeDate, today]);
@@ -133,9 +160,9 @@ const Calendar = (props) => {
     (newView) => {
       if (
         disabledViews.includes(newView) ||
-        (newView === 'day' && maxDetail === 'month') ||
-        (newView === 'year' && minDetail === 'month') ||
-        (newView === 'decade' && minDetail === 'year')
+        (newView === "day" && maxDetail === "month") ||
+        (newView === "year" && minDetail === "month") ||
+        (newView === "decade" && minDetail === "year")
       ) {
         return;
       }
@@ -143,7 +170,7 @@ const Calendar = (props) => {
       setCurrentView(newView);
       onViewChange?.({ view: newView });
     },
-    [maxDetail, minDetail, onViewChange, currentView, disabledViews]
+    [maxDetail, minDetail, onViewChange, currentView, disabledViews],
   );
 
   const handleBackView = useCallback(() => {
@@ -160,12 +187,12 @@ const Calendar = (props) => {
       setActiveDate(newDate);
       onActiveStartDateChange?.({ activeStartDate: newDate });
     },
-    [onActiveStartDateChange]
+    [onActiveStartDateChange],
   );
 
   const handleDateSelect = useCallback(
     (date) => {
-      if (selectionMode === 'range') {
+      if (selectionMode === "range") {
         if (!controlledRangeStart) {
           setInternalRangeStart(date);
           setSelectedValue([date]);
@@ -191,19 +218,38 @@ const Calendar = (props) => {
         onChange?.(date);
       }
     },
-    [selectionMode, controlledRangeStart, onChange, rangeLimit]
+    [selectionMode, controlledRangeStart, onChange, rangeLimit],
   );
+  const [systemTheme, setSystemTheme] = useState("light");
+  useEffect(() => {
+    const mediaQuery = window.matchMedia("(prefers-color-scheme: dark)");
+    setSystemTheme(mediaQuery.matches ? "dark" : "light");
+    const handler = (e) => setSystemTheme(e.matches ? "dark" : "light");
+    mediaQuery.addEventListener("change", handler);
+    return () => mediaQuery.removeEventListener("change", handler);
+  }, []);
+
+  const appliedTheme = theme === "system" ? systemTheme : theme;
 
   const isDateDisabled = useCallback(
     (date) => {
       const isBeforeToday = disableBeforeToday && date < today;
-      const isCustomDisabled = customDisabledDates.some((d) => d.toDateString() === date.toDateString());
+      const isCustomDisabled = customDisabledDates.some(
+        (d) => d.toDateString() === date.toDateString(),
+      );
       if (minDate && date < minDate) return true;
       if (maxDate && date > maxDate) return true;
       if (disableDate) return disableDate(date);
       return isBeforeToday || isCustomDisabled;
     },
-    [minDate, maxDate, disableDate, disableBeforeToday, customDisabledDates, today]
+    [
+      minDate,
+      maxDate,
+      disableDate,
+      disableBeforeToday,
+      customDisabledDates,
+      today,
+    ],
   );
 
   const isYearDisabled = useCallback(
@@ -214,24 +260,30 @@ const Calendar = (props) => {
       if (disableYear) return disableYear(year);
       return isBeforeCurrentYear || isCustomDisabled;
     },
-    [disableYear, customDisabledYears, today]
+    [disableYear, customDisabledYears, today],
   );
 
   const isMonthDisabled = useCallback(
     (monthDate) => {
-      const isBeforeToday = disableBeforeToday && monthDate < new Date(today.getFullYear(), today.getMonth(), 1);
-      const isCustomDisabled = customDisabledMonths.some((m) => m.year === monthDate.getFullYear() && m.month === monthDate.getMonth());
+      const isBeforeToday =
+        disableBeforeToday &&
+        monthDate < new Date(today.getFullYear(), today.getMonth(), 1);
+      const isCustomDisabled = customDisabledMonths.some(
+        (m) =>
+          m.year === monthDate.getFullYear() &&
+          m.month === monthDate.getMonth(),
+      );
       if (disableYear) return disableYear(monthDate.getFullYear());
       return isBeforeToday || isCustomDisabled;
     },
-    [disableYear, disableBeforeToday, customDisabledMonths, today]
+    [disableYear, disableBeforeToday, customDisabledMonths, today],
   );
 
   const handleHover = useCallback(
     (date) => {
-      if (selectionMode === 'range' && controlledRangeStart) {
-        if (process.env.NODE_ENV === 'development') {
-          console.log('Hovering date:', date.toISOString());
+      if (selectionMode === "range" && controlledRangeStart) {
+        if (process.env.NODE_ENV === "development") {
+          console.log("Hovering date:", date.toISOString());
         }
         hoverRef.current = date;
         setControlledHoveredDate(date);
@@ -240,66 +292,97 @@ const Calendar = (props) => {
         }
       }
     },
-    [selectionMode, controlledRangeStart, onRangeHover, tileDisabled]
+    [selectionMode, controlledRangeStart, onRangeHover, tileDisabled],
   );
 
   const handleKeyDown = useCallback(
     (e) => {
-      if (currentView !== 'month') return;
+      if (currentView !== "month") return;
       const newDate = new Date(activeDate);
       let nextButton;
       switch (e.key) {
-        case 'ArrowLeft':
+        case "ArrowLeft":
           newDate.setDate(newDate.getDate() - 1);
           handleActiveDateChange(newDate);
-          nextButton = document.querySelector(`.calendar-day[aria-label*="Select ${newDate.toLocaleDateString(locale)}"]`);
+          nextButton = document.querySelector(
+            `.calendar-day[aria-label*="Select ${newDate.toLocaleDateString(locale)}"]`,
+          );
           nextButton?.focus();
           break;
-        case 'ArrowRight':
+        case "ArrowRight":
           newDate.setDate(newDate.getDate() + 1);
           handleActiveDateChange(newDate);
-          nextButton = document.querySelector(`.calendar-day[aria-label*="Select ${newDate.toLocaleDateString(locale)}"]`);
+          nextButton = document.querySelector(
+            `.calendar-day[aria-label*="Select ${newDate.toLocaleDateString(locale)}"]`,
+          );
           nextButton?.focus();
           break;
-        case 'ArrowUp':
+        case "ArrowUp":
           newDate.setDate(newDate.getDate() - 7);
           handleActiveDateChange(newDate);
-          nextButton = document.querySelector(`.calendar-day[aria-label*="Select ${newDate.toLocaleDateString(locale)}"]`);
+          nextButton = document.querySelector(
+            `.calendar-day[aria-label*="Select ${newDate.toLocaleDateString(locale)}"]`,
+          );
           nextButton?.focus();
           break;
-        case 'ArrowDown':
+        case "ArrowDown":
           newDate.setDate(newDate.getDate() + 7);
           handleActiveDateChange(newDate);
-          nextButton = document.querySelector(`.calendar-day[aria-label*="Select ${newDate.toLocaleDateString(locale)}"]`);
+          nextButton = document.querySelector(
+            `.calendar-day[aria-label*="Select ${newDate.toLocaleDateString(locale)}"]`,
+          );
           nextButton?.focus();
           break;
-        case 'Enter':
+        case "Enter":
           if (!isDateDisabled(activeDate)) {
             handleDateSelect(activeDate);
           }
           break;
-        case 'Backspace':
+        case "Backspace":
           handleBackView();
           break;
         default:
           break;
       }
     },
-    [currentView, activeDate, handleActiveDateChange, handleDateSelect, isDateDisabled, handleBackView, locale]
+    [
+      currentView,
+      activeDate,
+      handleActiveDateChange,
+      handleDateSelect,
+      isDateDisabled,
+      handleBackView,
+      locale,
+    ],
   );
 
   const getTileClassName = useCallback(
     ({ date }) => {
-      const baseClasses = tileClassName?.({ date }) || '';
-      const event = events.find((e) => e.date.toDateString() === date.toDateString());
-      const eventClasses = event ? `has-event event-${event.type || 'default'}` : '';
+      const baseClasses = tileClassName?.({ date }) || "";
+      const event = events.find(
+        (e) => e.date.toDateString() === date.toDateString(),
+      );
+      const eventClasses = event
+        ? `has-event event-${event.type || "default"}`
+        : "";
       const holidayClasses = holidayDates.some(
-        (holiday) => holiday.toDateString() === date.toDateString()
-      ) ? 'holiday' : '';
+        (holiday) => holiday.toDateString() === date.toDateString(),
+      )
+        ? "holiday"
+        : "";
 
-      if (selectionMode === 'range' && controlledRangeStart && controlledHoveredDate) {
-        if (process.env.NODE_ENV === 'development') {
-          console.log('Applying hover classes for date:', date.toISOString(), 'hover:', controlledHoveredDate.toISOString());
+      if (
+        selectionMode === "range" &&
+        controlledRangeStart &&
+        controlledHoveredDate
+      ) {
+        if (process.env.NODE_ENV === "development") {
+          console.log(
+            "Applying hover classes for date:",
+            date.toISOString(),
+            "hover:",
+            controlledHoveredDate.toISOString(),
+          );
         }
         const [start, end] =
           controlledRangeStart < controlledHoveredDate
@@ -307,7 +390,7 @@ const Calendar = (props) => {
             : [controlledHoveredDate, controlledRangeStart];
 
         if (date >= start && date <= end) {
-          return `${baseClasses} range-preview ${date.toDateString() === controlledHoveredDate.toDateString() ? 'hover-range-end' : ''} ${eventClasses} ${holidayClasses}`.trim();
+          return `${baseClasses} range-preview ${date.toDateString() === controlledHoveredDate.toDateString() ? "hover-range-end" : ""} ${eventClasses} ${holidayClasses}`.trim();
         }
 
         if (date.toDateString() === controlledRangeStart.toDateString()) {
@@ -326,56 +409,85 @@ const Calendar = (props) => {
         if (start && end && date > start && date < end) {
           return `${baseClasses} in-range ${eventClasses} ${holidayClasses}`.trim();
         }
-      } else if (selectedValue && date.toDateString() === selectedValue.toDateString()) {
+      } else if (
+        selectedValue &&
+        date.toDateString() === selectedValue.toDateString()
+      ) {
         return `${baseClasses} selected ${eventClasses} ${holidayClasses}`.trim();
       }
 
       return `${baseClasses} ${eventClasses} ${holidayClasses}`.trim();
     },
-    [tileClassName, selectionMode, controlledRangeStart, selectedValue, events, controlledHoveredDate, holidayDates]
+    [
+      tileClassName,
+      selectionMode,
+      controlledRangeStart,
+      selectedValue,
+      events,
+      controlledHoveredDate,
+      holidayDates,
+    ],
   );
 
   const memoizedTileContent = useMemo(
     () =>
       ({ date, view }) => {
-        const event = events.find((e) => e.date.toDateString() === date.toDateString());
-        if (event && view === 'month') {
+        const event = events.find(
+          (e) => e.date.toDateString() === date.toDateString(),
+        );
+        if (event && view === "month") {
           return (
             <>
-              <div className="event-indicator" style={{ backgroundColor: event.color || '#295d96' }}>
+              <div
+                className="event-indicator"
+                style={{ backgroundColor: event.color || "#295d96" }}
+              >
                 {tileContent ? tileContent({ date, view }) : date.getDate()}
               </div>
               <span id={`event-${date.toISOString()}`} className="sr-only">
-                {event.title || 'Event'}
+                {event.title || "Event"}
               </span>
             </>
           );
         }
         return tileContent ? tileContent({ date, view }) : null;
       },
-    [events, tileContent]
+    [events, tileContent],
   );
 
   const memoizedDays = useMemo(() => {
-    const firstDays = getDaysInMonth(activeDate, weekStartDay, calendarType, showFixedNumberOfWeeks, showNeighboringMonth);
+    const firstDays = getDaysInMonth(
+      activeDate,
+      weekStartDay,
+      calendarType,
+      showFixedNumberOfWeeks,
+      showNeighboringMonth,
+    );
     const secondDays = showDoubleView
       ? getDaysInMonth(
-        new Date(activeDate.getFullYear(), activeDate.getMonth() + 1),
-        weekStartDay,
-        calendarType,
-        showFixedNumberOfWeeks,
-        showNeighboringMonth
-      )
+          new Date(activeDate.getFullYear(), activeDate.getMonth() + 1),
+          weekStartDay,
+          calendarType,
+          showFixedNumberOfWeeks,
+          showNeighboringMonth,
+        )
       : [];
     return {
       first: firstDays.map((d) => ({ ...d })),
       second: secondDays.map((d) => ({ ...d })),
     };
-  }, [activeDate, weekStartDay, calendarType, showFixedNumberOfWeeks, showNeighboringMonth, showDoubleView]);
+  }, [
+    activeDate,
+    weekStartDay,
+    calendarType,
+    showFixedNumberOfWeeks,
+    showNeighboringMonth,
+    showDoubleView,
+  ]);
 
   const renderView = () => {
     switch (currentView) {
-      case 'day':
+      case "day":
         return renderDayView ? (
           renderDayView({ date: activeDate, onDateSelect: handleDateSelect })
         ) : (
@@ -392,7 +504,7 @@ const Calendar = (props) => {
             includeTime={includeTime}
             locale={locale}
             onDrillUp={() => {
-              handleViewChange('month');
+              handleViewChange("month");
               onDrillUp?.();
             }}
             today={today}
@@ -403,7 +515,7 @@ const Calendar = (props) => {
             selectOnEventClick={selectOnEventClick}
           />
         );
-      case 'year':
+      case "year":
         return renderYearView ? (
           renderYearView({ date: activeDate, onMonthSelect })
         ) : (
@@ -412,7 +524,7 @@ const Calendar = (props) => {
             value={selectedValue}
             onMonthSelect={(monthDate) => {
               handleActiveDateChange(monthDate);
-              handleViewChange('month');
+              handleViewChange("month");
               onClickMonth?.(monthDate);
               onDrillDown?.();
             }}
@@ -422,20 +534,20 @@ const Calendar = (props) => {
             showNeighboringDecade={showNeighboringDecade}
             locale={locale}
             onDrillUp={() => {
-              handleViewChange('decade');
+              handleViewChange("decade");
               onDrillUp?.();
             }}
             className={yearViewClassName}
           />
         );
-      case 'decade':
+      case "decade":
         return (
           <DecadeView
             date={activeDate}
             value={selectedValue}
             onYearSelect={(yearDate) => {
               handleActiveDateChange(yearDate);
-              handleViewChange('year');
+              handleViewChange("year");
               onDrillDown?.();
             }}
             tileDisabled={isYearDisabled}
@@ -444,13 +556,13 @@ const Calendar = (props) => {
             showNeighboringCentury={showNeighboringDecade}
             locale={locale}
             onDrillUp={() => {
-              handleViewChange('year');
+              handleViewChange("year");
               onDrillUp?.();
             }}
             className={yearViewClassName}
           />
         );
-      case 'month':
+      case "month":
         return renderMonthView ? (
           renderMonthView({ date: activeDate, onDateSelect: handleDateSelect })
         ) : (
@@ -471,11 +583,11 @@ const Calendar = (props) => {
             locale={locale}
             calendarType={calendarType}
             onDrillDown={() => {
-              handleViewChange('day');
+              handleViewChange("day");
               onDrillDown?.();
             }}
             onDrillUp={() => {
-              handleViewChange('year');
+              handleViewChange("year");
               onDrillUp?.();
             }}
             showDoubleView={showDoubleView}
@@ -507,15 +619,18 @@ const Calendar = (props) => {
       return styles;
     },
     {
-      '--primary-color': customTheme.primary || '#4b6cb7',
-      '--accent-color': customTheme.accent || '#48bb78',
-      '--day-size': customTheme.daySize || '40px',
-    }
+      "--primary-color":
+        customTheme.primary ||
+        (appliedTheme === "dark" ? "#63b3ed" : "#4b6cb7"),
+      "--accent-color":
+        customTheme.accent || (appliedTheme === "dark" ? "#68d391" : "#48bb78"),
+      "--day-size": customTheme.daySize || "40px",
+    },
   );
 
   return (
     <div
-      className={`calendar ${className} ${showDoubleView ? 'double-view' : ''} theme-${theme} ${customTheme ? 'custom-theme' : ''}`}
+      className={`calendar ${className} ${showDoubleView ? "double-view" : ""} theme-${appliedTheme} ${customTheme ? "custom-theme" : ""}`}
       style={{ ...style, ...themeStyles, ...styleOverrides.calendar }}
       ref={inputRef}
       onKeyDown={handleKeyDown}
@@ -524,7 +639,11 @@ const Calendar = (props) => {
     >
       {showNavigation &&
         (renderHeader ? (
-          renderHeader({ date: activeDate, onChange: handleActiveDateChange, view: currentView })
+          renderHeader({
+            date: activeDate,
+            onChange: handleActiveDateChange,
+            view: currentView,
+          })
         ) : (
           <Header
             date={activeDate}
@@ -575,15 +694,21 @@ const Calendar = (props) => {
 
 Calendar.propTypes = {
   date: PropTypes.instanceOf(Date),
-  defaultValue: PropTypes.oneOfType([PropTypes.instanceOf(Date), PropTypes.arrayOf(PropTypes.instanceOf(Date))]),
-  value: PropTypes.oneOfType([PropTypes.instanceOf(Date), PropTypes.arrayOf(PropTypes.instanceOf(Date))]),
+  defaultValue: PropTypes.oneOfType([
+    PropTypes.instanceOf(Date),
+    PropTypes.arrayOf(PropTypes.instanceOf(Date)),
+  ]),
+  value: PropTypes.oneOfType([
+    PropTypes.instanceOf(Date),
+    PropTypes.arrayOf(PropTypes.instanceOf(Date)),
+  ]),
   defaultActiveStartDate: PropTypes.instanceOf(Date),
   activeStartDate: PropTypes.instanceOf(Date),
   minDate: PropTypes.instanceOf(Date),
   maxDate: PropTypes.instanceOf(Date),
   disableDate: PropTypes.func,
   disableYear: PropTypes.func,
-  selectionMode: PropTypes.oneOf(['single', 'range']),
+  selectionMode: PropTypes.oneOf(["single", "range"]),
   calendarType: PropTypes.string,
   locale: PropTypes.string,
   showDoubleView: PropTypes.bool,
@@ -592,17 +717,17 @@ Calendar.propTypes = {
   showNeighboringMonth: PropTypes.bool,
   showNeighboringDecade: PropTypes.bool,
   showWeekNumbers: PropTypes.bool,
-  defaultView: PropTypes.oneOf(['day', 'month', 'year', 'decade']),
-  maxDetail: PropTypes.oneOf(['day', 'month', 'year', 'decade']),
-  minDetail: PropTypes.oneOf(['day', 'month', 'year', 'decade']),
-  theme: PropTypes.string,
+  defaultView: PropTypes.oneOf(["day", "month", "year", "decade"]),
+  maxDetail: PropTypes.oneOf(["day", "month", "year", "decade"]),
+  minDetail: PropTypes.oneOf(["day", "month", "year", "decade"]),
+  theme: PropTypes.oneOf(["light", "dark", "system", PropTypes.string]),
   events: PropTypes.arrayOf(
     PropTypes.shape({
       date: PropTypes.instanceOf(Date).isRequired,
       title: PropTypes.string,
       type: PropTypes.string,
       color: PropTypes.string,
-    })
+    }),
   ),
   rangeLimit: PropTypes.number,
   formatDay: PropTypes.func,
@@ -612,8 +737,14 @@ Calendar.propTypes = {
   formatWeekday: PropTypes.func,
   formatShortWeekday: PropTypes.func,
   formatLongDate: PropTypes.func,
-  weekdayFormat: PropTypes.oneOf(['short', 'full', 'minimal']),
-  dateFormat: PropTypes.oneOf(['mm/dd/yyyy', 'dd/mm/yyyy', 'yyyy-mm-dd', 'mm-dd-yyyy', 'dd-mm-yyyy']),
+  weekdayFormat: PropTypes.oneOf(["short", "full", "minimal"]),
+  dateFormat: PropTypes.oneOf([
+    "mm/dd/yyyy",
+    "dd/mm/yyyy",
+    "yyyy-mm-dd",
+    "mm-dd-yyyy",
+    "dd-mm-yyyy",
+  ]),
   includeTime: PropTypes.bool,
   navigationLabel: PropTypes.func,
   navigationAriaLabel: PropTypes.string,
@@ -639,7 +770,10 @@ Calendar.propTypes = {
   tileDisabled: PropTypes.func,
   className: PropTypes.string,
   style: PropTypes.object,
-  inputRef: PropTypes.oneOfType([PropTypes.func, PropTypes.shape({ current: PropTypes.any })]),
+  inputRef: PropTypes.oneOfType([
+    PropTypes.func,
+    PropTypes.shape({ current: PropTypes.any }),
+  ]),
   renderHeader: PropTypes.func,
   renderMonthView: PropTypes.func,
   renderYearView: PropTypes.func,
@@ -666,31 +800,33 @@ Calendar.propTypes = {
   disableBeforeToday: PropTypes.bool,
   customDisabledDates: PropTypes.arrayOf(PropTypes.instanceOf(Date)),
   customDisabledYears: PropTypes.arrayOf(PropTypes.number),
-  customDisabledMonths: PropTypes.arrayOf(PropTypes.shape({ year: PropTypes.number, month: PropTypes.number })),
+  customDisabledMonths: PropTypes.arrayOf(
+    PropTypes.shape({ year: PropTypes.number, month: PropTypes.number }),
+  ),
 };
 
 Calendar.defaultProps = {
   date: new Date(),
-  selectionMode: 'single',
-  calendarType: 'gregorian',
-  locale: 'en-US',
+  selectionMode: "single",
+  calendarType: "gregorian",
+  locale: "en-US",
   showDoubleView: false,
   showFixedNumberOfWeeks: false,
   showNavigation: true,
   showNeighboringMonth: true,
   showNeighboringDecade: true,
   showWeekNumbers: false,
-  defaultView: 'month',
-  maxDetail: 'month',
-  minDetail: 'year',
-  theme: 'light',
+  defaultView: "month",
+  maxDetail: "month",
+  minDetail: "year",
+  theme: "light",
   events: [],
-  weekdayFormat: 'short',
-  dateFormat: 'mm/dd/yyyy',
+  weekdayFormat: "short",
+  dateFormat: "mm/dd/yyyy",
   includeTime: false,
-  prevAriaLabel: 'Previous',
-  nextAriaLabel: 'Next',
-  className: '',
+  prevAriaLabel: "Previous",
+  nextAriaLabel: "Next",
+  className: "",
   style: {},
   customTheme: {},
   styleOverrides: {},

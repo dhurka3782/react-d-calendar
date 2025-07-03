@@ -1,7 +1,7 @@
-import React, { useCallback } from 'react';
-import PropTypes from 'prop-types';
-import { FixedSizeList } from 'react-window';
-import './styles.css';
+import React, { useCallback } from "react";
+import PropTypes from "prop-types";
+import { FixedSizeList } from "react-window";
+import "./styles.css";
 
 const YearView = ({
   date,
@@ -25,14 +25,14 @@ const YearView = ({
 
   const handleKeyDown = useCallback(
     (e, monthDate) => {
-      if (e.key === 'Enter' || e.key === ' ') {
+      if (e.key === "Enter" || e.key === " ") {
         e.preventDefault();
         if (!tileDisabled?.(monthDate)) {
           onMonthSelect(monthDate);
         }
       }
     },
-    [onMonthSelect, tileDisabled]
+    [onMonthSelect, tileDisabled],
   );
 
   const renderMonth = ({ index, style }) => {
@@ -40,11 +40,12 @@ const YearView = ({
     const isDisabled = tileDisabled?.(monthDate);
 
     const selectedDate = Array.isArray(value) ? value[0] : value;
-    const isSelected = selectedDate &&
+    const isSelected =
+      selectedDate &&
       monthDate.getMonth() === selectedDate.getMonth() &&
       monthDate.getFullYear() === selectedDate.getFullYear();
 
-    const extraClass = tileClassName?.({ date: monthDate }) || '';
+    const extraClass = tileClassName?.({ date: monthDate }) || "";
 
     return (
       <button
@@ -54,19 +55,21 @@ const YearView = ({
         onDoubleClick={() => !isDisabled && onDrillUp?.()}
         onKeyDown={(e) => handleKeyDown(e, monthDate)}
         disabled={isDisabled}
-        className={`year-month ${isSelected ? 'selected' : ''} ${monthDate.getFullYear() !== year ? 'adjacent-year' : ''} ${extraClass}`}
-        aria-label={`Select ${monthDate.toLocaleString(locale, { month: 'long', year: 'numeric' })}`}
+        className={`year-month ${isSelected ? "selected" : ""} ${monthDate.getFullYear() !== year ? "adjacent-year" : ""} ${extraClass}`}
+        aria-label={`Select ${monthDate.toLocaleString(locale, { month: "long", year: "numeric" })}`}
         tabIndex={isDisabled ? -1 : 0}
       >
         <span className="month-content">
-          {formatMonth ? formatMonth(monthDate, locale) : monthDate.toLocaleString(locale, { month: 'short' })}
+          {formatMonth
+            ? formatMonth(monthDate, locale)
+            : monthDate.toLocaleString(locale, { month: "short" })}
         </span>
       </button>
     );
   };
 
   return (
-    <div className={`year-view ${className || ''}`}>
+    <div className={`year-view ${className || ""}`}>
       <FixedSizeList
         height={300}
         width="100%"
@@ -83,7 +86,10 @@ const YearView = ({
 
 YearView.propTypes = {
   date: PropTypes.instanceOf(Date).isRequired,
-  value: PropTypes.oneOfType([PropTypes.instanceOf(Date), PropTypes.arrayOf(PropTypes.instanceOf(Date))]),
+  value: PropTypes.oneOfType([
+    PropTypes.instanceOf(Date),
+    PropTypes.arrayOf(PropTypes.instanceOf(Date)),
+  ]),
   onMonthSelect: PropTypes.func.isRequired,
   tileDisabled: PropTypes.func,
   tileClassName: PropTypes.func,
@@ -96,8 +102,8 @@ YearView.propTypes = {
 
 YearView.defaultProps = {
   showNeighboringDecade: true,
-  locale: 'en-US',
-  className: '',
+  locale: "en-US",
+  className: "",
 };
 
 export default React.memo(YearView);
